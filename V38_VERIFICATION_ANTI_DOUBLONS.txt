@@ -1,0 +1,17 @@
+V38 — Vérification anti-doublons et cohérence
+Base : V37 partenaires/footer
+
+Pages HTML vérifiées : 25
+Pages avec un seul h1 : 25 / 25
+Doublons de titres dans le contenu principal : 0
+Doublons de liens texte+destination dans le contenu principal : 0
+Liens locaux cassés : 0
+
+Corrections ciblées :
+- accueil : bouton “Je m’inscris” répété supprimé dans la section contact
+- accueil : carte “Partenaires” reliée à partenaires-institutions.html
+- page PSSR : doublon de titre supprimé, cercle conservé
+- présentation : contenus partenaires détaillés déplacés vers la page dédiée
+- sources-formation-emploi.html : remplacée par une redirection vers ressources-emploi-insertion.html
+- footer : 3 colonnes fluides, sans répétition de présentation longue
+- structure des titres : un seul h1 par page

@@ -1,0 +1,11 @@
+{
+  "collection": "admins",
+  "documentId": "aKDgnDd1ARXXFm2Pu7CT02HXzlJ2",
+  "fields": {
+    "email": "equilibrevital.bruxelles@gmail.com",
+    "role": "admin",
+    "createdAt": "2026-06-14",
+    "projectId": "pssr-site-web",
+    "siteUrl": "https://ev2025.github.io/pssr/"
+  }
+}

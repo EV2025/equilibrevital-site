@@ -1,0 +1,20 @@
+# Gardez les sources utiles, ignorez seulement les fichiers locaux
+.DS_Store
+Thumbs.db
+node_modules/
+.env
+
+# Jekyll local build
+_site/
+.jekyll-cache/
+.sass-cache/
+.jekyll-metadata
+
+# V56 — caches et exports WordPress non suivis
+wp-content/uploads/ast-block-templates-json/
+wp-content/uploads/wpforms/cache/
+wp-content/uploads/uag-plugin/
+wp-content/uploads/bp-better-messages/
+wp-content/uploads/custom-css-js/
+wp-content/uploads/elementor/
+assets/css/wordpress-extracts/

@@ -1,0 +1,16 @@
+# V39 — vérification technique
+
+Pages HTML vérifiées : 27
+Liens locaux cassés : 0
+Pages avec problème de h1 : 0
+Doublons de liens texte+destination dans le main : 0
+Boutons de déconnexion requis par JS : ajoutés dans membre, coach et admin.
+
+## Liens cassés
+Aucun.
+
+## H1
+Aucun.
+
+## Doublons de liens
+Aucun.

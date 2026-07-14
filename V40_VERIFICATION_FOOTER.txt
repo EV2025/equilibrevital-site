@@ -1,0 +1,7 @@
+V40 — vérification footer fluide
+Pages HTML vérifiées : 29
+Pages sans CSS V40 : 1
+_includes/seo-basic.html
+Correction limitée au footer : CSS V40 chargé après V39.
+Super cercle PSSR : non modifié.
+Espaces membre, coach, admin : pas de modification fonctionnelle.

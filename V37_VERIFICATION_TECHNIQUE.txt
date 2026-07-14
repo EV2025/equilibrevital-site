@@ -1,0 +1,18 @@
+V37 — Vérification technique
+
+Base : V36 performance/accessibilité.
+
+Contrôles locaux effectués :
+- Pages HTML vérifiées : 25
+- Liens locaux cassés : 0
+- Pages avec un seul h1 : 25 / 25
+- Tous les fichiers HTML chargent la couche V37 CSS/JS : oui
+- Menu principal conservé : Activités, Dispositifs, PSSR, Connexion, Je m’inscris
+- Nouvelle page partenaires : partenaires-institutions.html
+- Super cercle PSSR : non modifié
+
+Modifications principales :
+- Création de la page unique Partenaires & institutions.
+- Accès partenaires déplacé dans le footer.
+- Footer modernisé : fond doux, colonnes aérées, séparation subtile, bouton partenaire discret.
+- Composants React-ready mis à jour : Footer.jsx et src/data/navigation.js.

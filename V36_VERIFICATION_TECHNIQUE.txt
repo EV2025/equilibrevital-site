@@ -1,0 +1,35 @@
+V36 verification technique
+Base: /mnt/data/pssr-v36-performance-accessibilite
+Pages HTML: 24
+
+404.html: h1=1 css_preload=1 scripts=1 old_skip_links=0 images=0 images_with_dimensions=0
+admin/index.html: h1=1 css_preload=1 scripts=3 old_skip_links=0 images=0 images_with_dimensions=0
+avis.html: h1=1 css_preload=1 scripts=2 old_skip_links=0 images=0 images_with_dimensions=0
+calendrier.html: h1=1 css_preload=1 scripts=2 old_skip_links=0 images=0 images_with_dimensions=0
+coach/index.html: h1=1 css_preload=1 scripts=3 old_skip_links=0 images=0 images_with_dimensions=0
+confidentialite-rgpd.html: h1=1 css_preload=1 scripts=2 old_skip_links=0 images=0 images_with_dimensions=0
+dashboard.html: h1=1 css_preload=1 scripts=2 old_skip_links=0 images=0 images_with_dimensions=0
+dispositifs.html: h1=1 css_preload=1 scripts=3 old_skip_links=0 images=0 images_with_dimensions=0
+documents.html: h1=1 css_preload=1 scripts=2 old_skip_links=0 images=2 images_with_dimensions=2
+ecoles-atl.html: h1=1 css_preload=1 scripts=3 old_skip_links=0 images=0 images_with_dimensions=0
+faq.html: h1=1 css_preload=1 scripts=2 old_skip_links=0 images=0 images_with_dimensions=0
+index.html: h1=1 css_preload=1 scripts=1 old_skip_links=0 images=0 images_with_dimensions=0
+inscription.html: h1=1 css_preload=1 scripts=4 old_skip_links=0 images=0 images_with_dimensions=0
+member/dashboard.html: h1=1 css_preload=1 scripts=3 old_skip_links=0 images=0 images_with_dimensions=0
+mentions-legales.html: h1=1 css_preload=1 scripts=2 old_skip_links=0 images=0 images_with_dimensions=0
+merci.html: h1=1 css_preload=1 scripts=4 old_skip_links=0 images=1 images_with_dimensions=1
+mot-de-passe-oublie.html: h1=1 css_preload=1 scripts=3 old_skip_links=0 images=0 images_with_dimensions=0
+presentation-pssr.html: h1=1 css_preload=1 scripts=1 old_skip_links=0 images=0 images_with_dimensions=0
+pssr.html: h1=1 css_preload=1 scripts=2 old_skip_links=0 images=0 images_with_dimensions=0
+reservation.html: h1=1 css_preload=1 scripts=4 old_skip_links=0 images=0 images_with_dimensions=0
+ressources-emploi-insertion.html: h1=1 css_preload=1 scripts=2 old_skip_links=0 images=0 images_with_dimensions=0
+roadmap.html: h1=1 css_preload=1 scripts=1 old_skip_links=0 images=0 images_with_dimensions=0
+services.html: h1=1 css_preload=1 scripts=2 old_skip_links=0 images=0 images_with_dimensions=0
+sources-formation-emploi.html: h1=1 css_preload=1 scripts=2 old_skip_links=0 images=0 images_with_dimensions=0
+
+BROKEN LOCAL LINKS: 0
+
+Image check: all HTML img tags have width/height where present.
+CSS: one global v36 file, loaded via preload + noscript fallback.
+JS: v36 shell loaded with defer. Firebase/page scripts preserved when required.
+PSSR circle: no internal PSSR cycle selector modified by HTML patch; CSS contains explicit exclusion note.

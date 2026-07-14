@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Merci — Équilibre Vital / PSSR</title>
+<style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f5ff;
+      color: #4b2e83;
+      padding: 20px;
+      text-align: center;
+    }
+    .logo {
+      max-width: 200px;
+      margin-bottom: 20px;
+    }
+    .confirmation {
+      background: #e0d4f7;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+    .quiz {
+      background: #fff;
+      border: 2px solid #c3b1e1;
+      border-radius: 10px;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    .question {
+      margin-bottom: 20px;
+    }
+    button {
+      margin: 5px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background: #7a4fcf;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #5e3aa3;
+    }
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    .return-btn {
+      margin-top: 30px;
+      display: inline-block;
+      padding: 12px 25px;
+      background: #4b2e83;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+  </style>
+<meta content="#FFF7FB" name="theme-color"/>
+<meta content="light" name="color-scheme"/>
+<style>body{margin:0;font-family:Inter,Manrope,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fff8fc;color:#21112b}img{max-width:100%;height:auto}main{min-height:54vh}.ev36-header{position:sticky;top:0;z-index:5000}</style>
+
+  <style>:root{--brand-bg:#FFF7FB;--brand-section:#F5ECFF;--brand-surface:#FFFFFF;--brand-text:#24112F;--brand-body:#4D315E;--brand-primary:#D92E83;--brand-secondary:#7C3AED;--brand-border:#C9AEEA;--font:Inter,Manrope,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--page-max:min(1480px,calc(100vw - 64px));--content-max:1180px;--radius-lg:34px}*{box-sizing:border-box}html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}body{margin:0;min-width:320px;overflow-x:hidden;font-family:var(--font);color:var(--brand-body);font-size:17px;line-height:1.68;background:radial-gradient(900px 520px at 8% -8%,rgba(217,46,131,.13),transparent 62%),radial-gradient(900px 520px at 92% 0,rgba(124,58,237,.14),transparent 64%),linear-gradient(135deg,var(--brand-bg) 0,var(--brand-section) 54%,#fff 100%)}img,svg,video{max-width:100%;height:auto;display:block}a{color:var(--brand-secondary);text-decoration:none;font-weight:800}h1,h2,h3,h4,h5,h6{color:var(--brand-text);line-height:1.06;margin:0 0 16px;letter-spacing:-.035em}h1{font-size:clamp(2.55rem,6.4vw,5.8rem);font-weight:950}h2{font-size:clamp(2rem,3.6vw,3.75rem);font-weight:930}p{margin:0 0 16px}.site-header,.ev36-header{min-height:72px}.ev39-container,.container,.wrap{width:min(1180px,calc(100vw - 32px));margin-inline:auto}.btn,.ev39-btn,button[type="submit"]{min-height:44px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center}.skip-link{position:absolute;left:-999px;top:10px}.skip-link:focus{left:12px;z-index:9999}@media(max-width:640px){:root{--page-max:calc(100vw - 28px)}body{font-size:16px}}</style>
+<link rel="preload" href="./assets/css/common-v58.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="./assets/css/common-v58.min.css"></noscript>
+<meta content="Confirmation d’envoi de demande ou de formulaire PSSR." name="description"/>
+<link href="https://ev2025.github.io/pssr/merci.html" rel="canonical"/>
+<meta content="Merci — Équilibre Vital / PSSR" property="og:title"/>
+<meta content="Confirmation d’envoi de demande ou de formulaire PSSR." property="og:description"/>
+<meta content="https://ev2025.github.io/pssr/merci.html" property="og:url"/>
+<meta content="website" property="og:type"/>
+<meta content="https://ev2025.github.io/pssr/wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png" property="og:image"/>
+<meta content="noindex,follow" name="robots"/>
+</head>
+<body class="v30-circle-global ev39-page">
+<img alt="Logo Équilibre Vital" class="logo" decoding="async" height="512" loading="lazy" src="./wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png" width="512"/>
+<div class="confirmation">
+<h1>✅ Merci pour votre message !</h1>
+<p>Nous vous répondrons dans les plus brefs délais.</p>
+<p id="receipt-ref-v58" hidden></p>
+<p>En attendant, découvrez notre mini quiz santé &amp; bien-être 👇</p>
+</div>
+<div class="quiz">
+<h3>🧘 Quiz : Bouger pour mieux vivre</h3>
+<div id="quiz-container"></div>
+<div id="result"></div>
+</div>
+<a class="return-btn" href="./index.html">Retour sur PSSR</a>
+<a class="return-btn" href="./index.html">Visiter le site Équilibre Vital</a>
+<script>
+
+    const params = new URLSearchParams(location.search);
+    const code = params.get('code') || params.get('ref') || '';
+    const ref = document.getElementById('receipt-ref-v58');
+    if (code && ref) {
+      ref.hidden = false;
+      ref.innerHTML = `Votre référence : <strong>${code.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}</strong>`;
+    }
+
+    const questions = [
+      { text: "Faire 10 minutes de marche par jour peut améliorer l’humeur.", answer: true },
+      { text: "Le sport est réservé aux personnes jeunes et en forme.", answer: false },
+      { text: "Bouger régulièrement aide à mieux dormir.", answer: true },
+      { text: "L’activité physique favorise l’insertion sociale.", answer: true },
+      { text: "Il faut aller à la salle de sport pour être en bonne santé.", answer: false }
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    const container = document.getElementById("quiz-container");
+    const result = document.getElementById("result");
+
+    function showQuestion() {
+      if (current < questions.length) {
+        const q = questions[current];
+        container.innerHTML = `
+          <div class="question">
+            <p>${q.text}</p>
+            <button onclick="answer(true)">Vrai</button>
+            <button onclick="answer(false)">Faux</button>
+          </div>
+        `;
+      } else {
+        container.innerHTML = "";
+        result.innerHTML = `👏 Bravo ! Vous avez obtenu ${score}/${questions.length} bonnes réponses.<br>Chaque petit pas compte vers une vie plus équilibrée.`;
+      }
+    }
+
+    function answer(userAnswer) {
+      if (userAnswer === questions[current].answer) score++;
+      current++;
+      showQuestion();
+    }
+
+    showQuestion();
+  </script>
+<script defer="" src="./assets/js/firebase-contact.js" type="module"></script>
+<script defer="" src="./assets/js/media-fallback.js"></script>
+<script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script></body>
+</html>
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->

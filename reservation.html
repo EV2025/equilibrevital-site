@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Réservation PSSR — Équilibre Vital</title>
+<meta content="Formulaire de réservation PSSR : activités, ateliers et accompagnement." name="description"/>
+<link href="https://ev2025.github.io/pssr/reservation.html" rel="canonical"/>
+<meta content="#FFF7FB" name="theme-color"/>
+<meta content="light" name="color-scheme"/>
+<style>body{margin:0;font-family:Inter,Manrope,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fff8fc;color:#21112b}img{max-width:100%;height:auto}main{min-height:54vh}.ev36-header{position:sticky;top:0;z-index:5000}</style>
+
+  <style>:root{--brand-bg:#FFF7FB;--brand-section:#F5ECFF;--brand-surface:#FFFFFF;--brand-text:#24112F;--brand-body:#4D315E;--brand-primary:#D92E83;--brand-secondary:#7C3AED;--brand-border:#C9AEEA;--font:Inter,Manrope,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--page-max:min(1480px,calc(100vw - 64px));--content-max:1180px;--radius-lg:34px}*{box-sizing:border-box}html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}body{margin:0;min-width:320px;overflow-x:hidden;font-family:var(--font);color:var(--brand-body);font-size:17px;line-height:1.68;background:radial-gradient(900px 520px at 8% -8%,rgba(217,46,131,.13),transparent 62%),radial-gradient(900px 520px at 92% 0,rgba(124,58,237,.14),transparent 64%),linear-gradient(135deg,var(--brand-bg) 0,var(--brand-section) 54%,#fff 100%)}img,svg,video{max-width:100%;height:auto;display:block}a{color:var(--brand-secondary);text-decoration:none;font-weight:800}h1,h2,h3,h4,h5,h6{color:var(--brand-text);line-height:1.06;margin:0 0 16px;letter-spacing:-.035em}h1{font-size:clamp(2.55rem,6.4vw,5.8rem);font-weight:950}h2{font-size:clamp(2rem,3.6vw,3.75rem);font-weight:930}p{margin:0 0 16px}.site-header,.ev36-header{min-height:72px}.ev39-container,.container,.wrap{width:min(1180px,calc(100vw - 32px));margin-inline:auto}.btn,.ev39-btn,button[type="submit"]{min-height:44px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center}.skip-link{position:absolute;left:-999px;top:10px}.skip-link:focus{left:12px;z-index:9999}@media(max-width:640px){:root{--page-max:calc(100vw - 28px)}body{font-size:16px}}</style>
+<link rel="preload" href="./assets/css/common-v58.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="./assets/css/common-v58.min.css"></noscript>
+<meta content="Réservation PSSR — Équilibre Vital" property="og:title"/>
+<meta content="Formulaire de réservation PSSR : activités, ateliers et accompagnement." property="og:description"/>
+<meta content="https://ev2025.github.io/pssr/reservation.html" property="og:url"/>
+<meta content="website" property="og:type"/>
+<meta content="https://ev2025.github.io/pssr/wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png" property="og:image"/>
+
+<style>
+/* Phase 1B — QR code SEPA/EPC virement bancaire */
+.receipt-payment-v1{margin-top:22px;padding:18px;border:1px solid rgba(124,58,237,.22);border-radius:22px;background:rgba(255,255,255,.82)}
+.sepa-payment-layout-v1{display:grid;grid-template-columns:minmax(230px,280px) 1fr;gap:18px;align-items:start;margin-top:14px}
+.sepa-qr-card-v1{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px;border-radius:20px;background:#fff;border:1px solid rgba(36,17,47,.1);box-shadow:0 12px 28px rgba(36,17,47,.08)}
+.sepa-qr-canvas-v1{width:256px;height:256px;max-width:100%;border-radius:12px}
+.sepa-qr-status-v1{font-size:.9rem;text-align:center;color:#4d315e;margin:0}
+.payment-details-clear-v1 code{font-size:.95em;word-break:break-word}
+.copy-payment-v1{display:inline-flex;align-items:center;justify-content:center;margin-left:8px;min-height:30px;padding:4px 10px;border:1px solid rgba(124,58,237,.24);border-radius:999px;background:#fff;color:#24112f;font-weight:800;cursor:pointer}
+.payment-intro-v1{margin:14px 0 18px;padding:14px 16px;border-radius:18px;background:#fff;color:#24112f;border:1px solid rgba(124,58,237,.18)}
+@media(max-width:760px){.sepa-payment-layout-v1{grid-template-columns:1fr}.copy-payment-v1{margin:8px 0 0}}
+</style>
+</head>
+<body class="pssr-page v30-circle-global ev39-page">
+<main class="pssr-main" id="main">
+<section class="panel">
+<p class="eyebrow">Réservation</p>
+<h1>Réservation PSSR</h1>
+<p>Complétez votre demande de réservation. L’équipe PSSR vérifie les disponibilités et vous recontacte pour confirmer l’inscription.</p>
+<form class="form-grid" data-firebase-collection="reservations" data-payment-amount="165" data-payment-currency="EUR" data-payment-label="Cotisation PSSR — année académique" id="reservation-form">
+<label>Nom complet<input name="nom" placeholder="Prénom Nom" required=""/></label>
+<label>Email<input name="email" placeholder="exemple@domaine.be" required="" type="email"/></label>
+<label>Téléphone<input name="tel" placeholder="0492 691 070" type="tel"/></label>
+<label>Objectif principal<select name="objectif"><option value="">Choisir un objectif</option><option>Remise en forme</option><option>Découverte sportive</option><option>Bien-être / santé</option><option>Accompagnement socio-professionnel</option><option>Enfant / adolescent</option></select></label>
+<label>Activité ou module souhaité<select name="creneau" required="">
+<option value="">Choisir un créneau</option>
+<optgroup label="Activités sportives officielles">
+<option>Mardi 18:00–19:00 — Cardio Fit Ados — 13–17 ans</option>
+<option>Mardi 19:00–20:00 — Initiation Boxe &amp; Kick-Boxing — 13 ans+</option>
+<option>Vendredi 16:00–17:00 — Kids Move — 6–12 ans</option>
+<option>Vendredi 17:00–18:00 — Training Jeunes — Multisport — 13–17 ans</option>
+<option>Vendredi 19:00–20:00 — Fitness Loisirs Mixte — 18 ans+</option>
+<option>Vendredi 20:00–21:00 — Boxing Loisir &amp; Technique — 18 ans+</option>
+<option>Samedi 08:00–10:00 — Mobility &amp; Recovery — Femmes 40 ans+</option>
+</optgroup>
+<optgroup label="Accompagnement socio-professionnel PSSR">
+<option>Coaching individuel</option>
+<option>Employabilité</option>
+<option>Création et mise à jour du CV</option>
+<option>Recherche d’emploi</option>
+<option>Simulations d’entretien</option>
+<option>Développement personnel</option>
+<option>Gestion du stress</option>
+<option>Nutrition et bien-être</option>
+<option>Orientation vers la formation</option>
+<option>Orientation professionnelle</option>
+<option>Accompagnement administratif</option>
+<option>Coaching motivationnel</option>
+</optgroup>
+</select></label>
+<label class="full">Modules sélectionnés<textarea name="modules" placeholder="Si vous avez choisi plusieurs modules, ils apparaîtront ici." rows="2"></textarea></label>
+<label class="full">Message<textarea name="message" placeholder="Âge, disponibilité, question éventuelle…" rows="4"></textarea></label>
+<label class="full consent"><input name="rgpdConsent" required="" type="checkbox"/> <span>J’accepte que mes données soient utilisées pour traiter ma demande de réservation. <a href="./confidentialite-rgpd.html" rel="noopener" target="_blank">Voir la politique de confidentialité</a>.</span></label>
+<input name="priceAmount" type="hidden" value="165"/>
+<input name="priceCurrency" type="hidden" value="EUR"/>
+<input name="priceLabel" type="hidden" value="Cotisation PSSR — année académique"/>
+<p class="payment-intro-v1"><strong>Montant repris automatiquement :</strong> 165 € pour la cotisation PSSR. Après l’envoi, le site génère une référence unique et un QR code SEPA/EPC pour votre virement bancaire.</p>
+<input aria-hidden="true" autocomplete="off" class="hp" name="website" tabindex="-1" type="text"/>
+<button class="btn" type="submit">Réserver et recevoir les instructions de virement</button>
+<p class="msg" hidden="" id="reservation-msg"></p>
+<p class="msg-note"><strong>Phase 1 :</strong> aucun frais de paiement en ligne. Après l’envoi, le site génère votre référence unique, un QR code SEPA/EPC et les informations de virement bancaire.</p>
+</form>
+</section>
+</main>
+<script>
+/* V5 — préremplissage réservation depuis les modules sélectionnés */
+(function(){
+  const params = new URLSearchParams(location.search);
+  const modules = params.get('modules') || params.get('module') || '';
+  if(!modules) return;
+  const decoded = modules.replace(/\s*,\s*/g, ', ');
+  const form = document.getElementById('reservation-form');
+  const select = form?.elements?.creneau;
+  const modulesField = form?.elements?.modules;
+  if(modulesField) modulesField.value = decoded;
+  if(select){
+    const first = decoded.split(',')[0].trim();
+    const options = Array.from(select.options);
+    const found = options.find(o => o.textContent.includes(first) || first.includes(o.textContent));
+    if(found) select.value = found.value;
+    else {
+      const opt = new Option(first, first, true, true);
+      select.add(opt);
+    }
+  }
+})();
+</script>
+<script defer="" src="./assets/js/firebase-contact.js" type="module"></script>
+<script defer="" src="./assets/js/media-fallback.js"></script>
+<script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script></body>
+</html>

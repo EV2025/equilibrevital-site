@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Dispositifs — Ateliers &amp; accompagnement PSSR</title>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="Ateliers socio-éducatifs et accompagnement socio-professionnel PSSR à Bruxelles." name="description"/>
+<link href="https://ev2025.github.io/pssr/dispositifs.html" rel="canonical"/>
+<meta content="Dispositifs — Ateliers &amp; accompagnement PSSR" property="og:title"/>
+<meta content="Ateliers socio-éducatifs et accompagnement socio-professionnel PSSR à Bruxelles." property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="https://ev2025.github.io/pssr/dispositifs.html" property="og:url"/>
+<style>
+:root{
+  --ink:#5b3ea8; --ink-strong:#4b2f88; --muted:#6b6291;
+  --glass:rgba(255,255,255,.92); --line:rgba(138,84,204,.25);
+  --bg1:#f2edff; --bg2:#e8deff; --bg3:#e1d5ff;
+  --l300:#e6d5ff; --l500:#cfa9ff;
+
+  --CE:#8799cb; --RO:#6bbf92; --AC:#b388ff; --AE:#81c784;
+  --s1:#d1c4e9; --s1p:#ede7f6;
+  --s2:#b39ddb; --s2p:#d1c4e9;
+  --s3:#9575cd; --s3p:#b39ddb;
+  --s4:#7e57c2; --s4p:#9575cd;
+  --s5:#b388ff; --s5p:#e1bee7;
+  --s6:#81c784; --s6p:#e8f5e9;
+
+  --ff:'Inter','Manrope',system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --fs-100: clamp(.875rem, .84rem + .2vw, .95rem);
+  --fs-200: clamp(1rem, .96rem + .3vw, 1.05rem);
+  --fs-300: clamp(1.125rem, 1.02rem + .6vw, 1.25rem);
+  --fs-400: clamp(1.375rem, 1.1rem + 1.2vw, 1.75rem);
+  --fs-500: clamp(1.75rem, 1.4rem + 2vw, 2.25rem);
+  --fs-600: clamp(2.4rem, 1.8rem + 3.8vw, 3.6rem);
+  --space-2:10px; --space-3:14px;
+  --wrap:max(320px,min(1280px,94vw));
+  --card-shadow: 0 8px 30px rgba(91,62,168,.10);
+  --ring-shadow: 0 30px 80px rgba(91,62,168,.18);
+  --cta-grad: linear-gradient(90deg,#b9c7ff,#cfa9ff 55%,#e393ff);
+  --cta-grad-strong: linear-gradient(90deg,#a6b5ff,#c89bff 55%,#dd80ff);
+  --shadow-soft: 0 12px 30px rgba(91,62,168,.16);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} *{animation:none!important;transition:none!important} }
+
+body{
+  margin:0; color:var(--ink); font:400 var(--fs-200)/1.55 var(--ff); letter-spacing:-0.2px;
+  background:
+    radial-gradient(1100px 560px at 10% -10%, #b9c7ff55 0%, transparent 60%),
+    radial-gradient(1000px 520px at 90% -10%, #e393ff55 0%, transparent 60%),
+    linear-gradient(135deg,var(--bg1) 0%, var(--bg2) 55%, var(--bg3) 100%);
+  -webkit-text-size-adjust:100%;
+}
+img{max-width:100%; height:auto; display:block}
+a{color:inherit; text-decoration:none}
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
+  outline:3px solid #6c2ba8; outline-offset:2px; border-radius:8px;
+}
+
+h1,h2,h3,h4,h5,h6{font-family:var(--ff); margin:0 0 var(--space-2); color:var(--ink-strong); letter-spacing:-.3px}
+h1{font-weight:900; font-size:var(--fs-600); line-height:1.05}
+h2{font-weight:800; font-size:var(--fs-500); line-height:1.12}
+h3{font-weight:800; font-size:var(--fs-400); line-height:1.15}
+
+.btn, .btn-appel, .btn-appel-ghost, button[type="submit"]{
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  min-height:44px; padding:12px 18px; border-radius:999px; font-weight:800; cursor:pointer;
+  transition:transform .15s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease;
+  text-align:center; text-wrap:balance; white-space:normal;
+}
+.btn, button[type="submit"]{ background:#5b3ea8; color:#fff; border:none; box-shadow:0 6px 18px rgba(91,62,168,.2) }
+.btn:hover, button[type="submit"]:hover{ transform:translateY(-2px); background:#4b2f88 }
+.btn:active, button[type="submit"]:active{ transform:translateY(-1px) }
+
+#nav-wrap .trigger{position:fixed;left:0;right:0;top:0;height:18px;z-index:1101}
+#nav{position:fixed;left:0;right:0;top:0;z-index:1100;
+     transform:translateY(-100%);opacity:0;pointer-events:none;
+     transition:transform .28s ease,opacity .28s ease;
+     backdrop-filter:saturate(140%) blur(8px);
+     background:var(--glass);border-bottom:1px solid var(--line)}
+#nav.show{transform:translateY(0);opacity:1;pointer-events:auto}
+#nav .inner{max-width:1280px;margin:auto;padding:12px 20px;display:flex;gap:18px;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;white-space:nowrap}
+.brand img{width:44px;height:44px;border-radius:8px}
+.menu{display:flex;align-items:center;gap:8px}
+.menu a{font-weight:800;letter-spacing:.2px;padding:10px 8px;position:relative}
+.menu a::after{content:"";position:absolute;left:0;bottom:6px;height:2px;width:0;background:linear-gradient(90deg,#cfa9ff,#b9c7ff);transition:width .25s}
+.menu a:hover::after,.menu a[aria-current="page"]::after{width:100%}
+.cta{margin-left:6px;color:#fff;background:var(--cta-grad);box-shadow:0 10px 24px rgba(122,89,191,.14)}
+.burger{display:none;align-items:center;justify-content:center;width:44px;height:44px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink-strong);font-size:1.25rem;font-weight:800;cursor:pointer}
+
+.hero{min-height:100svh;display:grid;place-items:center;padding:120px 20px 96px;text-align:center}
+.hero .wrap{max-width:var(--wrap);margin:auto}
+.hero h1{
+  font-size: clamp(6.4rem, 4rem + 12vw, 10.4rem);
+  line-height:1.02;
+  background:none; -webkit-text-fill-color:initial;
+  color:#7a2ecc;
+  text-shadow:none;
+}
+.hero .btn{
+  margin-top:var(--space-3);
+  font-size:clamp(1.05rem, .9rem + .9vw, 1.25rem);
+  background:var(--cta-grad); box-shadow:0 12px 28px rgba(122,89,191,.18)
+}
+
+section{scroll-margin-top:64px}
+.section-wrap{max-width:var(--wrap);margin:0 auto;padding:72px 20px}
+h2.sec-title{
+  margin:0 0 12px;text-align:center;
+  background:linear-gradient(90deg,#6c2ba8,#cfa9ff 55%,#5b3ea8);
+  -webkit-background-clip:text;background-clip:text;color:transparent
+}
+p.sec-sub{margin:0 0 22px;text-align:center;color:var(--muted); font-size:var(--fs-200)}
+
+.card,.form,.pssr-panel,.pssr-box,.pssr-card{
+  background:#fff;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.05);border:1px solid rgba(200,200,255,.3)
+}
+.ico{inline-size:36px;block-size:36px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900;background:linear-gradient(135deg,#b9c7ff,#e393ff)}
+.ttl{margin:0;font-weight:800;color:var(--ink); font-size:var(--fs-200)}
+.txt{margin:2px 0 0;color:var(--muted); font-size:var(--fs-100)}
+input,button,textarea{font-family:var(--ff); font-size:var(--fs-200); border-radius:10px;border:1px solid #ddd}
+input,textarea{padding:10px 12px}
+input:focus,textarea:focus{outline:none;border-color:#bba7f5;box-shadow:0 0 0 2px rgba(187,167,245,.3)}
+.row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.field.card{grid-template-columns:auto 1fr;align-items:center;padding:12px 14px;display:grid}
+.field.card .ttl{margin:0 0 6px}
+.field.card .field-body{width:100%}
+.field.card input,.field.card textarea{width:100%;border:1px solid rgba(138,84,204,.25);background:#fff}
+.field.card:focus-within{border-color:rgba(187,167,245,.8);box-shadow:0 0 0 3px rgba(187,167,245,.25)}
+.row > .field{flex:1 1 280px;min-width:260px;max-width:100%}
+.row > .action{flex:1 1 100%;padding:10px;display:flex;justify-content:center}
+.row > .action .btn{width:100%;max-width:340px}
+
+/* Parcours PSSR */
+#pssr-cycle-iso{ --fs:16px; font:600 var(--fs)/1.6 var(--ff); color:var(--ink) }
+#pssr-cycle-iso .pssr-title{ text-align:center; margin:0 0 16px; font-weight:800; letter-spacing:.2px;background:linear-gradient(90deg,#6c2ba8,#cfa9ff 55%,#5b3ea8);-webkit-background-clip:text;background-clip:text;color:transparent }
+#pssr-cycle-iso .pssr-toolbar{ display:flex; flex-wrap:wrap; gap:14px; justify-content:center; margin:0 0 22px }
+.pssr-pill{ border:1px solid rgba(138,84,204,.22); border-radius:999px; padding:12px 18px; min-height:44px;background:#fff; color:var(--ink); font-weight:800; cursor:pointer; transition:transform .1s, box-shadow .25s, background-color .25s; touch-action:manipulation }
+.pssr-pill:hover{ transform:translateY(-1px); box-shadow:var(--card-shadow) }
+.pssr-pill[data-phase="CE"]{ background:linear-gradient(135deg, var(--s3p), #ffeaea) }
+.pssr-pill[data-phase="RO"]{ background:linear-gradient(135deg, var(--s2p), #e8f0ff) }
+.pssr-pill[data-phase="AC"]{ background:linear-gradient(135deg, var(--s5p), #fff4cf) }
+.pssr-pill[data-phase="AE"]{ background:linear-gradient(135deg, var(--s4p), #eafff7) }
+.pssr-pill[aria-pressed="true"][data-phase="CE"]{ background:var(--CE); color:#fff }
+.pssr-pill[aria-pressed="true"][data-phase="RO"]{ background:var(--RO); color:#fff }
+.pssr-pill[aria-pressed="true"][data-phase="AC"]{ background:var(--AC); color:#fff }
+.pssr-pill[aria-pressed="true"][data-phase="AE"]{ background:var(--AE); color:#fff }
+
+.pssr-ring{
+  position:relative; margin:18px auto 28px;
+  width:clamp(240px, 52vw, 500px);
+  height:clamp(240px, 52vw, 500px);
+  border-radius:50%;
+  background:radial-gradient(circle at 50% 50%, #fff 0 56%, #f2eaff 56.5% 60%, transparent 60.5%);
+  border:1px solid var(--line);
+  box-shadow:var(--ring-shadow)
+}
+.pssr-center{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:clamp(110px, 16vw, 150px);
+  height:clamp(110px, 16vw, 150px);
+  border-radius:50%; display:flex; align-items:center; justify-content:center; text-align:center; padding:12px; color:#5a3ea8; background:#fff; border:2px dashed var(--l500); font-weight:800
+}
+.pssr-node{
+  position:absolute;
+  width:clamp(44px, 7vw, 58px);
+  height:clamp(44px, 7vw, 58px);
+  border-radius:50%; display:grid; place-items:center; color:#fff; font-weight:800; border:none; cursor:pointer;
+  box-shadow:0 10px 28px rgba(0,0,0,.18), inset 0 0 0 2px rgba(255,255,255,.4);
+  transform:translate(-50%,-50%) scale(1);
+  transition:transform .18s, filter .18s, outline-color .18s;
+}
+.pssr-node:hover{ transform:translate(-50%, -50%) scale(1.06) }
+.pssr-node.active{ outline:4px solid var(--accent, rgba(138,84,204,.45)) }
+.pssr-node.dim{ filter:saturate(.35) brightness(.9); opacity:.35 }
+
+.step-1{ background:linear-gradient(135deg,var(--s1p),var(--s1)) }
+.step-2{ background:linear-gradient(135deg,var(--s2p),var(--s2)) }
+.step-3{ background:linear-gradient(135deg,var(--s3p),var(--s3)) }
+.step-4{ background:linear-gradient(135deg,var(--s4p),var(--s4)) }
+.step-5{ background:linear-gradient(135deg,var(--s5p),var(--s5)) }
+.step-6{ background:linear-gradient(135deg,var(--s6p),var(--s6)) }
+
+.pssr-legend{ display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); margin-top:6px }
+.pssr-card{ position:relative; cursor:pointer; padding:14px 16px; border:1px solid rgba(138,84,204,.22); border-radius:16px; background:#fff; box-shadow:var(--card-shadow); touch-action:manipulation }
+.pssr-card::before{ content:""; position:absolute; inset:0 auto 0 0; width:4px; border-radius:4px 0 0 4px; background:var(--accent,#cfa9ff); opacity:.6 }
+.pssr-card:hover{ background:#f1e5fb }
+.pssr-card.active{ outline:3px solid var(--accent,#cfa9ff) }
+.pssr-card.active::before{ opacity:1; width:6px }
+.pssr-card h4{ margin:0 0 4px; color:#6c2ba8; font-weight:800; font-size:1.05rem }
+.pssr-card p{ margin:0; color:#6c2ba8; font-size:.95rem }
+
+.pssr-panels{ display:grid; gap:18px; margin-top:18px }
+.pssr-panel{ display:none; position:relative; background:#f8f2ff; border:1px solid rgba(138,84,204,.22); border-radius:16px; padding:16px 18px; color:var(--muted) }
+.pssr-panel.active{ display:block; animation:fadeUp .25s ease }
+.pssr-panel::after{ content:""; position:absolute; left:0; right:0; top:0; height:4px; border-radius:16px 16px 0 0; background:var(--accent,#cfa9ff) }
+.pssr-panel h3{ margin:0 0 8px; color:#6c2ba8; font-weight:800 }
+.pssr-meta{ display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 10px }
+.pssr-tag{ background:linear-gradient(135deg,var(--l300),var(--l500)); color:#4b2f88; border-radius:999px; padding:4px 8px; font-weight:800 }
+.pssr-cols{ display:grid; gap:14px; grid-template-columns:repeat(3,minmax(0,1fr)) }
+@media (max-width:980px){ .pssr-cols{ grid-template-columns:1fr } }
+.pssr-box{ background:#fff; border:1px solid rgba(138,84,204,.18); border-radius:12px; padding:12px }
+.pssr-box h5{ margin:0 0 6px; color:#6c2ba8; font-weight:800 }
+#pssr-cycle-iso.pssr-solo .pssr-legend .pssr-card{ opacity:.55 }
+#pssr-cycle-iso.pssr-solo .pssr-legend .pssr-card.active{ opacity:1 }
+#pssr-cycle-iso.pssr-solo .pssr-panel{ display:none }
+#pssr-cycle-iso.pssr-solo .pssr-panel.active{ display:block }
+#pssr-cycle-iso.pssr-solo .pssr-node{ visibility:hidden }
+#pssr-cycle-iso.pssr-solo .pssr-node.active{ visibility:visible }
+#pssr-cycle-iso.pssr-solo .pssr-center{ visibility:hidden }
+.pssr-actions{ display:none; justify-content:center; margin-top:16px }
+.pssr-ghost{ background:#fff; border:1px solid rgba(138,84,204,.35); color:#6c2ba8; border-radius:999px; padding:10px 16px; min-height:40px; font-weight:800 }
+
+/* Sections */
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.card{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center}
+.info-card{display:block;padding:22px}
+.info-card ul{margin:10px 0 0 20px;padding:0;color:var(--muted)}
+.info-card li{margin-bottom:8px}
+
+.schedule-card{display:block;padding:20px}
+.schedule-card h3{margin-bottom:18px}
+.schedule-item{padding:0 0 18px;margin:0 0 18px;border-bottom:1px solid rgba(138,84,204,.18)}
+.schedule-item:last-child{padding-bottom:0;margin-bottom:0;border-bottom:0}
+.price-card{text-align:center;margin-bottom:18px}
+.price-card h3{margin-bottom:4px}
+.price-card .price{margin:0;font-weight:900;font-size:1.5rem;color:var(--ink-strong)}
+
+.download-card{display:block;padding:24px;text-align:center}
+.download-card img{
+  max-width:300px;
+  width:100%;
+  margin:18px auto;
+  border-radius:16px;
+  border:1px solid rgba(138,84,204,.22);
+  box-shadow:0 12px 32px rgba(91,62,168,.12);
+}
+.download-card .btn{margin:6px}
+
+.site-footer{background:linear-gradient(180deg,#ffffffcc,#f6efff);border-top:1px solid rgba(138,84,204,.25);color:var(--ink);margin-top:32px}
+.foot-legal{border-top:1px solid rgba(138,84,204,.25);padding:14px 20px;text-align:center;color:var(--muted); font-size:var(--fs-100)}
+.contact-chip{
+  display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;
+  background:linear-gradient(135deg,var(--l300),var(--l500));color:#4b2f88;font-weight:800;border:1px solid rgba(138,84,204,.25)
+}
+.appel-banner{position:relative;border:1px solid rgba(138,84,204,.25);border-radius:16px;padding:16px 18px;background:var(--glass);box-shadow:0 6px 18px rgba(0,0,0,.04);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.appel-banner .label{display:flex;align-items:center;gap:10px;font-weight:800}
+.appel-banner .label .dot{inline-size:10px;block-size:10px;border-radius:999px;background:conic-gradient(from 0deg,#b9c7ff,#e393ff,#b9c7ff);box-shadow:0 0 0 4px rgba(207,169,255,.25)}
+.btn-appel{color:#fff;background:var(--cta-grad);box-shadow:var(--shadow-soft);border:0}
+.btn-appel:hover{transform:translateY(-2px);background:var(--cta-grad-strong)}
+.btn-appel-ghost{color:#6c2ba8;background:#fff;border:1px solid rgba(138,84,204,.25)}
+.btn-appel-ghost:hover{transform:translateY(-2px);border-color:#bba7f5;box-shadow:0 8px 24px rgba(91,62,168,.12)}
+.callout{border:1px dashed var(--l500);background:radial-gradient(500px 220px at 10% -10%, #b9c7ff22 0%, transparent 60%),radial-gradient(500px 220px at 90% 110%, #e393ff22 0%, transparent 60%),#fff;color:var(--ink);border-radius:16px;padding:16px 18px;box-shadow:0 8px 24px rgba(0,0,0,.05)}
+#cta-float{position:fixed;right:16px;bottom:16px;z-index:1200;display:none}
+#cta-float .btn-appel{padding:14px 22px;font-size:1.02rem;box-shadow:0 18px 44px rgba(91,62,168,.28)}
+
+@media (max-width:980px) {
+  .section-wrap { padding:48px 4vw }
+  .hero { padding:96px 4vw 72px }
+  .burger{display:inline-flex}
+  .menu{flex-direction:column;gap:0;position:fixed;top:0;right:0;left:0;background:var(--glass);z-index:1102;padding:60px 0 0 0;display:none}
+  #nav .menu.open{display:flex}
+  #nav.show .menu{display:none}
+  #nav.show .menu.open{display:flex}
+  #nav .inner { flex-direction:row; gap:10px }
+  .menu a { padding:16px 0; font-size:var(--fs-300); border-bottom:1px solid #ececec; width:100%; text-align:center }
+  .cta { margin-left:0; margin-top:8px }
+}
+@media (max-width:700px) {
+  .section-wrap { padding:32px 3vw }
+  #contact .section-wrap { padding:24px 3vw 32px; max-width:98vw }
+  h2.sec-title { font-size:clamp(1.35rem, 1.2rem + 1.4vw, 1.75rem) }
+  .hero h1{ font-size: clamp(4.4rem, 2.8rem + 14vw, 6.4rem); color:#7a2ecc; }
+  .hero .btn{ font-size:clamp(1rem, .9rem + 1.2vw, 1.1rem) }
+  .pssr-ring{ width:min(82vw, 320px); height:min(82vw, 320px) }
+  .pssr-center{ width:min(36vw, 120px); height:min(36vw, 120px) }
+  .pssr-node{ width:min(12vw, 48px); height:min(12vw, 48px) }
+}
+
+.status-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-top:18px}
+.status-card{display:block;padding:20px;background:#fff;border:1px solid rgba(138,84,204,.25);border-radius:16px;box-shadow:0 8px 24px rgba(91,62,168,.08)}
+.status-card .badge{display:inline-flex;margin-bottom:10px;padding:6px 10px;border-radius:999px;background:linear-gradient(135deg,#e6d5ff,#cfa9ff);color:#4b2f88;font-weight:900;font-size:.85rem}
+.status-card ul{margin:10px 0 0 20px;padding:0;color:var(--muted)}
+.status-card li{margin-bottom:8px}
+.planning-table{width:100%;border-collapse:separate;border-spacing:0;margin-top:16px;overflow:hidden;border-radius:16px;border:1px solid rgba(138,84,204,.22);background:#fff;box-shadow:0 8px 24px rgba(91,62,168,.08)}
+.planning-table th,.planning-table td{padding:12px 14px;text-align:left;border-bottom:1px solid rgba(138,84,204,.16);vertical-align:top}
+.planning-table th{background:#f3eaff;color:#4b2f88;font-weight:900}
+.planning-table tr:last-child td{border-bottom:0}
+.kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:18px}
+.kpi-strip div{background:#fff;border:1px solid rgba(138,84,204,.22);border-radius:14px;padding:14px;text-align:center;font-weight:900;color:#4b2f88}
+.vision-note{margin-top:14px;padding:14px 16px;border-radius:14px;background:#fff8e6;border:1px dashed #cfa94d;color:#6a4e0e}
+@media(max-width:760px){.planning-table,.planning-table tbody,.planning-table tr,.planning-table td,.planning-table th{display:block}.planning-table thead{display:none}.planning-table tr{border-bottom:1px solid rgba(138,84,204,.16)}.planning-table td{border-bottom:0}.planning-table td::before{content:attr(data-label);display:block;font-weight:900;color:#4b2f88;margin-bottom:3px}}
+
+@keyframes fadeUp{ from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+.hero h1 .char{ display:inline-block; opacity:0; transform:translateY(.45em); animation:hero-rise .6s ease-out forwards }
+@keyframes hero-rise{ to{ opacity:1; transform:translateY(0) } }
+.reveal{ opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease }
+.reveal.in{ opacity:1; transform:none }
+@media (prefers-reduced-motion:reduce){
+  .hero h1 .char{ opacity:1; transform:none; animation:none!important }
+  .reveal{ opacity:1; transform:none; transition:none!important }
+}
+.status-grid,.kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.status-card{background:#fff;border:1px solid rgba(138,84,204,.22);border-radius:18px;padding:20px;box-shadow:var(--card-shadow)}.status-card ul{margin:10px 0 0 18px;color:var(--muted)}.badge{display:inline-flex;border-radius:999px;padding:6px 10px;background:linear-gradient(90deg,#b9c7ff,#e393ff);color:white;font-weight:900}.vision-note{background:#fff;border:1px dashed var(--l500);border-radius:16px;padding:14px 16px;color:var(--muted)}.footer-links{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:10px}.footer-links a{text-decoration:underline;color:var(--ink-strong)}.quick-links{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:18px}.mini-section{background:#fff;border:1px solid rgba(138,84,204,.22);border-radius:18px;padding:20px;box-shadow:var(--card-shadow)}.mini-section blockquote{margin:0;color:#4d426e}.consent{display:flex!important;gap:10px!important;align-items:flex-start!important}.consent input{width:auto!important;margin-top:4px}
+</style>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"SportsActivityLocation",
+  "name":"Équilibre Vital asbl — PSSR",
+  "url":"https://ev2025.github.io/pssr/",
+  "email":"equilibrevital.bruxelles@gmail.com",
+  "telephone":"+32492691070",
+  "address":{"@type":"PostalAddress","addressLocality":"Molenbeek-Saint-Jean","addressRegion":"Bruxelles-Capitale","addressCountry":"BE"},
+  "description":"Parcours Socio-Sportif Renforcé : activités sportives, accompagnement socio-sportif et ateliers socio-professionnels."
+}
+</script>
+<meta content="#FFF7FB" name="theme-color"/>
+<meta content="light" name="color-scheme"/>
+<style>body{margin:0;font-family:Inter,Manrope,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fff8fc;color:#21112b}img{max-width:100%;height:auto}main{min-height:54vh}.ev36-header{position:sticky;top:0;z-index:5000}</style>
+
+  <style>:root{--brand-bg:#FFF7FB;--brand-section:#F5ECFF;--brand-surface:#FFFFFF;--brand-text:#24112F;--brand-body:#4D315E;--brand-primary:#D92E83;--brand-secondary:#7C3AED;--brand-border:#C9AEEA;--font:Inter,Manrope,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--page-max:min(1480px,calc(100vw - 64px));--content-max:1180px;--radius-lg:34px}*{box-sizing:border-box}html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}body{margin:0;min-width:320px;overflow-x:hidden;font-family:var(--font);color:var(--brand-body);font-size:17px;line-height:1.68;background:radial-gradient(900px 520px at 8% -8%,rgba(217,46,131,.13),transparent 62%),radial-gradient(900px 520px at 92% 0,rgba(124,58,237,.14),transparent 64%),linear-gradient(135deg,var(--brand-bg) 0,var(--brand-section) 54%,#fff 100%)}img,svg,video{max-width:100%;height:auto;display:block}a{color:var(--brand-secondary);text-decoration:none;font-weight:800}h1,h2,h3,h4,h5,h6{color:var(--brand-text);line-height:1.06;margin:0 0 16px;letter-spacing:-.035em}h1{font-size:clamp(2.55rem,6.4vw,5.8rem);font-weight:950}h2{font-size:clamp(2rem,3.6vw,3.75rem);font-weight:930}p{margin:0 0 16px}.site-header,.ev36-header{min-height:72px}.ev39-container,.container,.wrap{width:min(1180px,calc(100vw - 32px));margin-inline:auto}.btn,.ev39-btn,button[type="submit"]{min-height:44px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center}.skip-link{position:absolute;left:-999px;top:10px}.skip-link:focus{left:12px;z-index:9999}@media(max-width:640px){:root{--page-max:calc(100vw - 28px)}body{font-size:16px}}</style>
+<link rel="preload" href="./assets/css/common-v58.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preload" href="./assets/css/dispositifs-v57.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="./assets/css/common-v58.min.css"><link rel="stylesheet" href="./assets/css/dispositifs-v57.min.css"></noscript>
+<meta content="https://ev2025.github.io/pssr/wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png" property="og:image"/>
+</head>
+<body class="pssr-page dispositifs-page v30-circle-global ev39-page" id="accueil">
+<main class="page-main page-dispositifs-v21" data-original-id="contenu" id="main">
+<section aria-labelledby="page-dispositifs-title" class="section-wrap section-compact v21-section">
+<h1 class="sec-title" id="page-dispositifs-title">Deux leviers complémentaires</h1>
+<div class="deep-grid-v21">
+<article class="deep-card-v21"><h3>Les ateliers donnent du sens</h3><p>Ils aident à comprendre, expérimenter et partager autour de la santé, du rythme, de la confiance et du mouvement.</p></article>
+<article class="deep-card-v21"><h3>L’accompagnement renforce le parcours</h3><p>Il soutient les démarches, l’orientation, l’employabilité, la motivation et la progression personnelle.</p></article>
+</div>
+</section>
+<section aria-labelledby="ateliers-title" class="ateliers-v10 ateliers-v12 ateliers-v13" id="ateliers">
+<div class="section-wrap">
+<h2 class="sec-title" id="ateliers-title">Les ateliers</h2>
+<p class="sec-sub atelier-quote">Apprendre donne du sens, pratiquer construit l’expérience, partager renforce le progrès.</p>
+<div aria-label="Ateliers PSSR" class="atelier-cards-v10 atelier-cards-v12 atelier-grid-v13">
+<article class="card info-card atelier-card-v10 atelier-card-v12 atelier-item-v13">
+<div aria-hidden="true" class="ico">📘</div>
+<h3>Apprenez</h3>
+<p class="txt"><strong>Objectif :</strong> expliquer, comprendre, sensibiliser.</p>
+<ul>
+<li>Prévention santé</li>
+<li>Gestion du rythme personnel</li>
+<li>Nutrition et bien-être</li>
+<li>Sensibilisation au mouvement</li>
+<li>Conseils pour progresser durablement</li>
+</ul>
+</article>
+<article class="card info-card atelier-card-v10 atelier-card-v12 atelier-item-v13">
+<div aria-hidden="true" class="ico">🏃</div>
+<h3>Pratiquez</h3>
+<p class="txt"><strong>Objectif :</strong> bouger, s’exercer, reprendre une activité progressivement.</p>
+<ul>
+<li>Remise en forme progressive</li>
+<li>Cardio, mobilité et renforcement</li>
+<li>Initiation boxe / kick-boxing</li>
+<li>Activités adaptées aux jeunes et aux adultes</li>
+<li>Récupération et mobilité</li>
+</ul>
+</article>
+<article class="card info-card atelier-card-v10 atelier-card-v12 atelier-item-v13">
+<div aria-hidden="true" class="ico">🤝</div>
+<h3>Partagez</h3>
+<p class="txt"><strong>Objectif :</strong> créer du lien, renforcer la confiance et avancer avec les autres.</p>
+<ul>
+<li>Accueil et orientation</li>
+<li>Suivi individuel ou collectif</li>
+<li>Objectifs adaptés à chacun·e</li>
+<li>Collaboration avec les référent·es sociaux</li>
+<li>Valorisation des progrès</li>
+</ul>
+</article>
+</div>
+</div>
+</section>
+<section aria-labelledby="socio-title" id="accompagnement">
+<div class="section-wrap">
+<h2 class="sec-title" id="socio-title">Accompagnement socio-professionnel</h2>
+<p class="sec-sub">Choisissez un ou plusieurs modules selon vos besoins. L’équipe PSSR vous confirme ensuite l’organisation adaptée.</p>
+<div aria-label="Modules socio-professionnels PSSR" class="module-grid module-grid-expandable" id="module-grid">
+<details class="module-group" open="">
+<summary>Coaching &amp; orientation</summary>
+<div class="module-options">
+<label class="module-card module-choice-v10" data-icon="🎯"><input name="module" type="checkbox" value="Coaching individuel"/><span>Coaching individuel</span></label>
+<label class="module-card module-choice-v10" data-icon="⚡"><input name="module" type="checkbox" value="Coaching motivationnel"/><span>Coaching motivationnel</span></label>
+<label class="module-card module-choice-v10" data-icon="🧭"><input name="module" type="checkbox" value="Orientation professionnelle"/><span>Orientation professionnelle</span></label>
+<label class="module-card module-choice-v10" data-icon="🎓"><input name="module" type="checkbox" value="Orientation vers la formation"/><span>Orientation vers la formation</span></label>
+</div>
+</details>
+<details class="module-group">
+<summary>Emploi &amp; formation</summary>
+<div class="module-options">
+<label class="module-card module-choice-v10" data-icon="💼"><input name="module" type="checkbox" value="Employabilité"/><span>Employabilité</span></label>
+<label class="module-card module-choice-v10" data-icon="📄"><input name="module" type="checkbox" value="Création et mise à jour du CV"/><span>Création et mise à jour du CV</span></label>
+<label class="module-card module-choice-v10" data-icon="🔎"><input name="module" type="checkbox" value="Recherche d’emploi"/><span>Recherche d’emploi</span></label>
+<label class="module-card module-choice-v10" data-icon="🗣️"><input name="module" type="checkbox" value="Simulations d’entretien"/><span>Simulations d’entretien</span></label>
+</div>
+</details>
+<details class="module-group">
+<summary>Bien-être &amp; démarches</summary>
+<div class="module-options">
+<label class="module-card module-choice-v10" data-icon="🌱"><input name="module" type="checkbox" value="Développement personnel"/><span>Développement personnel</span></label>
+<label class="module-card module-choice-v10" data-icon="🧘"><input name="module" type="checkbox" value="Gestion du stress"/><span>Gestion du stress</span></label>
+<label class="module-card module-choice-v10" data-icon="🍎"><input name="module" type="checkbox" value="Nutrition et bien-être"/><span>Nutrition et bien-être</span></label>
+<label class="module-card module-choice-v10" data-icon="🗂️"><input name="module" type="checkbox" value="Accompagnement administratif"/><span>Accompagnement administratif</span></label>
+</div>
+</details>
+</div>
+<div class="selection-box selection-box-v10">
+<p aria-live="polite" class="selection-summary" hidden="" id="selected-modules-text"></p>
+<div class="module-actions">
+<button class="btn" id="reserve-selected-modules" type="button">Réserver les modules sélectionnés</button>
+<button class="btn secondary" id="register-selected-modules" type="button">Créer un espace membre avec ces modules</button>
+</div>
+<p class="resources-note" style="margin-top:14px;">Besoin d’adresses utiles pour l’emploi, la formation ou l’insertion ? <a href="./ressources-emploi-insertion.html"><strong>Consulter formation &amp; emploi</strong></a>.</p>
+</div>
+</div>
+</section>
+</main>
+<script>
+(function(){
+  const boxes = Array.from(document.querySelectorAll('#module-grid input[name="module"]'));
+  const out = document.getElementById('selected-modules-text');
+  const reserve = document.getElementById('reserve-selected-modules');
+  const register = document.getElementById('register-selected-modules');
+  if(!boxes.length || !out) return;
+  function selected(){ return boxes.filter(b=>b.checked).map(b=>b.value); }
+  function sync(){ const values = selected(); boxes.forEach(b => b.closest('.module-card')?.classList.toggle('is-selected', b.checked)); out.hidden = values.length === 0; out.textContent = values.length ? 'Choix : ' + values.join(', ') : ''; }
+  function go(base){ const values = selected(); if(!values.length){ out.hidden = false; out.textContent = 'Sélectionnez au moins un module avant de continuer.'; out.scrollIntoView({behavior:'smooth',block:'nearest'}); return; } const params = new URLSearchParams(); params.set('modules', values.join(', ')); location.href = base + '?' + params.toString(); }
+  boxes.forEach(b => b.addEventListener('change', sync));
+  reserve?.addEventListener('click', () => go('./reservation.html'));
+  register?.addEventListener('click', () => go('./inscription.html'));
+  sync();
+})();
+</script>
+<script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script></body>
+</html>

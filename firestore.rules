@@ -1,0 +1,345 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isCoach() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/coaches/$(request.auth.uid));
+    }
+
+    function isTeam() {
+      return isAdmin() || isCoach();
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function validEmail(value) {
+      return value is string
+        && value.size() >= 5
+        && value.size() <= 180
+        && value.matches('^[^@ ]+@[^@ ]+[.][^@ ]+$');
+    }
+
+    function validString(value, max) {
+      return value is string && value.size() <= max;
+    }
+
+    function validTrackingCode(value, prefix) {
+      return value is string
+        && (
+          (prefix == 'RES' && value.matches('^PSSR-RES-[0-9]{8}-[A-Z0-9]{4}$'))
+          || (prefix == 'MSG' && value.matches('^PSSR-MSG-[0-9]{8}-[A-Z0-9]{4}$'))
+          || (prefix == 'MBR' && value.matches('^PSSR-MBR-[0-9]{8}-[A-Z0-9]{4}$'))
+          || (prefix == 'DOC' && value.matches('^PSSR-DOC-[0-9]{8}-[A-Z0-9]{4}$'))
+        );
+    }
+
+    function optionalString(field, max) {
+      return !(field in request.resource.data)
+        || validString(request.resource.data[field], max);
+    }
+
+    function optionalBool(field) {
+      return !(field in request.resource.data)
+        || request.resource.data[field] is bool;
+    }
+
+    function optionalTimestamp(field) {
+      return !(field in request.resource.data)
+        || request.resource.data[field] is timestamp;
+    }
+
+    function validPublicBase() {
+      return request.resource.data.keys().hasAll(['nom', 'email', 'rgpdConsent', 'createdAt'])
+        && validString(request.resource.data.nom, 120)
+        && validEmail(request.resource.data.email)
+        && request.resource.data.rgpdConsent == true
+        && request.resource.data.createdAt is timestamp
+        && optionalString('source', 240)
+        && optionalString('pageTitle', 180)
+        && optionalString('userAgent', 300)
+        && optionalString('status', 40);
+    }
+
+    function validMessageCreate() {
+      return request.resource.data.keys().hasOnly([
+          'nom', 'email', 'tel', 'telephone', 'message', 'type', 'fonction',
+          'personneContact', 'commune', 'typeAction', 'typeStructure',
+          'publicConcerne', 'publicAccompagne', 'nombreParticipants',
+          'nombrePersonnes', 'periodeSouhaitee', 'territoire', 'besoinPrincipal',
+          'objectifPrincipal', 'adresse', 'attentesEquipe', 'communication',
+          'contraintesInfrastructure', 'dateDebut', 'dureePartenariat',
+          'exigenceConvention', 'exigenceCoordinationATL', 'exigenceProjetATL',
+          'exigenceROI', 'exigenceRegistreONE', 'exigenceSecurite',
+          'frequenceEvaluations', 'locaux', 'nombreEnfantsAccueil',
+          'nombreEnfantsEcole', 'objectifs', 'plagesHoraires',
+          'pouvoirOrganisateur', 'publicsSpecifiques', 'remarques',
+          'serviceAccueilMatin', 'serviceAccueilSoir', 'serviceAutre',
+          'serviceDevoirs', 'serviceMercredi', 'serviceMidi',
+          'rgpdConsent', 'createdAt', 'source', 'pageTitle', 'userAgent', 'status',
+          'messageCode', 'trackingCode'
+        ])
+        && validPublicBase()
+        && validString(request.resource.data.message, 3000)
+        && validTrackingCode(request.resource.data.messageCode, 'MSG')
+        && request.resource.data.trackingCode == request.resource.data.messageCode
+        && (!('status' in request.resource.data) || request.resource.data.status in ['reçu', 'nouveau'])
+        && optionalString('tel', 60)
+        && optionalString('telephone', 60)
+        && optionalString('type', 80)
+        && optionalString('fonction', 120)
+        && optionalString('personneContact', 120)
+        && optionalString('objectifs', 3000)
+        && optionalString('remarques', 1500);
+    }
+
+    function validReservationCreate() {
+      return request.resource.data.keys().hasOnly([
+          'nom', 'email', 'tel', 'message', 'objectif', 'creneau', 'modules',
+          'reservationCode', 'trackingCode', 'status', 'paymentStatus', 'priceAmount',
+          'priceCurrency', 'priceLabel', 'paymentMethod', 'paymentReference',
+          'paymentAmount', 'paymentAmountCents', 'paymentCurrency', 'paymentLabel',
+          'bankBeneficiary', 'bankIban', 'bankBic', 'qrFormat', 'epcPayload',
+          'rgpdConsent', 'createdAt', 'source', 'pageTitle', 'userAgent', 'uid'
+        ])
+        && validPublicBase()
+        && validTrackingCode(request.resource.data.reservationCode, 'RES')
+        && request.resource.data.trackingCode == request.resource.data.reservationCode
+        && request.resource.data.status in ['reçu', 'en attente', 'nouveau']
+        && optionalString('tel', 60)
+        && optionalString('message', 3000)
+        && optionalString('objectif', 1000)
+        && optionalString('creneau', 300)
+        && optionalString('modules', 1000)
+        && optionalString('paymentStatus', 40)
+        && optionalString('priceAmount', 20)
+        && optionalString('priceCurrency', 10)
+        && optionalString('priceLabel', 180)
+        && optionalString('paymentMethod', 40)
+        && optionalString('paymentReference', 140)
+        && optionalString('paymentAmount', 20)
+        && optionalString('paymentCurrency', 10)
+        && optionalString('paymentLabel', 180)
+        && optionalString('bankBeneficiary', 70)
+        && optionalString('bankIban', 34)
+        && optionalString('bankBic', 11)
+        && optionalString('qrFormat', 40)
+        && optionalString('epcPayload', 331)
+        && (!('paymentAmountCents' in request.resource.data) || request.resource.data.paymentAmountCents is int)
+        && (!('uid' in request.resource.data) || request.resource.data.uid == request.auth.uid);
+    }
+
+    function validPaymentCreate() {
+      return request.resource.data.keys().hasOnly([
+          'reservationId', 'reservationCode', 'paymentReference', 'nom', 'email',
+          'method', 'qrFormat', 'paymentStatus', 'status', 'amount', 'amountCents',
+          'currency', 'label', 'beneficiary', 'iban', 'bic', 'communication',
+          'epcPayload', 'source', 'createdAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'reservationCode', 'paymentReference', 'nom', 'email', 'method',
+          'paymentStatus', 'amount', 'amountCents', 'currency', 'beneficiary',
+          'iban', 'communication', 'createdAt'
+        ])
+        && validTrackingCode(request.resource.data.reservationCode, 'RES')
+        && request.resource.data.paymentReference == request.resource.data.reservationCode
+        && validString(request.resource.data.nom, 120)
+        && validEmail(request.resource.data.email)
+        && request.resource.data.method == 'virement_sepa_epc'
+        && request.resource.data.paymentStatus in ['en attente de virement', 'virement reçu', 'payé', 'non payé', 'à relancer']
+        && request.resource.data.status == request.resource.data.paymentStatus
+        && validString(request.resource.data.amount, 20)
+        && request.resource.data.amountCents is int
+        && request.resource.data.amountCents >= 1
+        && request.resource.data.amountCents <= 99999999999
+        && request.resource.data.currency == 'EUR'
+        && validString(request.resource.data.beneficiary, 70)
+        && validString(request.resource.data.iban, 34)
+        && optionalString('bic', 11)
+        && validString(request.resource.data.communication, 140)
+        && optionalString('qrFormat', 40)
+        && optionalString('label', 180)
+        && optionalString('reservationId', 140)
+        && optionalString('source', 240)
+        && optionalString('epcPayload', 331)
+        && request.resource.data.createdAt is timestamp;
+    }
+
+    function validMemberCreate(userId) {
+      return isOwner(userId)
+        && request.resource.data.keys().hasOnly([
+          'uid', 'firstName', 'lastName', 'displayName', 'email', 'phone',
+          'birthDate', 'address', 'modules', 'role', 'memberCode', 'trackingCode', 'status',
+          'journeyLevel', 'attendanceCount', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'uid', 'firstName', 'lastName', 'displayName', 'email', 'role',
+          'memberCode', 'journeyLevel', 'attendanceCount', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.uid == userId
+        && request.resource.data.role == 'member'
+        && request.resource.data.email == request.auth.token.email
+        && validString(request.resource.data.firstName, 80)
+        && validString(request.resource.data.lastName, 80)
+        && validString(request.resource.data.displayName, 120)
+        && validEmail(request.resource.data.email)
+        && validTrackingCode(request.resource.data.memberCode, 'MBR')
+        && request.resource.data.trackingCode == request.resource.data.memberCode
+        && (!('status' in request.resource.data) || request.resource.data.status == 'dossier reçu')
+        && request.resource.data.journeyLevel == 'ARF'
+        && request.resource.data.attendanceCount == 0
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp
+        && optionalString('phone', 60)
+        && optionalString('birthDate', 30)
+        && optionalString('address', 240)
+        && optionalString('modules', 1000);
+    }
+
+    function memberAllowedUpdateOnly() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'phone', 'address', 'emergencyContact', 'preferences', 'updatedAt'
+      ])
+      && optionalString('phone', 60)
+      && optionalString('address', 240)
+      && optionalString('emergencyContact', 300)
+      && (!('preferences' in request.resource.data) || request.resource.data.preferences is map)
+      && request.resource.data.updatedAt is timestamp;
+    }
+
+    function teamAllowedUserUpdateOnly() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'attendanceCount', 'journeyLevel', 'currentStep', 'journeyDates', 'badges',
+        'status', 'referent', 'socialReferent', 'session', 'goals', 'modules',
+        'notes', 'updatedAt'
+      ])
+      && request.resource.data.updatedAt is timestamp;
+    }
+
+    match /admins/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if false;
+    }
+
+    match /coaches/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow create: if validMemberCreate(userId) || isAdmin();
+      allow read: if isOwner(userId) || isTeam();
+      allow update: if isAdmin()
+        || (isCoach() && teamAllowedUserUpdateOnly())
+        || (isOwner(userId) && memberAllowedUpdateOnly());
+      allow delete: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /pages/{pageId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /slots/{slotId} {
+      allow read: if true;
+      allow write: if isTeam();
+    }
+
+    match /messages/{messageId} {
+      allow create: if validMessageCreate();
+      allow read, update, delete: if isTeam();
+    }
+
+    match /reservations/{reservationId} {
+      allow create: if validReservationCreate();
+      allow read: if isTeam() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow update, delete: if isTeam();
+    }
+
+    match /payments/{paymentId} {
+      allow create: if isAdmin() || validPaymentCreate();
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /notifications/{notificationId} {
+      allow read, create, update, delete: if isTeam();
+    }
+
+    match /avis/{reviewId} {
+      allow create: if isAdmin() || (request.resource.data.keys().hasOnly([
+          'nom', 'email', 'message', 'rating', 'published', 'status', 'createdAt',
+          'source', 'pageTitle', 'userAgent', 'rgpdConsent'
+        ])
+        && validPublicBase()
+        && validString(request.resource.data.message, 1200)
+        && (!('published' in request.resource.data) || request.resource.data.published == false)
+        && (!('status' in request.resource.data) || request.resource.data.status == 'nouveau'));
+      allow read: if resource.data.published == true || isTeam();
+      allow update, delete: if isAdmin();
+    }
+
+    match /attendances/{attendanceId} {
+      allow create, update, delete: if isTeam();
+      allow read: if isTeam() || (signedIn() && resource.data.uid == request.auth.uid);
+    }
+
+    match /passports/{userId} {
+      allow read: if isOwner(userId) || isTeam();
+      allow create, update: if isTeam();
+      allow delete: if isAdmin();
+    }
+
+    match /badges/{badgeId} {
+      allow read: if signedIn();
+      allow write: if isTeam();
+    }
+
+    match /emailLogs/{logId} {
+      allow read, create, update, delete: if isTeam();
+    }
+
+    match /consents/{consentId} {
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          'uid', 'email', 'displayName', 'type', 'reason', 'status', 'createdAt',
+          'consentCode', 'trackingCode'
+        ])
+        && validEmail(request.resource.data.email)
+        && request.resource.data.type in ['gdpr_deletion_request', 'gdpr_access_request', 'gdpr_rectification_request']
+        && request.resource.data.status in ['reçu', 'nouveau']
+        && validTrackingCode(request.resource.data.consentCode, 'DOC')
+        && request.resource.data.trackingCode == request.resource.data.consentCode
+        && request.resource.data.createdAt is timestamp
+        && optionalString('displayName', 120)
+        && optionalString('reason', 1500);
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

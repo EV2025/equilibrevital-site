@@ -1,0 +1,11 @@
+V42 verification
+
+index.html:
+- Ancien titre supprimé : OK
+- Ancien paragraphe supprimé : OK
+- Deux sections PSSR répétitives supprimées : OK
+- Bouton unique Comprendre la Méthode PSSR -> ./pssr.html : OK
+- Super cercle PSSR non modifié : OK
+
+Liens locaux cassés détectés : 1
+('_includes/seo-basic.html', '{{ page.url | absolute_url }}', '/mnt/data/pssr-v42-accueil-essentiel-pssr/_includes/{{ page.url | absolute_url }}')

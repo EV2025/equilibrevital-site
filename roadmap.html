@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Roadmap PSSR — Équilibre Vital</title>
+<meta content="Feuille de route interne du projet PSSR." name="description"/>
+<meta content="noindex,follow" name="robots"/>
+<style>
+.table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid rgba(138,84,204,.22);border-radius:18px;overflow:hidden}.table th,.table td{padding:12px 14px;text-align:left;border-bottom:1px solid rgba(138,84,204,.16);vertical-align:top}.table th{background:#f3eaff;color:#4b2f88}.table tr:last-child td{border-bottom:0}.grid-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.mini-card{background:white;border:1px solid rgba(138,84,204,.22);border-radius:18px;padding:18px}.mini-card h3{margin-top:0;color:#4b2f88}.pill{display:inline-flex;padding:6px 10px;border-radius:999px;background:linear-gradient(135deg,#e6d5ff,#cfa9ff);font-weight:900;color:#4b2f88;font-size:.85rem}.warning{padding:14px 16px;border-radius:14px;background:#fff8e6;border:1px dashed #cfa94d;color:#6a4e0e}@media(max-width:760px){.table,.table tbody,.table tr,.table td,.table th{display:block}.table thead{display:none}.table tr{border-bottom:1px solid rgba(138,84,204,.16)}.table td{border-bottom:0}.table td::before{content:attr(data-label);display:block;font-weight:900;color:#4b2f88;margin-bottom:3px}}
+</style>
+<meta content="#FFF7FB" name="theme-color"/>
+<meta content="light" name="color-scheme"/>
+<style>body{margin:0;font-family:Inter,Manrope,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fff8fc;color:#21112b}img{max-width:100%;height:auto}main{min-height:54vh}.ev36-header{position:sticky;top:0;z-index:5000}</style>
+
+  <style>:root{--brand-bg:#FFF7FB;--brand-section:#F5ECFF;--brand-surface:#FFFFFF;--brand-text:#24112F;--brand-body:#4D315E;--brand-primary:#D92E83;--brand-secondary:#7C3AED;--brand-border:#C9AEEA;--font:Inter,Manrope,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--page-max:min(1480px,calc(100vw - 64px));--content-max:1180px;--radius-lg:34px}*{box-sizing:border-box}html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}body{margin:0;min-width:320px;overflow-x:hidden;font-family:var(--font);color:var(--brand-body);font-size:17px;line-height:1.68;background:radial-gradient(900px 520px at 8% -8%,rgba(217,46,131,.13),transparent 62%),radial-gradient(900px 520px at 92% 0,rgba(124,58,237,.14),transparent 64%),linear-gradient(135deg,var(--brand-bg) 0,var(--brand-section) 54%,#fff 100%)}img,svg,video{max-width:100%;height:auto;display:block}a{color:var(--brand-secondary);text-decoration:none;font-weight:800}h1,h2,h3,h4,h5,h6{color:var(--brand-text);line-height:1.06;margin:0 0 16px;letter-spacing:-.035em}h1{font-size:clamp(2.55rem,6.4vw,5.8rem);font-weight:950}h2{font-size:clamp(2rem,3.6vw,3.75rem);font-weight:930}p{margin:0 0 16px}.site-header,.ev36-header{min-height:72px}.ev39-container,.container,.wrap{width:min(1180px,calc(100vw - 32px));margin-inline:auto}.btn,.ev39-btn,button[type="submit"]{min-height:44px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center}.skip-link{position:absolute;left:-999px;top:10px}.skip-link:focus{left:12px;z-index:9999}@media(max-width:640px){:root{--page-max:calc(100vw - 28px)}body{font-size:16px}}</style>
+<link rel="preload" href="./assets/css/common-v58.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="./assets/css/common-v58.min.css"></noscript>
+<link href="https://ev2025.github.io/pssr/roadmap.html" rel="canonical"/>
+<meta content="Roadmap PSSR — Équilibre Vital" property="og:title"/>
+<meta content="Feuille de route interne du projet PSSR." property="og:description"/>
+<meta content="https://ev2025.github.io/pssr/roadmap.html" property="og:url"/>
+<meta content="website" property="og:type"/>
+<meta content="https://ev2025.github.io/pssr/wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png" property="og:image"/>
+</head>
+<body class="pssr-page v30-circle-global ev39-page">
+<main class="pssr-main" id="main">
+<section class="panel">
+<p class="eyebrow">Document de stabilisation</p>
+<h1>Roadmap PSSR</h1>
+<p><strong>Bouge ton corps, avance dans ta vie !</strong> Cette page reprend les éléments utiles du plan global sans annoncer comme actifs les modules qui ne sont pas encore développés.</p>
+<p class="warning"><strong>Version déployée aujourd’hui :</strong> site statique GitHub Pages + Firebase Authentication + Firestore. Les mentions React/FastAPI/MongoDB restent une vision de phase 2, pas la configuration actuelle.</p>
+</section>
+<section class="panel">
+<p class="eyebrow">État réel</p>
+<h2>Ce qui est déjà actif</h2>
+<div class="grid-cards">
+<div class="mini-card"><span class="pill">Public</span><h3>Site institutionnel</h3><p>Accueil, parcours PSSR, activités, horaires, tarif solidaire, documents et contact.</p></div>
+<div class="mini-card"><span class="pill">Firebase</span><h3>Contact &amp; réservations</h3><p>Messages et demandes enregistrés dans Firestore. Les réservations génèrent une référence PSSR.</p></div>
+<div class="mini-card"><span class="pill">Admin</span><h3>Back-office privé</h3><p>Connexion admin, lecture des messages/réservations, export CSV et import de contenus WordPress.</p></div>
+</div>
+</section>
+<section class="panel">
+<p class="eyebrow">Repris du plan global</p>
+<h2>Éléments ajoutés au site actuel</h2>
+<table class="table">
+<thead><tr><th>Élément du plan</th><th>Intégration stable</th></tr></thead>
+<tbody>
+<tr><td data-label="Élément du plan">Slogan</td><td data-label="Intégration stable">Ajout de “Bouge ton corps, avance dans ta vie !” dans la page d’accueil.</td></tr>
+<tr><td data-label="Élément du plan">Créneaux officiels</td><td data-label="Intégration stable">Les 7 créneaux sportifs sont visibles et proposés dans le formulaire de réservation.</td></tr>
+<tr><td data-label="Élément du plan">Accompagnement socio-professionnel</td><td data-label="Intégration stable">Ajout d’un planning socio-pro : coaching, CV, emploi, formation, administratif, stress, nutrition.</td></tr>
+<tr><td data-label="Élément du plan">6 étapes PSSR</td><td data-label="Intégration stable">ARF, BSS, PDS, APA, CPE, SRS restent visibles dans le parcours interactif.</td></tr>
+<tr><td data-label="Élément du plan">Documentation</td><td data-label="Intégration stable">La vision complète est rangée en documentation de phase 2, sans casser le site actuel.</td></tr>
+</tbody>
+</table>
+</section>
+<section class="panel">
+<p class="eyebrow">Phase 2</p>
+<h2>Modules à développer plus tard</h2>
+<div class="grid-cards">
+<div class="mini-card"><h3>Espace membre</h3><p>Tableau de bord participant, réservations personnelles, agenda, parcours et passeport numérique.</p></div>
+<div class="mini-card"><h3>Espace coach</h3><p>Validation des présences, gestion des créneaux et suivi de progression.</p></div>
+<div class="mini-card"><h3>Admin avancé</h3><p>KPI, gestion utilisateurs, CRUD créneaux, paramètres ASBL modifiables.</p></div>
+<div class="mini-card"><h3>Automatisations</h3><p>Emails automatiques, badges, PDF, attestations, export iCal et synchronisation calendrier.</p></div>
+</div>
+</section>
+<section class="panel">
+<p class="eyebrow">Choix technique</p>
+<h2>Pourquoi ne pas changer le stack maintenant ?</h2>
+<p>Le site fonctionne déjà avec GitHub Pages et Firebase. Passer à React + FastAPI + MongoDB demanderait un backend séparé, un déploiement supplémentaire et une migration complète. La bonne méthode est donc de stabiliser la version actuelle, puis de traiter la grande plateforme comme une phase 2.</p>
+<p><a class="btn" href="./index.html#contact">Contacter PSSR</a> <a class="btn secondary" href="./reservation.html">Faire une réservation</a></p>
+</section>
+<section class="panel"><p class="eyebrow">Phase 2A — déployable Firebase</p><h2>Ce qui est ajouté maintenant</h2><div class="grid-cards"><div class="metric"><span>Inscription</span><strong>5</strong><p>étapes simplifiées</p></div><div class="metric"><span>Espaces</span><strong>3</strong><p>membre, coach, admin</p></div><div class="metric"><span>Parcours</span><strong>6</strong><p>niveaux ARF → SRS</p></div></div><p>Cette phase reste compatible avec GitHub Pages et Firebase. La phase React/FastAPI/MongoDB reste documentée comme migration future.</p></section></main>
+<script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script></body>
+</html>

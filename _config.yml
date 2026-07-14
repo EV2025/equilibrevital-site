@@ -1,0 +1,39 @@
+# Équilibre Vital / PSSR — configuration Jekyll GitHub Pages
+# Objectif : améliorer l’expérience GitHub Pages sans modifier la structure HTML existante.
+# Les pages HTML actuelles restent servies telles quelles ; ces paramètres apportent une base SEO, sitemap et maintenance.
+
+title: "Équilibre Vital / PSSR"
+description: "Parcours Socio-Sportif Renforcé à Bruxelles : activités, accompagnement, réservation et espaces membres."
+lang: fr
+locale: fr_BE
+timezone: Europe/Brussels
+url: "https://ev2025.github.io"
+baseurl: "/pssr"
+
+permalink: pretty
+markdown: kramdown
+highlighter: rouge
+
+# GitHub Pages supporte ces plugins officiels.
+plugins:
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Évite de publier les fichiers de travail inutiles.
+exclude:
+  - README_DEPLOIEMENT.md
+  - STRUCTURE_ATTENDUE_GITHUB.md
+  - TESTS_APRES_UPLOAD.md
+  - FIREBASE_SETUP.md
+  - FIRESTORE_ADMIN_A_CREER.json
+  - docs/
+  - "*.zip"
+
+# Données utiles pour les futurs modèles Jekyll.
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: null
+      image: "/assets/img/media-manquante.svg"

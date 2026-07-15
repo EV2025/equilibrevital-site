@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Espace membre PSSR</title>
+<meta content="noindex,nofollow" name="robots"/>
+<meta content="#FFF7FB" name="theme-color"/>
+<meta content="light" name="color-scheme"/>
+<style>body{margin:0;font-family:Inter,Manrope,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:#fff8fc;color:#24112F}img{max-width:100%;height:auto}main{min-height:54vh}.ev36-header{position:sticky;top:0;z-index:5000}.ev36-skip-link{position:absolute;left:-999px;top:10px;background:#24112F;color:#fff;padding:10px 14px;border-radius:999px;z-index:9999}.ev36-skip-link:focus{left:12px}</style><noscript></noscript>
+
+  <link href="../assets/css/common-v58.min.css" rel="stylesheet"/>
+</head>
+<body class="pssr-page v30-circle-global ev39-page ev39-role-member">
+<main class="pssr-main" id="main"><button aria-hidden="true" class="btn secondary ev39-logout" hidden="" id="logout" style="display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important" type="button">Déconnexion</button>
+<section class="panel" data-role-block="Connexion membre" id="login-panel">
+<p class="eyebrow">Connexion membre</p>
+<h1>Mon espace PSSR</h1>
+<p>Connectez-vous pour accéder à votre parcours.</p>
+<form class="form-grid small" id="login-form">
+<label>Email<input name="email" required="" type="email"/></label>
+<label>Mot de passe<input name="password" required="" type="password"/></label>
+<button class="btn" type="submit">Connexion</button>
+<p class="auth-secondary-link"><a href="../mot-de-passe-oublie.html?type=membre">Mot de passe oublié ?</a></p>
+<p class="msg" hidden="" id="login-msg"></p>
+</form>
+<p class="notice">Pas encore de compte ? <a href="../inscription.html"><strong>Créer un espace membre</strong></a>.</p>
+</section>
+<section class="panel" data-role-block="Mon espace PSSR" hidden="" id="dashboard">
+<p class="eyebrow">Parcours personnel</p>
+<h2 id="welcome">Mon espace PSSR</h2>
+<div class="grid-cards">
+<div class="metric"><span>Étape actuelle</span><strong id="level">CAND</strong></div>
+<div class="metric"><span>Présences</span><strong id="attendance-count">0</strong></div>
+<div class="metric"><span>Code membre</span><strong id="member-code">—</strong></div>
+</div>
+<div class="portal-actions"><a class="btn secondary" href="#slots">Voir mes modules</a><a class="btn secondary" href="../reservation.html">Faire une nouvelle demande</a></div>
+</section>
+<section class="panel" hidden="" id="participant-panel">
+<p class="eyebrow">Informations personnelles</p>
+<h2>Mon dossier</h2>
+<div class="pssr-card participant-card">
+<div class="pssr-kv" id="participant-kv"></div>
+</div>
+</section>
+<section class="panel" data-role-block="Mes étapes PSSR" hidden="" id="journey-panel">
+<p class="eyebrow">Suivi du parcours</p>
+<h2>Mes étapes PSSR</h2>
+<p class="muted">Cliquez sur une étape pour voir son objectif. L’équipe PSSR mettra à jour les dates prévues/réalisées selon votre accompagnement.</p>
+<ol class="pssr-steps" id="journey-steps" role="tablist"></ol>
+<div id="journey-panels"></div>
+</section>
+<section class="panel" data-role-block="Passeport socio-sportif numérique" hidden="" id="passport-panel">
+<div class="passport" id="passport"><h2>Passeport Socio-Sportif Numérique</h2><p><strong>Nom :</strong> <span id="pass-name">—</span></p><p><strong>Email :</strong> <span id="pass-email">—</span></p><p><strong>Code membre :</strong> <span id="pass-code">—</span></p><p><strong>Étape :</strong> <span id="pass-level">—</span></p><p><strong>Présences validées :</strong> <span id="pass-att">0</span></p><div class="badge-row" id="badges"></div></div><div class="portal-actions ev39-passport-actions"><button class="btn secondary" id="print-passport">Imprimer mon passeport</button></div>
+</section>
+<section class="panel" data-role-block="Mes réservations" hidden="" id="my-reservations"><p class="eyebrow">Mes demandes</p><h2>Mes réservations</h2><div class="records" id="reservation-list"></div></section>
+<section class="panel" hidden="" id="slots"><p class="eyebrow">Modules liés à mon parcours</p><h2>Mes activités sélectionnées</h2><p class="muted">Cet espace affiche uniquement les activités ou modules liés à votre compte et à vos demandes. L’agenda général est géré par l’équipe PSSR.</p><div class="grid-cards" id="slot-list"></div></section>
+<section class="panel" data-role-block="Mes données personnelles" hidden="" id="gdpr-panel">
+<p class="eyebrow">Données personnelles</p>
+<h2>Demander la suppression de mes données</h2>
+<p class="muted">Vous pouvez demander la suppression de vos données personnelles liées à votre parcours. L’équipe PSSR traitera votre demande conformément au RGPD.</p>
+<form class="form-grid small" id="gdpr-form">
+<label class="full">Motif facultatif<textarea name="reason" placeholder="Expliquez votre demande si nécessaire" rows="3"></textarea></label>
+<button class="btn secondary" type="submit">Envoyer la demande</button>
+<p class="msg" hidden="" id="gdpr-msg"></p>
+</form>
+</section>
+</main>
+<script defer="" src="../assets/js/member.js" type="module"></script><script defer="" src="../assets/js/media-fallback.js"></script>
+<script defer="True" src="../assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="../assets/js/v41-footer-burger.js"></script></body></html>

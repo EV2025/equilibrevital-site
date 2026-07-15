@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Tableau de bord PSSR</title>
+<meta content="noindex,nofollow" name="robots"/>
+<meta content="#FFF7FB" name="theme-color"/>
+<meta content="light" name="color-scheme"/>
+<style>body{margin:0;font-family:Inter,Manrope,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:#fff8fc;color:#24112F}img{max-width:100%;height:auto}main{min-height:54vh}.ev36-header{position:sticky;top:0;z-index:5000}.ev36-skip-link{position:absolute;left:-999px;top:10px;background:#24112F;color:#fff;padding:10px 14px;border-radius:999px;z-index:9999}.ev36-skip-link:focus{left:12px}</style><noscript></noscript>
+
+  <link href="../assets/css/common-v58.min.css" rel="stylesheet"/>
+
+<style>
+.payment-admin-summary-v1{margin-top:10px;padding:12px 14px;border-radius:16px;background:#fff;border:1px solid rgba(124,58,237,.18);color:#24112f;line-height:1.55}
+.payment-admin-summary-v1 code{word-break:break-word}
+</style>
+</head>
+<body class="pssr-page admin-page v30-circle-global ev39-page ev39-role-admin">
+<main class="pssr-main" id="main"><button class="btn secondary ev39-logout" hidden="" id="logout" type="button">Déconnexion</button>
+<section class="panel ev39-admin-access-note" hidden="" id="config-warning">
+<h2>Accès réservé à l’administration PSSR</h2>
+<p>Connectez-vous pour gérer les demandes, réservations et contenus.</p>
+</section>
+<section class="panel" id="login-panel">
+<p class="eyebrow">Accès privé</p>
+<h1>Accès réservé à l’administration PSSR</h1>
+<form class="form-grid small" id="login-form">
+<label>Email admin<input name="email" required="" type="email"/></label>
+<label>Mot de passe<input name="password" required="" type="password"/></label>
+<button class="btn" type="submit">Connexion</button>
+<p class="auth-secondary-link"><a href="../mot-de-passe-oublie.html?type=admin">Mot de passe oublié ?</a></p>
+<p class="msg" hidden="" id="login-msg"></p>
+</form>
+</section>
+<section class="panel" hidden="" id="dashboard-panel">
+<p class="eyebrow">Administration PSSR</p>
+<h2>Tableau de bord administration</h2>
+<p class="payment-note">Gestion des demandes, réservations, clients, services, calendrier, paiements manuels, notifications et statistiques.</p>
+<div aria-label="Navigation par catégories admin" class="ev39-admin-tab-groups"><section class="ev39-admin-tab-group"><h3>Demandes</h3><div class="tabs"><button class="tab active" data-tab="messages">Messages</button><button class="tab" data-tab="reservations">Réservations</button><button class="tab" data-tab="attendances">Présences</button></div></section><section class="ev39-admin-tab-group"><h3>Participants</h3><div class="tabs"><button class="tab" data-tab="users">Clients</button></div></section><section class="ev39-admin-tab-group"><h3>Organisation</h3><div class="tabs"><button class="tab" data-tab="services">Services</button><button class="tab" data-tab="slots">Calendrier</button><button class="tab" data-tab="payments">Paiements</button></div></section><section class="ev39-admin-tab-group"><h3>Communication</h3><div class="tabs"><button class="tab" data-tab="notifications">Notifications</button><button class="tab" data-tab="emailLogs">Journaux d’e-mails</button></div></section><section class="ev39-admin-tab-group"><h3>Contenu</h3><div class="tabs"><button class="tab" data-tab="pages">Contenu pages</button></div></section><section class="ev39-admin-tab-group"><h3>Pilotage</h3><div class="tabs"><button class="tab" data-tab="stats">Statistiques</button></div></section></div>
+<div class="toolbar"><button class="btn secondary" id="export-csv">Exporter CSV</button><button class="btn secondary" id="seed-pages">Importer le contenu WordPress</button><button class="btn secondary" id="seed-slots">Importer les créneaux officiels</button><button class="btn secondary" id="seed-services">Importer services &amp; tarifs</button></div>
+<div aria-label="Filtres du tableau de bord" class="admin-tools">
+<label>Recherche participant<input id="admin-search" placeholder="Nom, email, téléphone, ID…" type="search"/></label>
+<label>Statut<select id="admin-status"><option value="">Tous</option><option>nouveau</option><option>en attente</option><option>inscrit</option><option>en cours</option><option>terminé</option><option>abandonné</option><option>confirmée</option><option>annulée</option></select></label>
+<label>Session<input id="admin-session" placeholder="Septembre 2026" type="search"/></label>
+<label>Date<input id="admin-date" type="date"/></label>
+</div>
+<div id="admin-summary"></div>
+<h2 class="section-heading" id="collection-title">Messages reçus</h2>
+<div class="records" id="records"></div>
+</section>
+</main>
+<script defer="" src="../assets/js/admin.js" type="module"></script>
+<script defer="" src="../assets/js/media-fallback.js"></script>
+<script defer="True" src="../assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="../assets/js/v41-footer-burger.js"></script></body>
+</html>

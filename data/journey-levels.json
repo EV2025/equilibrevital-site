@@ -1,0 +1,38 @@
+[
+  {
+    "code": "ARF",
+    "title": "Ateliers de remise en forme",
+    "minAttendances": 0,
+    "description": "Entrée dans le parcours : se remettre en mouvement et découvrir le cadre."
+  },
+  {
+    "code": "BSS",
+    "title": "Bilan socio-sportif",
+    "minAttendances": 2,
+    "description": "Clarifier les besoins, freins, objectifs et ressources."
+  },
+  {
+    "code": "PDS",
+    "title": "Parcours découverte sportive",
+    "minAttendances": 4,
+    "description": "Tester plusieurs disciplines et identifier ce qui convient."
+  },
+  {
+    "code": "APA",
+    "title": "Activité physique adaptée",
+    "minAttendances": 8,
+    "description": "Installer une pratique régulière et progressive."
+  },
+  {
+    "code": "CPE",
+    "title": "Concertation partagée d’engagement",
+    "minAttendances": 12,
+    "description": "Relier sport, santé, social et projet professionnel."
+  },
+  {
+    "code": "SRS",
+    "title": "Suivi renforcé solution",
+    "minAttendances": 18,
+    "description": "Pérenniser la pratique et valoriser les acquis."
+  }
+]

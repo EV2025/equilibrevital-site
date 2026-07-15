@@ -1,0 +1,15 @@
+columns:
+  - title: Navigation
+    links:
+      - label: Accueil
+        href: /index.html
+      - label: Espace coach
+        href: /coach/index.html
+      - label: Documents
+        href: /documents.html
+  - title: Liens utiles
+    links:
+      - label: Formation & emploi
+        href: /ressources-emploi-insertion.html
+      - label: Partenaires & institutions
+        href: /partenaires-institutions.html

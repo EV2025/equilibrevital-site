@@ -1,0 +1,131 @@
+{
+  "version": "stabilisee-github-pages-firebase",
+  "siteUrl": "https://ev2025.github.io/pssr/",
+  "accroche": "Parcours socio-sportif adapté à chaque participant.",
+  "tarifSolidaire": "165€ / année académique",
+  "periode": "Septembre → 6 juin",
+  "lieu": "Gare de l’Ouest — Centre Sportif Pythagoras · urban.brussels — Molenbeek",
+  "collaboration": "L'école du dos",
+  "activitesSportives": [
+    {
+      "jour": "Mardi",
+      "horaire": "18:00–19:00",
+      "activite": "Cardio Fit Ados",
+      "public": "13–17 ans"
+    },
+    {
+      "jour": "Mardi",
+      "horaire": "19:00–20:00",
+      "activite": "Initiation Boxe & Kick-Boxing",
+      "public": "13 ans+"
+    },
+    {
+      "jour": "Vendredi",
+      "horaire": "16:00–17:00",
+      "activite": "Kids Move",
+      "public": "6–12 ans"
+    },
+    {
+      "jour": "Vendredi",
+      "horaire": "17:00–18:00",
+      "activite": "Training Jeunes — Multisport",
+      "public": "13–17 ans"
+    },
+    {
+      "jour": "Vendredi",
+      "horaire": "19:00–20:00",
+      "activite": "Fitness Loisirs Mixte",
+      "public": "18 ans+"
+    },
+    {
+      "jour": "Vendredi",
+      "horaire": "20:00–21:00",
+      "activite": "Boxing Loisir & Technique",
+      "public": "18 ans+"
+    },
+    {
+      "jour": "Samedi",
+      "horaire": "08:00–10:00",
+      "activite": "Mobility & Recovery",
+      "public": "Femmes 40 ans+"
+    }
+  ],
+  "ateliersSocioProfessionnels": [
+    {
+      "jour": "Lundi",
+      "horaire": "10:00–11:00",
+      "atelier": "Coaching individuel"
+    },
+    {
+      "jour": "Lundi",
+      "horaire": "11:00–12:30",
+      "atelier": "Employabilité"
+    },
+    {
+      "jour": "Lundi",
+      "horaire": "14:00–15:30",
+      "atelier": "Création & mise à jour du CV"
+    },
+    {
+      "jour": "Lundi",
+      "horaire": "15:30–17:00",
+      "atelier": "Recherche d'emploi"
+    },
+    {
+      "jour": "Mercredi",
+      "horaire": "10:00–11:30",
+      "atelier": "Simulations d'entretien"
+    },
+    {
+      "jour": "Mercredi",
+      "horaire": "11:30–12:30",
+      "atelier": "Développement personnel"
+    },
+    {
+      "jour": "Mercredi",
+      "horaire": "14:00–15:00",
+      "atelier": "Gestion du stress"
+    },
+    {
+      "jour": "Mercredi",
+      "horaire": "15:00–16:30",
+      "atelier": "Nutrition et bien-être"
+    },
+    {
+      "jour": "Jeudi",
+      "horaire": "10:00–11:30",
+      "atelier": "Orientation vers la formation"
+    },
+    {
+      "jour": "Jeudi",
+      "horaire": "11:30–13:00",
+      "atelier": "Orientation professionnelle"
+    },
+    {
+      "jour": "Jeudi",
+      "horaire": "14:00–15:30",
+      "atelier": "Accompagnement administratif"
+    },
+    {
+      "jour": "Jeudi",
+      "horaire": "15:30–17:00",
+      "atelier": "Coaching motivationnel"
+    }
+  ],
+  "parcours": [
+    "ARF",
+    "BSS",
+    "PDS",
+    "APA",
+    "CPE",
+    "SRS"
+  ],
+  "phase2NonActive": [
+    "Espace membre",
+    "Espace coach",
+    "Gamification",
+    "Passeport PDF",
+    "Emails automatiques",
+    "Backend API"
+  ]
+}

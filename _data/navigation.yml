@@ -1,0 +1,14 @@
+main:
+  - label: Activités
+    href: /activites.html
+  - label: Dispositifs
+    href: /dispositifs.html
+  - label: PSSR
+    href: /pssr.html
+actions:
+  - label: Connexion
+    href: /dashboard.html
+    variant: secondary
+  - label: Je m’inscris
+    href: /inscription.html
+    variant: primary

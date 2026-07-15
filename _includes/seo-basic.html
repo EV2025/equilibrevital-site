@@ -1,0 +1,13 @@
+{%- comment -%}
+  Include Jekyll prêt pour les futures pages converties en templates.
+  Les pages HTML actuelles restent intactes ; cet include sert de base propre pour la suite.
+{%- endcomment -%}
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>{{ page.title | default: site.title }}</title>
+<meta content="{{ page.description | default: site.description }}" name="description"/>
+<link href="{{ page.url | absolute_url }}" rel="canonical"/>
+<meta content="{{ page.title | default: site.title }}" property="og:title"/>
+<meta content="{{ page.description | default: site.description }}" property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="{{ page.url | absolute_url }}" property="og:url"/>

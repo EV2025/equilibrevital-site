@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://ev2025.github.io/pssr/sitemap.xml

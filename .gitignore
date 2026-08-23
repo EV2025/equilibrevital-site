@@ -18,3 +18,6 @@ wp-content/uploads/bp-better-messages/
 wp-content/uploads/custom-css-js/
 wp-content/uploads/elementor/
 assets/css/wordpress-extracts/
+
+# Firebase local logs
+firebase-debug.log

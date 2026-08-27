@@ -7,8 +7,8 @@ description: "Parcours Socio-Sportif Renforcé à Bruxelles : activités, accomp
 lang: fr
 locale: fr_BE
 timezone: Europe/Brussels
-url: "https://ev2025.github.io"
-baseurl: "/pssr"
+url: "https://equilibrevital.be"
+baseurl: ""
 
 permalink: pretty
 markdown: kramdown

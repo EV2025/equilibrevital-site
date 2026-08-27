@@ -1,4 +1,4 @@
-# PSSR — Version V7 organisation professionnelle
+# Équilibre Vital / PSSR — site officiel
 
 La V7 conserve le site existant et améliore l’organisation visuelle : menu court, calendrier compact, inscription simplifiée, footer complet, tableau de bord membre/admin.
 
@@ -16,15 +16,15 @@ Site GitHub Pages + Firebase pour le Parcours Socio-Sportif Renforcé.
 
 ## URLs
 
-- Site : https://ev2025.github.io/pssr/
-- Inscription : https://ev2025.github.io/pssr/inscription.html
-- Espace membre : https://ev2025.github.io/pssr/member/dashboard.html
-- Espace coach : https://ev2025.github.io/pssr/coach/
-- Admin : https://ev2025.github.io/pssr/admin/
+- Site : https://equilibrevital.be/
+- Inscription : https://equilibrevital.be/inscription.html
+- Espace membre : https://equilibrevital.be/member/dashboard.html
+- Espace coach : https://equilibrevital.be/coach/
+- Admin : https://equilibrevital.be/admin/
 
 ## Déploiement
 
-Décompresser le ZIP, copier le contenu à la racine du dépôt local `pssr`, puis GitHub Desktop : `Commit to main` → `Push origin`.
+Décompresser le ZIP, copier le contenu à la racine du dépôt local `equilibrevital-site`, puis GitHub Desktop : `Commit to main` → `Push origin`.
 
 Après push, publier les règles Firestore du fichier `firestore.rules`.
 

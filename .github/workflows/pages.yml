@@ -29,13 +29,34 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Validate site
+        run: python3 scripts/validate_site.py
+
       - name: Prepare static files
         run: |
           mkdir -p _site
           rsync -av --delete \
             --exclude='.git' \
             --exclude='.github' \
+            --exclude='.gitignore' \
+            --exclude='.gitattributes' \
+            --exclude='.firebaserc.example' \
             --exclude='_site' \
+            --exclude='_config.yml' \
+            --exclude='_data' \
+            --exclude='_includes' \
+            --exclude='_layouts' \
+            --exclude='src' \
+            --exclude='scripts' \
+            --exclude='docs' \
+            --exclude='/*.md' \
+            --exclude='/V*.txt' \
+            --exclude='/README*.txt' \
+            --exclude='/FIRESTORE_ADMIN_A_CREER.json' \
+            --exclude='/firebase.json' \
+            --exclude='/firestore.indexes.json' \
+            --exclude='/*.rules' \
+            --exclude='/wp-content/uploads/*.txt' \
             ./ _site/
 
       - name: Upload artifact

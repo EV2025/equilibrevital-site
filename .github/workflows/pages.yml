@@ -48,7 +48,6 @@ jobs:
             --exclude='_layouts' \
             --exclude='src' \
             --exclude='scripts' \
-            --exclude='functions' \
             --exclude='docs' \
             --exclude='/*.md' \
             --exclude='/V*.txt' \

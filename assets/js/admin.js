@@ -478,7 +478,7 @@ async function handleRecordAction(e){
 
 function csvCell(value){
   let text = String(value ?? '');
-  if (/^[=+\\-@]/.test(text)) text = `'${text}`;
+  if (/^[=+@-]/.test(text)) text = `'${text}`;
   return `"${text.replace(/"/g, '""')}"`;
 }
 

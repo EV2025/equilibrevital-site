@@ -94,6 +94,10 @@ const fieldLabels = {
   role: 'Rôle',
   level: 'Niveau PSSR',
   paymentStatus: 'Statut paiement',
+  notificationStatus: 'Notification e-mail',
+  notificationError: 'Erreur de notification',
+  adminNotificationSentAt: 'Notification administrative envoyée',
+  userConfirmationSentAt: 'Confirmation participant envoyée',
 
   paymentReference: 'Référence paiement',
   paymentMethod: 'Méthode de paiement',
@@ -374,7 +378,7 @@ function renderRecordCard(r){
 function renderAdminTable(tableRows){
   const isReservations = currentCollection === 'reservations';
   const headers = isReservations
-    ? ['ID réservation','Nom','E-mail','Téléphone','Session','Montant','Référence paiement','Statut','Paiement','Création','Gestion']
+    ? ['ID réservation','Nom','E-mail','Téléphone','Session','Montant','Référence paiement','Statut','Paiement','Notification','Création','Gestion']
     : ['ID client','Nom','E-mail','Téléphone','Session','Statut','Création','Gestion'];
   const body = tableRows.map(r => {
     const idLabel = r.reservationCode || r.messageCode || r.memberCode || r.trackingCode || r.id;
@@ -384,6 +388,7 @@ function renderAdminTable(tableRows){
     const session = r.session || r.sessionName || '—';
     const status = r.status || (isReservations ? 'en attente' : 'inscrit');
     const paymentStatus = r.paymentStatus || '—';
+    const notificationStatus = r.notificationStatus || 'en attente';
     const paymentAmount = r.paymentAmount || r.amount || r.priceAmount || '';
     const paymentCurrency = r.paymentCurrency || r.currency || r.priceCurrency || 'EUR';
     const paymentReference = r.paymentReference || r.communication || r.reservationCode || r.trackingCode || '—';
@@ -397,7 +402,7 @@ function renderAdminTable(tableRows){
       <td>${esc(session)}</td>
       ${isReservations ? `<td>${esc(paymentAmountLabel)}</td><td><code>${esc(paymentReference)}</code></td>` : ''}
       <td><span class="status-pill">${esc(labelForValue(status))}</span></td>
-      ${isReservations ? `<td><span class="status-pill">${esc(labelForValue(paymentStatus))}</span></td>` : ''}
+      ${isReservations ? `<td><span class="status-pill">${esc(labelForValue(paymentStatus))}</span></td><td><span class="status-pill">${esc(labelForValue(notificationStatus))}</span></td>` : ''}
       <td>${esc(created)}</td>
       <td>${renderManagementPanel(r, isReservations)}</td>
     </tr>`;

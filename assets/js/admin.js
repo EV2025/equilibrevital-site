@@ -476,17 +476,25 @@ async function handleRecordAction(e){
   }
 }
 
+function csvCell(value){
+  let text = String(value ?? '');
+  if (/^[=+\\-@]/.test(text)) text = `'${text}`;
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
 exportBtn.addEventListener('click', () => {
-  if (!rows.length) return;
-  const keys = [...new Set(rows.flatMap(r => Object.keys(r)))];
+  const exportRows = applyAdminFilters(rows);
+  if (!exportRows.length) return;
+  const keys = [...new Set(exportRows.flatMap(r => Object.keys(r)))];
   const csv = [
-    keys.map(labelForField).join(','),
-    ...rows.map(r => keys.map(k => '"' + String(formatValue(k, r[k])).replace(/"/g, '""') + '"').join(','))
-  ].join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+    keys.map(k => csvCell(labelForField(k))).join(';'),
+    ...exportRows.map(r => keys.map(k => csvCell(formatValue(k, r[k]))).join(';'))
+  ].join('\r\n');
+  const blob = new Blob(['\\uFEFF', csv], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0, 10);
   a.href = URL.createObjectURL(blob);
-  a.download = `${currentCollection}-pssr.csv`;
+  a.download = `${currentCollection}-equilibre-vital-${stamp}.csv`;
   a.click();
   URL.revokeObjectURL(a.href);
 });

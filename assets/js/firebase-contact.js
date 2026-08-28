@@ -332,21 +332,66 @@ table{width:100%;border-collapse:collapse;margin-top:26px}th,td{padding:12px;bor
 </html>`;
 }
 
+function prepareInvoiceForPrinting(payload){
+  const parser = new DOMParser();
+  const invoiceDocument = parser.parseFromString(professionalInvoiceHtml(payload), 'text/html');
+  const invoiceStyles = invoiceDocument.querySelector('style')?.textContent || '';
+
+  let style = document.getElementById('invoice-print-styles-v1');
+  if (!style){
+    style = document.createElement('style');
+    style.id = 'invoice-print-styles-v1';
+    document.head.appendChild(style);
+  }
+  style.textContent = `
+${invoiceStyles}
+#invoice-print-root-v1{display:none}
+@media print{
+  html,body{margin:0!important;padding:0!important;background:#fff!important}
+  body.invoice-printing-v1 > :not(#invoice-print-root-v1){display:none!important}
+  body.invoice-printing-v1 > #invoice-print-root-v1{display:block!important}
+  #invoice-print-root-v1{width:100%;color:#24112f;background:#fff;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5}
+}`;
+
+  let root = document.getElementById('invoice-print-root-v1');
+  if (!root){
+    root = document.createElement('section');
+    root.id = 'invoice-print-root-v1';
+    root.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(root);
+  }
+  root.innerHTML = invoiceDocument.body.innerHTML;
+  return root;
+}
+
 function initInvoiceButton(container, payload){
   const btn = container.querySelector('[data-print-invoice]');
   if (!btn) return;
   btn.addEventListener('click', () => {
-    const invoiceWindow = window.open('', '_blank', 'width=900,height=900');
-    if (!invoiceWindow) {
-      alert('L’impression a été bloquée par le navigateur. Autorisez les fenêtres contextuelles puis réessayez.');
+    if (typeof window.print !== 'function'){
+      alert('La fonction d’impression n’est pas disponible dans ce navigateur. Ouvrez cette page dans Chrome, Safari ou Firefox.');
       return;
     }
-    invoiceWindow.opener = null;
-    invoiceWindow.document.open();
-    invoiceWindow.document.write(professionalInvoiceHtml(payload));
-    invoiceWindow.document.close();
-    invoiceWindow.focus();
-    setTimeout(() => invoiceWindow.print(), 300);
+
+    prepareInvoiceForPrinting(payload);
+    document.body.classList.add('invoice-printing-v1');
+
+    let cleanupTimer = null;
+    const cleanup = () => {
+      document.body.classList.remove('invoice-printing-v1');
+      window.removeEventListener('afterprint', cleanup);
+      if (cleanupTimer) clearTimeout(cleanupTimer);
+    };
+
+    window.addEventListener('afterprint', cleanup);
+    try{
+      window.print();
+      cleanupTimer = setTimeout(cleanup, 30000);
+    }catch(err){
+      console.error('Invoice print failed:', err);
+      cleanup();
+      alert('L’impression n’a pas pu démarrer. Ouvrez cette page dans Chrome, Safari ou Firefox puis réessayez.');
+    }
   });
 }
 

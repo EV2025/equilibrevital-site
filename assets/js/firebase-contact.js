@@ -217,7 +217,7 @@ function paymentInstructionHtml(payload){
       </dl>
       <div class="payment-actions-v1">
         <button type="button" class="btn payment-copy-all-v1" data-copy-payment-summary data-copy-b64="${esc(paymentSummaryB64)}">Copier toutes les informations</button>
-        <button type="button" class="btn secondary payment-invoice-v1" data-print-invoice>Imprimer votre facture</button>
+        <button type="button" class="btn secondary payment-invoice-v1" data-print-invoice>Télécharger votre facture</button>
         <button type="button" class="btn secondary payment-declared-v1" data-payment-declared>J’ai effectué mon virement</button>
       </div>
       <p class="payment-action-status-v1" data-payment-declared-status aria-live="polite"></p>
@@ -261,136 +261,346 @@ function initCopyButtons(container){
 }
 
 
-function professionalInvoiceHtml(payload){
-  const payment = payload.payment || resolvePaymentFromForm(null, payload);
-  const invoiceNumber = payload.reservationCode || payload.trackingCode || 'À confirmer';
-  const customerName = payload.nom || 'Participant';
-  const customerEmail = payload.email || '';
-  const customerPhone = payload.tel || payload.telephone || payload.phone || '';
-  const service = payload.creneau || payload.modules || payment.label || 'Cotisation PSSR';
-  const issueDate = new Intl.DateTimeFormat('fr-BE', {dateStyle:'long'}).format(new Date());
 
-  return `<!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Facture pro forma — ${esc(invoiceNumber)}</title>
-<style>
-@page{size:A4;margin:16mm}
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#24112f;background:#fff;font-size:14px;line-height:1.5}
-.invoice{max-width:820px;margin:0 auto}
-.header{display:flex;justify-content:space-between;gap:28px;padding-bottom:22px;border-bottom:3px solid #7c3aed}
-.brand h1{margin:0;color:#b71968;font-size:28px}.brand p{margin:5px 0}
-.status{text-align:right}.status strong{display:inline-block;padding:7px 12px;border-radius:999px;background:#f5ecff;color:#5b21b6}
-.meta{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}
-.box{padding:16px;border:1px solid #d8c4f2;border-radius:14px}.box h2{margin:0 0 9px;font-size:15px;text-transform:uppercase;color:#5b21b6}
-table{width:100%;border-collapse:collapse;margin-top:26px}th,td{padding:12px;border-bottom:1px solid #ddd;text-align:left}th{background:#f8f4fc}.amount{text-align:right;font-weight:700}
-.total{margin:22px 0 0 auto;width:min(340px,100%);padding:16px;border-radius:14px;background:#24112f;color:#fff}.total div{display:flex;justify-content:space-between;gap:20px;font-size:18px}
-.payment{margin-top:26px;padding:18px;border:2px solid #7c3aed;border-radius:14px}.payment h2{margin-top:0}.payment code{font-size:14px;word-break:break-all}
-.notice{margin-top:26px;padding:14px;border-left:4px solid #d92e83;background:#fff7fb}
-.footer{margin-top:34px;padding-top:16px;border-top:1px solid #ddd;color:#604b6c;font-size:12px}
-@media(max-width:640px){.header,.meta{display:block}.status{text-align:left;margin-top:18px}.box{margin-top:12px}}
-@media print{.invoice{max-width:none}}
-</style>
-</head>
-<body>
-<main class="invoice">
-  <header class="header">
-    <div class="brand">
-      <h1>Équilibre Vital ASBL</h1>
-      <p>1080 Bruxelles</p>
-      <p>BCE : 1019.487.618</p>
-      <p>equilibrevital.bruxelles@gmail.com · 0492/691.070</p>
-    </div>
-    <div class="status">
-      <strong>FACTURE PRO FORMA</strong>
-      <p>En attente de paiement</p>
-    </div>
-  </header>
-  <section class="meta">
-    <div class="box"><h2>Document</h2><p><strong>Référence :</strong> ${esc(invoiceNumber)}</p><p><strong>Date :</strong> ${esc(issueDate)}</p></div>
-    <div class="box"><h2>Participant</h2><p><strong>${esc(customerName)}</strong></p><p>${esc(customerEmail)}</p><p>${esc(customerPhone)}</p></div>
-  </section>
-  <table>
-    <thead><tr><th>Description</th><th>Quantité</th><th class="amount">Montant</th></tr></thead>
-    <tbody><tr><td>${esc(service)}</td><td>1</td><td class="amount">${esc(payment.amountDisplay)}</td></tr></tbody>
-  </table>
-  <section class="total"><div><span>Total à payer</span><strong>${esc(payment.amountDisplay)}</strong></div></section>
-  <section class="payment">
-    <h2>Informations de virement</h2>
-    <p><strong>Bénéficiaire :</strong> ${esc(payment.beneficiary)}</p>
-    <p><strong>IBAN :</strong> <code>${esc(payment.ibanDisplay)}</code></p>
-    <p><strong>BIC :</strong> <code>${esc(payment.bic)}</code></p>
-    <p><strong>Communication obligatoire :</strong> <code>${esc(payment.communication)}</code></p>
-  </section>
-  <p class="notice"><strong>Document non acquitté.</strong> Cette facture pro forma est une demande de paiement et ne constitue pas une preuve de paiement. La réception du virement doit être vérifiée par Équilibre Vital ASBL.</p>
-  <footer class="footer">Équilibre Vital ASBL · BCE 1019.487.618 · 1080 Bruxelles · equilibrevital.be</footer>
-</main>
-</body>
-</html>`;
+function safeInvoiceFilename(value){
+  return String(value || 'facture')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 70) || 'facture';
 }
 
-function prepareInvoiceForPrinting(payload){
-  const parser = new DOMParser();
-  const invoiceDocument = parser.parseFromString(professionalInvoiceHtml(payload), 'text/html');
-  const invoiceStyles = invoiceDocument.querySelector('style')?.textContent || '';
+function loadInvoiceLogo(){
+  return new Promise(resolve => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => resolve(null);
+    image.src = new URL('./wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png', document.baseURI).href;
+  });
+}
 
-  let style = document.getElementById('invoice-print-styles-v1');
-  if (!style){
-    style = document.createElement('style');
-    style.id = 'invoice-print-styles-v1';
-    document.head.appendChild(style);
-  }
-  style.textContent = `
-${invoiceStyles}
-#invoice-print-root-v1{display:none}
-@media print{
-  html,body{margin:0!important;padding:0!important;background:#fff!important}
-  body.invoice-printing-v1 > :not(#invoice-print-root-v1){display:none!important}
-  body.invoice-printing-v1 > #invoice-print-root-v1{display:block!important}
-  #invoice-print-root-v1{width:100%;color:#24112f;background:#fff;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5}
-}`;
+function roundedRectPath(ctx, x, y, width, height, radius = 18){
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + width - r, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+  ctx.lineTo(x + width, y + height - r);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  ctx.lineTo(x + r, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
 
-  let root = document.getElementById('invoice-print-root-v1');
-  if (!root){
-    root = document.createElement('section');
-    root.id = 'invoice-print-root-v1';
-    root.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(root);
+function canvasTextLines(ctx, value, maxWidth, maxLines = 3){
+  const words = String(value || '—').replace(/\s+/g, ' ').trim().split(' ');
+  const lines = [];
+  let line = '';
+  for (const word of words){
+    const candidate = line ? `${line} ${word}` : word;
+    if (ctx.measureText(candidate).width <= maxWidth){
+      line = candidate;
+    }else{
+      if (line) lines.push(line);
+      line = word;
+      if (lines.length === maxLines - 1) break;
+    }
   }
-  root.innerHTML = invoiceDocument.body.innerHTML;
-  return root;
+  if (line && lines.length < maxLines) lines.push(line);
+  if (words.length && lines.length === maxLines){
+    const joined = lines.join(' ');
+    const original = words.join(' ');
+    if (joined.length < original.length){
+      while (lines[maxLines - 1].length > 1 && ctx.measureText(`${lines[maxLines - 1]}…`).width > maxWidth){
+        lines[maxLines - 1] = lines[maxLines - 1].slice(0, -1);
+      }
+      lines[maxLines - 1] += '…';
+    }
+  }
+  return lines.length ? lines : ['—'];
+}
+
+function drawCanvasLines(ctx, value, x, y, maxWidth, lineHeight, maxLines = 3){
+  const lines = canvasTextLines(ctx, value, maxWidth, maxLines);
+  lines.forEach((line, index) => ctx.fillText(line, x, y + index * lineHeight));
+  return y + lines.length * lineHeight;
+}
+
+function drawInvoiceInfoBox(ctx, x, y, width, height, title, entries){
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = '#d9c7ef';
+  ctx.lineWidth = 2;
+  roundedRectPath(ctx, x, y, width, height, 22);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#f5ecff';
+  roundedRectPath(ctx, x + 2, y + 2, width - 4, 58, 20);
+  ctx.fill();
+  ctx.fillStyle = '#5b21b6';
+  ctx.font = '700 23px Arial';
+  ctx.fillText(title.toUpperCase(), x + 24, y + 39);
+
+  let lineY = y + 94;
+  for (const [label, value] of entries){
+    ctx.fillStyle = '#6a5575';
+    ctx.font = '700 17px Arial';
+    ctx.fillText(label, x + 24, lineY);
+    ctx.fillStyle = '#24112f';
+    ctx.font = '600 19px Arial';
+    drawCanvasLines(ctx, value || '—', x + 170, lineY, width - 198, 25, 2);
+    lineY += 42;
+  }
+}
+
+async function buildProfessionalInvoiceCanvas(payload){
+  const payment = payload.payment || resolvePaymentFromForm(null, payload);
+  const reference = payload.reservationCode || payload.trackingCode || 'À confirmer';
+  const participant = payload.nom || 'Participant';
+  const participantEmail = payload.email || '—';
+  const participantPhone = payload.tel || payload.telephone || payload.phone || '—';
+  const service = payload.creneau || payload.modules || payment.label || 'Cotisation PSSR';
+  const issueDate = new Intl.DateTimeFormat('fr-BE', {dateStyle:'long'}).format(new Date());
+  const canvas = document.createElement('canvas');
+  canvas.width = 1240;
+  canvas.height = 1754;
+  const ctx = canvas.getContext('2d');
+  const logo = await loadInvoiceLogo();
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const headerGradient = ctx.createLinearGradient(68, 60, 1172, 290);
+  headerGradient.addColorStop(0, '#fff1f8');
+  headerGradient.addColorStop(1, '#eee7ff');
+  ctx.fillStyle = headerGradient;
+  roundedRectPath(ctx, 68, 60, 1104, 230, 28);
+  ctx.fill();
+
+  ctx.fillStyle = '#ffffff';
+  roundedRectPath(ctx, 94, 86, 330, 178, 22);
+  ctx.fill();
+  if (logo){
+    const maxWidth = 282;
+    const maxHeight = 130;
+    const scale = Math.min(maxWidth / logo.naturalWidth, maxHeight / logo.naturalHeight);
+    const logoWidth = logo.naturalWidth * scale;
+    const logoHeight = logo.naturalHeight * scale;
+    ctx.drawImage(logo, 94 + (330 - logoWidth) / 2, 86 + (178 - logoHeight) / 2, logoWidth, logoHeight);
+  }else{
+    ctx.fillStyle = '#b71968';
+    ctx.font = '800 30px Arial';
+    ctx.fillText('ÉQUILIBRE VITAL', 125, 180);
+  }
+
+  ctx.fillStyle = '#b71968';
+  ctx.font = '800 42px Arial';
+  ctx.fillText('FACTURE PRO FORMA', 466, 126);
+  ctx.fillStyle = '#24112f';
+  ctx.font = '700 25px Arial';
+  ctx.fillText('En attente de paiement', 466, 166);
+  ctx.fillStyle = '#604b6c';
+  ctx.font = '600 19px Arial';
+  ctx.fillText(`Référence : ${reference}`, 466, 210);
+  ctx.fillText(`Date : ${issueDate}`, 466, 244);
+
+  drawInvoiceInfoBox(ctx, 68, 326, 540, 260, 'Émetteur', [
+    ['Association', 'Équilibre Vital ASBL'],
+    ['Adresse', '1080 Bruxelles'],
+    ['BCE', '1019.487.618'],
+    ['Contact', 'equilibrevital.bruxelles@gmail.com'],
+    ['Téléphone', '0492/691.070']
+  ]);
+  drawInvoiceInfoBox(ctx, 632, 326, 540, 260, 'Participant', [
+    ['Nom', participant],
+    ['Email', participantEmail],
+    ['Téléphone', participantPhone],
+    ['Statut', 'Inscription reçue'],
+    ['Référence', reference]
+  ]);
+
+  ctx.fillStyle = '#24112f';
+  roundedRectPath(ctx, 68, 626, 1104, 58, 18);
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '700 20px Arial';
+  ctx.fillText('DESCRIPTION', 92, 664);
+  ctx.fillText('QTÉ', 890, 664);
+  ctx.textAlign = 'right';
+  ctx.fillText('MONTANT', 1148, 664);
+  ctx.textAlign = 'left';
+
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = '#d9c7ef';
+  ctx.lineWidth = 2;
+  roundedRectPath(ctx, 68, 684, 1104, 170, 18);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#24112f';
+  ctx.font = '600 23px Arial';
+  drawCanvasLines(ctx, service, 92, 730, 720, 31, 3);
+  ctx.fillText('1', 900, 730);
+  ctx.textAlign = 'right';
+  ctx.font = '700 25px Arial';
+  ctx.fillText(payment.amountDisplay, 1148, 730);
+  ctx.textAlign = 'left';
+
+  ctx.fillStyle = '#24112f';
+  roundedRectPath(ctx, 710, 890, 462, 108, 22);
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '600 22px Arial';
+  ctx.fillText('TOTAL À PAYER', 742, 954);
+  ctx.textAlign = 'right';
+  ctx.font = '800 31px Arial';
+  ctx.fillText(payment.amountDisplay, 1140, 954);
+  ctx.textAlign = 'left';
+
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = '#7c3aed';
+  ctx.lineWidth = 3;
+  roundedRectPath(ctx, 68, 1036, 1104, 300, 24);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#5b21b6';
+  ctx.font = '800 26px Arial';
+  ctx.fillText('INFORMATIONS DE VIREMENT', 96, 1082);
+
+  ctx.fillStyle = '#6a5575';
+  ctx.font = '700 18px Arial';
+  ctx.fillText('BÉNÉFICIAIRE', 96, 1132);
+  ctx.fillText('MONTANT', 674, 1132);
+  ctx.fillText('IBAN', 96, 1212);
+  ctx.fillText('BIC', 674, 1212);
+  ctx.fillText('COMMUNICATION OBLIGATOIRE', 96, 1290);
+
+  ctx.fillStyle = '#24112f';
+  ctx.font = '700 24px Arial';
+  ctx.fillText(payment.beneficiary, 96, 1166);
+  ctx.fillText(payment.amountDisplay, 674, 1166);
+  ctx.font = '700 23px monospace';
+  ctx.fillText(payment.ibanDisplay, 96, 1247);
+  ctx.fillText(payment.bic, 674, 1247);
+  ctx.fillStyle = '#b71968';
+  ctx.fillText(payment.communication, 96, 1323);
+
+  ctx.fillStyle = '#fff7fb';
+  ctx.strokeStyle = '#d92e83';
+  ctx.lineWidth = 2;
+  roundedRectPath(ctx, 68, 1372, 1104, 126, 20);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#b71968';
+  ctx.font = '800 21px Arial';
+  ctx.fillText('DOCUMENT NON ACQUITTÉ', 94, 1414);
+  ctx.fillStyle = '#4d315e';
+  ctx.font = '600 18px Arial';
+  drawCanvasLines(ctx, 'Cette facture pro forma constitue une demande de paiement et non une preuve de paiement. Le virement sera validé après vérification du compte bancaire par Équilibre Vital ASBL.', 94, 1450, 1048, 25, 2);
+
+  ctx.strokeStyle = '#d9c7ef';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(68, 1550);
+  ctx.lineTo(1172, 1550);
+  ctx.stroke();
+  ctx.fillStyle = '#604b6c';
+  ctx.font = '600 17px Arial';
+  ctx.fillText('Équilibre Vital ASBL · BCE 1019.487.618 · 1080 Bruxelles', 68, 1590);
+  ctx.textAlign = 'right';
+  ctx.fillText('equilibrevital.be', 1172, 1590);
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#8a7495';
+  ctx.font = '500 15px Arial';
+  ctx.fillText('Document généré automatiquement à la suite de la réservation.', 68, 1630);
+
+  return {canvas, reference};
+}
+
+function base64ToBytes(value){
+  const binary = atob(value);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+  return bytes;
+}
+
+function singlePagePdfFromJpeg(jpegBytes, imageWidth, imageHeight){
+  const encoder = new TextEncoder();
+  const chunks = [];
+  const offsets = [0];
+  let length = 0;
+  const push = value => {
+    const bytes = typeof value === 'string' ? encoder.encode(value) : value;
+    chunks.push(bytes);
+    length += bytes.length;
+  };
+  const addObject = (number, value) => {
+    offsets[number] = length;
+    push(`${number} 0 obj\n`);
+    push(value);
+    push('\nendobj\n');
+  };
+
+  push('%PDF-1.4\n');
+  addObject(1, '<< /Type /Catalog /Pages 2 0 R >>');
+  addObject(2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+  addObject(3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>');
+
+  offsets[4] = length;
+  push('4 0 obj\n');
+  push(`<< /Type /XObject /Subtype /Image /Width ${imageWidth} /Height ${imageHeight} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>\nstream\n`);
+  push(jpegBytes);
+  push('\nendstream\nendobj\n');
+
+  const pageContent = 'q\n595.28 0 0 841.89 0 0 cm\n/Im0 Do\nQ';
+  addObject(5, `<< /Length ${pageContent.length} >>\nstream\n${pageContent}\nendstream`);
+
+  const xrefOffset = length;
+  push('xref\n0 6\n');
+  push('0000000000 65535 f \n');
+  for (let number = 1; number <= 5; number += 1){
+    push(`${String(offsets[number]).padStart(10, '0')} 00000 n \n`);
+  }
+  push(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`);
+  return new Blob(chunks, {type:'application/pdf'});
+}
+
+async function createProfessionalInvoicePdf(payload){
+  const {canvas, reference} = await buildProfessionalInvoiceCanvas(payload);
+  const jpegData = canvas.toDataURL('image/jpeg', 0.94).split(',')[1];
+  const pdf = singlePagePdfFromJpeg(base64ToBytes(jpegData), canvas.width, canvas.height);
+  return {pdf, reference};
 }
 
 function initInvoiceButton(container, payload){
   const btn = container.querySelector('[data-print-invoice]');
   if (!btn) return;
-  btn.addEventListener('click', () => {
-    if (typeof window.print !== 'function'){
-      alert('La fonction d’impression n’est pas disponible dans ce navigateur. Ouvrez cette page dans Chrome, Safari ou Firefox.');
-      return;
-    }
-
-    prepareInvoiceForPrinting(payload);
-    document.body.classList.add('invoice-printing-v1');
-
-    let cleanupTimer = null;
-    const cleanup = () => {
-      document.body.classList.remove('invoice-printing-v1');
-      window.removeEventListener('afterprint', cleanup);
-      if (cleanupTimer) clearTimeout(cleanupTimer);
-    };
-
-    window.addEventListener('afterprint', cleanup);
+  btn.addEventListener('click', async () => {
+    const initialLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Création du PDF…';
     try{
-      window.print();
-      cleanupTimer = setTimeout(cleanup, 30000);
+      const {pdf, reference} = await createProfessionalInvoicePdf(payload);
+      const url = URL.createObjectURL(pdf);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `facture-pro-forma-${safeInvoiceFilename(reference)}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      btn.textContent = 'Facture téléchargée';
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
     }catch(err){
-      console.error('Invoice print failed:', err);
-      cleanup();
-      alert('L’impression n’a pas pu démarrer. Ouvrez cette page dans Chrome, Safari ou Firefox puis réessayez.');
+      console.error('Invoice download failed:', err);
+      btn.textContent = 'Téléchargement impossible';
+      alert('La facture n’a pas pu être créée. Rechargez la page puis réessayez.');
+    }finally{
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.textContent = initialLabel || 'Télécharger votre facture';
+      }, 2200);
     }
   });
 }

@@ -1,0 +1,32 @@
+/* Formulaires Équilibre Vital - confort V80 */
+.form-comfort-v80{position:relative;min-width:0}
+.form-comfort-v80,.form-comfort-v80 *{box-sizing:border-box}
+.form-comfort-v80 fieldset{min-width:0}
+.form-comfort-v80 label{min-width:0}
+.form-comfort-v80 input:not([type="checkbox"]):not([type="radio"]),
+.form-comfort-v80 select,
+.form-comfort-v80 textarea{width:100%;max-width:100%;min-height:48px}
+.form-comfort-v80 textarea{min-height:110px;resize:vertical}
+.form-comfort-v80 input:focus-visible,
+.form-comfort-v80 select:focus-visible,
+.form-comfort-v80 textarea:focus-visible{outline:3px solid rgba(124,58,237,.24);outline-offset:2px;border-color:#7c3aed}
+.form-required-v80{display:inline;color:#b71968;font-weight:950;margin-left:4px}
+.form-essentials-v80{grid-column:1/-1;margin:0 0 14px;padding:12px 15px;border:1px solid rgba(124,58,237,.18);border-radius:16px;background:#fff;color:#4d315e;font-size:.93rem}
+.form-progress-v80{grid-column:1/-1;margin:0 0 14px}
+.form-progress-track-v80{height:8px;overflow:hidden;border-radius:999px;background:#eadff2}
+.form-progress-bar-v80{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#d92e83,#7c3aed);transition:width .2s ease}
+.form-progress-v80 small{display:block;margin-top:6px;color:#604b6c;font-weight:750}
+.optional-fields-v80{grid-column:1/-1;margin:4px 0 12px;border:1px solid rgba(124,58,237,.18);border-radius:18px;background:rgba(255,255,255,.72)}
+.optional-fields-v80>summary{cursor:pointer;padding:15px 17px;color:#5b21b6;font-weight:900}
+.optional-fields-v80[open]>summary{border-bottom:1px solid rgba(124,58,237,.14)}
+.optional-grid-v80{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:17px}
+.optional-grid-v80 .full{grid-column:1/-1}
+.form-comfort-v80 button[type="submit"]{min-height:48px}
+.form-comfort-v80 .is-invalid-v80{border-color:#b42318!important;background:#fff7f6!important}
+.form-comfort-v80 .field-help-v80{display:block;margin-top:5px;color:#6a5575;font-size:.82rem;font-weight:600}
+@media(max-width:680px){
+  .optional-grid-v80{grid-template-columns:1fr;padding:14px}
+  .optional-grid-v80 .full{grid-column:auto}
+  .form-comfort-v80 fieldset{padding:15px}
+  .form-comfort-v80 button[type="submit"]{width:100%}
+}

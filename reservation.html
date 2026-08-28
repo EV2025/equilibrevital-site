@@ -70,6 +70,7 @@
 </style>
 <meta content="Logo Équilibre Vital" property="og:image:alt"/>
 <meta content="summary" name="twitter:card"/>
+<link href="./assets/css/form-comfort-v80.css" rel="stylesheet"/>
 </head>
 <body class="pssr-page v30-circle-global ev39-page">
 <main class="pssr-main" id="main">
@@ -77,11 +78,10 @@
 <p class="eyebrow">Réservation</p>
 <h1>Réservation PSSR</h1>
 <p>Complétez votre demande de réservation. L’équipe PSSR vérifie les disponibilités et vous recontacte pour confirmer l’inscription.</p>
-<form class="form-grid" data-firebase-collection="reservations" data-payment-amount="165" data-payment-currency="EUR" data-payment-label="Cotisation PSSR — année académique" id="reservation-form">
-<label>Nom complet<input name="nom" placeholder="Prénom Nom" required=""/></label>
-<label>Email<input name="email" placeholder="exemple@domaine.be" required="" type="email"/></label>
-<label>Téléphone<input name="tel" placeholder="0492 691 070" type="tel"/></label>
-<label>Objectif principal<select name="objectif"><option value="">Choisir un objectif</option><option>Remise en forme</option><option>Découverte sportive</option><option>Bien-être / santé</option><option>Accompagnement socio-professionnel</option><option>Enfant / adolescent</option></select></label>
+<form class="form-grid form-comfort-v80 reservation-flow-v80" data-firebase-collection="reservations" data-payment-amount="165" data-payment-currency="EUR" data-payment-label="Cotisation PSSR — année académique" id="reservation-form">
+<p class="form-essentials-v80"><strong>Réservation en trois étapes :</strong> choisissez l’activité, indiquez vos coordonnées puis envoyez la demande.</p>
+<fieldset>
+<legend>1. Choisir l’activité</legend>
 <label>Activité ou module souhaité<select name="creneau" required="">
 <option value="">Choisir un créneau</option>
 <optgroup label="Activités sportives officielles">
@@ -108,17 +108,30 @@
 <option>Coaching motivationnel</option>
 </optgroup>
 </select></label>
+<p class="payment-intro-v1 full"><strong>Montant :</strong> 165 € pour la cotisation PSSR. Le virement est effectué après l’envoi avec une référence unique.</p>
+</fieldset>
+<fieldset>
+<legend>2. Vos coordonnées</legend>
+<label>Nom complet<input autocomplete="name" name="nom" placeholder="Prénom Nom" required=""/></label>
+<label>Email<input autocomplete="email" name="email" placeholder="exemple@domaine.be" required="" type="email"/></label>
+<label>Téléphone <span class="field-help-v80">facultatif</span><input autocomplete="tel" inputmode="tel" name="tel" placeholder="0492 691 070" type="tel"/></label>
+</fieldset>
+<details class="optional-fields-v80">
+<summary>Ajouter un objectif ou un message <span>(facultatif)</span></summary>
+<div class="optional-grid-v80">
+<label>Objectif principal<select name="objectif"><option value="">Choisir un objectif</option><option>Remise en forme</option><option>Découverte sportive</option><option>Bien-être / santé</option><option>Accompagnement socio-professionnel</option><option>Enfant / adolescent</option></select></label>
 <label class="full">Modules sélectionnés<textarea name="modules" placeholder="Si vous avez choisi plusieurs modules, ils apparaîtront ici." rows="2"></textarea></label>
-<label class="full">Message<textarea name="message" placeholder="Âge, disponibilité, question éventuelle…" rows="4"></textarea></label>
-<label class="full consent"><input name="rgpdConsent" required="" type="checkbox"/> <span>J’accepte que mes données soient utilisées pour traiter ma demande de réservation. <a href="./confidentialite-rgpd.html" rel="noopener" target="_blank">Voir la politique de confidentialité</a>.</span></label>
+<label class="full">Message<textarea name="message" placeholder="Âge, disponibilité ou question éventuelle…" rows="3"></textarea></label>
+</div>
+</details>
+<label class="full consent"><input name="rgpdConsent" required="" type="checkbox"/> <span>J’accepte que mes données soient utilisées pour traiter ma réservation. <a href="./confidentialite-rgpd.html" rel="noopener" target="_blank">Politique de confidentialité</a>.</span></label>
 <input name="priceAmount" type="hidden" value="165"/>
 <input name="priceCurrency" type="hidden" value="EUR"/>
 <input name="priceLabel" type="hidden" value="Cotisation PSSR — année académique"/>
-<p class="payment-intro-v1"><strong>Montant repris automatiquement :</strong> 165 € pour la cotisation PSSR. Après l’envoi, le site affiche les informations bancaires, une référence unique et une facture pro forma professionnelle à télécharger en PDF.</p>
 <input aria-hidden="true" autocomplete="off" class="hp" name="website" tabindex="-1" type="text"/>
-<button class="btn" type="submit">Réserver et afficher les informations de virement</button>
+<button class="btn" type="submit">Envoyer ma réservation</button>
 <div class="msg" hidden="" id="reservation-msg"></div>
-<p class="msg-note"><strong>Paiement sans frais en ligne :</strong> aucun montant n’est prélevé automatiquement. Vous effectuez vous-même le virement dans votre application bancaire avec la référence unique affichée.</p>
+<p class="msg-note"><strong>Après l’envoi :</strong> vous recevez un numéro de réservation, les informations de virement et votre facture PDF.</p>
 </form>
 </section>
 </main>
@@ -147,5 +160,6 @@
 </script>
 <script defer="" src="./assets/js/firebase-contact.js?v=20260828-4" type="module"></script>
 <script defer="" src="./assets/js/media-fallback.js"></script>
-<script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script></body>
+<script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script><script defer src="./assets/js/form-comfort-v80.js"></script>
+</body>
 </html>

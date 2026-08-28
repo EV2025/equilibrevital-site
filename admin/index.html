@@ -15,6 +15,62 @@
 <style>
 .payment-admin-summary-v1{margin-top:10px;padding:12px 14px;border-radius:16px;background:#fff;border:1px solid rgba(124,58,237,.18);color:#24112f;line-height:1.55}
 .payment-admin-summary-v1 code{word-break:break-word}
+
+/* Tableau de bord administrateur - confort V80 */
+body.admin-page{background:#f8f4fc}
+.admin-page .pssr-main{width:min(1580px,calc(100vw - 28px));margin-inline:auto}
+#dashboard-panel{padding:clamp(18px,2.5vw,32px);overflow:visible}
+.admin-heading-v80{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:18px}
+.admin-heading-v80 h2{margin-bottom:8px}
+.ev39-logout{position:sticky;top:86px;z-index:30;margin:12px 0 0 auto}
+.ev39-admin-tab-groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.ev39-admin-tab-group{min-width:0;padding:14px;border:1px solid rgba(124,58,237,.16);border-radius:18px;background:#fff}
+.ev39-admin-tab-group h3{font-size:.88rem;text-transform:uppercase;letter-spacing:.06em;color:#6a5575}
+.ev39-admin-tab-group .tabs{display:flex;flex-wrap:wrap;gap:7px}
+.ev39-admin-tab-group .tab{min-height:40px;padding:8px 12px}
+.ev39-admin-tab-group .tab.active{background:#24112f;color:#fff}
+.admin-primary-actions-v80{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 10px}
+.admin-advanced-v80{margin:8px 0 18px;border:1px solid rgba(124,58,237,.16);border-radius:16px;background:#fff}
+.admin-advanced-v80>summary{cursor:pointer;padding:13px 15px;color:#5b21b6;font-weight:900}
+.admin-advanced-v80 .toolbar{padding:0 15px 15px}
+.admin-tools{display:grid;grid-template-columns:minmax(220px,2fr) repeat(3,minmax(150px,1fr)) auto;gap:10px;align-items:end;padding:16px;border:1px solid rgba(124,58,237,.18);border-radius:20px;background:#fff;position:sticky;top:76px;z-index:20;box-shadow:0 10px 28px rgba(67,33,83,.08)}
+.admin-tools label{min-width:0}.admin-tools input,.admin-tools select{width:100%;min-height:44px}
+.admin-filter-reset-v80{min-height:44px;white-space:nowrap}
+.admin-list-meta-v80{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;margin:14px 0}
+.admin-result-count-v80{margin:0;color:#604b6c;font-weight:850}
+.admin-action-status-v80{margin:0;color:#356b42;font-weight:800}
+.admin-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}
+.admin-summary .metric{min-width:0}
+.admin-table-wrap{max-width:100%;overflow:auto;border:1px solid rgba(124,58,237,.18);border-radius:18px;background:#fff}
+.admin-table{width:100%;min-width:1180px;border-collapse:separate;border-spacing:0}
+.admin-table thead th{position:sticky;top:0;z-index:2;background:#24112f;color:#fff}
+.admin-table th,.admin-table td{padding:12px 13px;vertical-align:top;border-bottom:1px solid #eadff2;text-align:left}
+.admin-table tbody tr:hover{background:#fff8fc}
+.admin-table code{overflow-wrap:anywhere}
+.management-panel{min-width:240px}.management-panel>summary{cursor:pointer;font-weight:900;color:#5b21b6}
+.quick-status-v80{display:grid;grid-template-columns:1fr auto;gap:8px;margin:12px 0}
+.quick-status-v80 select,.quick-status-v80 button{min-height:42px}
+.management-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.management-grid .full{grid-column:1/-1}
+.management-grid input,.management-grid select,.management-grid textarea{width:100%}
+.records .record{overflow:hidden}.records .record dd{overflow-wrap:anywhere}
+@media(max-width:1100px){.admin-tools{grid-template-columns:repeat(2,minmax(0,1fr));position:static}.admin-filter-reset-v80{width:100%}}
+@media(max-width:760px){
+  .admin-page .pssr-main{width:min(100% - 18px,1580px)}
+  #dashboard-panel{padding:14px}
+  .admin-heading-v80{display:block}
+  .ev39-admin-tab-groups{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:7px}
+  .ev39-admin-tab-group{flex:0 0 220px;scroll-snap-align:start}
+  .admin-tools{grid-template-columns:1fr}
+  .admin-table-wrap{overflow:visible;border:0;background:transparent}
+  .admin-table{display:block;min-width:0}.admin-table thead{display:none}.admin-table tbody{display:grid;gap:14px}
+  .admin-table tr{display:block;padding:8px;border:1px solid rgba(124,58,237,.18);border-radius:18px;background:#fff;box-shadow:0 10px 25px rgba(67,33,83,.07)}
+  .admin-table td{display:grid;grid-template-columns:minmax(105px,.42fr) minmax(0,1fr);gap:10px;padding:9px;border-bottom:1px solid #f0e8f7}
+  .admin-table td::before{content:attr(data-label);color:#6a5575;font-size:.75rem;font-weight:900;text-transform:uppercase}
+  .admin-table td:last-child{display:block;border-bottom:0}.admin-table td:last-child::before{display:block;margin-bottom:7px}
+  .management-panel{min-width:0}.management-grid{grid-template-columns:1fr}.management-grid .full{grid-column:auto}
+}
+
 </style>
 </head>
 <body class="pssr-page admin-page v30-circle-global ev39-page ev39-role-admin">
@@ -35,23 +91,26 @@
 </form>
 </section>
 <section class="panel" hidden="" id="dashboard-panel">
-<p class="eyebrow">Administration PSSR</p>
+<div class="admin-heading-v80"><div><p class="eyebrow">Administration PSSR</p>
 <h2>Tableau de bord administration</h2>
-<p class="payment-note">Gestion des demandes, réservations, clients, services, calendrier, paiements manuels, notifications et statistiques.</p>
+<p class="payment-note">Retrouvez, filtrez et traitez les demandes depuis un espace de travail adapté à l’ordinateur, la tablette et au GSM.</p></div></div>
 <div aria-label="Navigation par catégories admin" class="ev39-admin-tab-groups"><section class="ev39-admin-tab-group"><h3>Demandes</h3><div class="tabs"><button class="tab active" data-tab="messages">Messages</button><button class="tab" data-tab="reservations">Réservations</button><button class="tab" data-tab="attendances">Présences</button></div></section><section class="ev39-admin-tab-group"><h3>Participants</h3><div class="tabs"><button class="tab" data-tab="users">Clients</button></div></section><section class="ev39-admin-tab-group"><h3>Organisation</h3><div class="tabs"><button class="tab" data-tab="services">Services</button><button class="tab" data-tab="slots">Calendrier</button><button class="tab" data-tab="payments">Paiements</button></div></section><section class="ev39-admin-tab-group"><h3>Communication</h3><div class="tabs"><button class="tab" data-tab="notifications">Notifications</button><button class="tab" data-tab="emailLogs">Journaux d’e-mails</button></div></section><section class="ev39-admin-tab-group"><h3>Contenu</h3><div class="tabs"><button class="tab" data-tab="pages">Contenu pages</button></div></section><section class="ev39-admin-tab-group"><h3>Pilotage</h3><div class="tabs"><button class="tab" data-tab="stats">Statistiques</button></div></section></div>
-<div class="toolbar"><button class="btn secondary" id="export-csv">Exporter pour Excel (.csv)</button><button class="btn secondary" id="seed-pages">Importer le contenu WordPress</button><button class="btn secondary" id="seed-slots">Importer les créneaux officiels</button><button class="btn secondary" id="seed-services">Importer services &amp; tarifs</button></div>
+<div class="admin-primary-actions-v80"><button class="btn secondary" id="export-csv">Exporter les résultats pour Excel</button></div>
+<details class="admin-advanced-v80"><summary>Outils avancés d’importation</summary><div class="toolbar"><button class="btn secondary" id="seed-pages">Importer le contenu WordPress</button><button class="btn secondary" id="seed-slots">Importer les créneaux officiels</button><button class="btn secondary" id="seed-services">Importer services &amp; tarifs</button></div></details>
 <div aria-label="Filtres du tableau de bord" class="admin-tools">
-<label>Recherche participant<input id="admin-search" placeholder="Nom, email, téléphone, ID…" type="search"/></label>
+<label>Recherche<input id="admin-search" placeholder="Nom, e-mail, téléphone, référence…" type="search"/></label>
 <label>Statut<select id="admin-status"><option value="">Tous</option><option>nouveau</option><option>en attente</option><option>inscrit</option><option>en cours</option><option>terminé</option><option>abandonné</option><option>confirmée</option><option>annulée</option></select></label>
 <label>Session<input id="admin-session" placeholder="Septembre 2026" type="search"/></label>
 <label>Date<input id="admin-date" type="date"/></label>
+<button class="btn secondary admin-filter-reset-v80" id="admin-reset-filters" type="button">Effacer les filtres</button>
 </div>
+<div class="admin-list-meta-v80"><p class="admin-result-count-v80" id="admin-result-count">0 résultat</p><p aria-live="polite" class="admin-action-status-v80" id="admin-action-status"></p></div>
 <div id="admin-summary"></div>
 <h2 class="section-heading" id="collection-title">Messages reçus</h2>
 <div class="records" id="records"></div>
 </section>
 </main>
-<script defer="" src="../assets/js/admin.js" type="module"></script>
+<script defer="" src="../assets/js/admin.js?v=20260828-80" type="module"></script>
 <script defer="" src="../assets/js/media-fallback.js"></script>
 <script defer="True" src="../assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="../assets/js/v41-footer-burger.js"></script></body>
 </html>

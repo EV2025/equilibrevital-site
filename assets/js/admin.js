@@ -17,12 +17,47 @@ const adminSearch = document.getElementById('admin-search');
 const adminStatus = document.getElementById('admin-status');
 const adminSession = document.getElementById('admin-session');
 const adminDate = document.getElementById('admin-date');
+const adminResetFilters = document.getElementById('admin-reset-filters');
+const adminResultCount = document.getElementById('admin-result-count');
+const adminActionStatus = document.getElementById('admin-action-status');
 
 let auth, db;
 let currentCollection = 'messages';
 let rows = [];
 let modules = {};
 let unsub = null;
+let isVerifiedAdmin = false;
+const adminViewKey = 'pssrAdminViewV80';
+
+function saveAdminView(){
+  try{
+    sessionStorage.setItem(adminViewKey, JSON.stringify({
+      collection: currentCollection,
+      search: adminSearch?.value || '',
+      status: adminStatus?.value || '',
+      session: adminSession?.value || '',
+      date: adminDate?.value || ''
+    }));
+  }catch(_){ }
+}
+
+function restoreAdminView(){
+  try{
+    const state = JSON.parse(sessionStorage.getItem(adminViewKey) || '{}');
+    if (labels[state.collection]) currentCollection = state.collection;
+    if (adminSearch) adminSearch.value = state.search || '';
+    if (adminStatus) adminStatus.value = state.status || '';
+    if (adminSession) adminSession.value = state.session || '';
+    if (adminDate) adminDate.value = state.date || '';
+    document.querySelectorAll('.tab').forEach(button => button.classList.toggle('active', button.dataset.tab === currentCollection));
+  }catch(_){ }
+}
+
+function setAdminStatus(message, error = false){
+  if (!adminActionStatus) return;
+  adminActionStatus.textContent = message;
+  adminActionStatus.style.color = error ? '#9b2f2f' : '#356b42';
+}
 
 const labels = {
   messages:'Messages reçus',
@@ -216,36 +251,70 @@ async function init(){
   loginForm.addEventListener('submit', async e => {
     e.preventDefault();
     const fd = new FormData(loginForm);
+    const submit = loginForm.querySelector('button[type="submit"]');
+    submit.disabled = true;
+    submit.textContent = 'Connexion…';
     try {
       await modules.signInWithEmailAndPassword(auth, fd.get('email'), fd.get('password'));
-      setMsg('Connexion réussie.', true);
+      setMsg('Vérification de l’accès administrateur…', true);
     } catch(err) {
       console.error(err);
-      setMsg('Connexion refusée. Vérifiez l’email, le mot de passe, Authentication et les domaines autorisés.');
+      setMsg('Connexion refusée. Vérifiez votre e-mail et votre mot de passe.');
+    } finally {
+      submit.disabled = false;
+      submit.textContent = 'Connexion';
     }
   });
 
   logoutBtn.addEventListener('click', () => modules.signOut(auth));
 
-  document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentCollection = btn.dataset.tab;
-    loadCollection();
-  }));
+  document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
 
   recordsEl.addEventListener('click', handleRecordAction);
-  [adminSearch, adminStatus, adminSession, adminDate].forEach(el => el?.addEventListener('input', renderRows));
+  [adminSearch, adminStatus, adminSession, adminDate].forEach(el => el?.addEventListener('input', () => {
+    saveAdminView();
+    renderRows();
+  }));
+  adminResetFilters?.addEventListener('click', () => {
+    [adminSearch, adminStatus, adminSession, adminDate].forEach(el => { if (el) el.value = ''; });
+    saveAdminView();
+    renderRows();
+    setAdminStatus('Filtres effacés.');
+  });
   seedBtn?.addEventListener('click', seedPages);
   seedSlotsBtn?.addEventListener('click', seedSlots);
   seedServicesBtn?.addEventListener('click', seedServices);
 
-  modules.onAuthStateChanged(auth, user => {
-    loginPanel.hidden = Boolean(user);
-    dashboardPanel.hidden = !user;
-    logoutBtn.hidden = !user;
-    if (user) loadCollection();
-    if (!user && unsub) unsub();
+  modules.onAuthStateChanged(auth, async user => {
+    if (!user){
+      isVerifiedAdmin = false;
+      loginPanel.hidden = false;
+      dashboardPanel.hidden = true;
+      logoutBtn.hidden = true;
+      rows = [];
+      if (unsub) unsub();
+      return;
+    }
+
+    loginPanel.hidden = true;
+    dashboardPanel.hidden = true;
+    logoutBtn.hidden = false;
+    try{
+      const access = await modules.getDoc(modules.doc(db, 'admins', user.uid));
+      if (!access.exists()) throw new Error('not-admin');
+      isVerifiedAdmin = true;
+      restoreAdminView();
+      dashboardPanel.hidden = false;
+      setAdminStatus('Session administrateur active.');
+      loadCollection();
+    }catch(err){
+      console.error('Admin access denied:', err);
+      isVerifiedAdmin = false;
+      loginPanel.hidden = false;
+      dashboardPanel.hidden = true;
+      setMsg('Ce compte ne dispose pas d’un accès administrateur.');
+      await modules.signOut(auth);
+    }
   });
 }
 
@@ -260,6 +329,7 @@ function orderFieldFor(collectionName){
 }
 
 async function loadCollection(){
+  if (!isVerifiedAdmin) return;
   if (unsub) unsub();
   collectionTitle.textContent = labels[currentCollection] || currentCollection;
   recordsEl.innerHTML = '<p>Chargement…</p>';
@@ -344,6 +414,7 @@ function applyAdminFilters(inputRows){
 
 function renderRows(){
   const filteredRows = applyAdminFilters(rows);
+  if (adminResultCount) adminResultCount.textContent = filteredRows.length + ' résultat' + (filteredRows.length > 1 ? 's' : '') + ' sur ' + rows.length;
   if (!filteredRows.length){
     recordsEl.innerHTML = rows.length ? '<p>Aucun résultat avec ces filtres.</p>' : '<p>Aucune donnée pour cette collection.</p>';
     return;
@@ -380,7 +451,7 @@ function renderAdminTable(tableRows){
     const idLabel = r.reservationCode || r.messageCode || r.memberCode || r.trackingCode || r.id;
     const name = r.nom || r.fullName || r.displayName || '—';
     const email = r.email || '—';
-    const phone = r.tel || r.phone || '—';
+    const phone = r.tel || r.phone || r.telephone || '—';
     const session = r.session || r.sessionName || '—';
     const status = r.status || (isReservations ? 'en attente' : 'inscrit');
     const paymentStatus = r.paymentStatus || '—';
@@ -390,16 +461,16 @@ function renderAdminTable(tableRows){
     const paymentAmountLabel = paymentAmount ? `${paymentAmount} ${paymentCurrency}` : '—';
     const created = fmtDate(r.createdAt) || '—';
     return `<tr>
-      <td><code>${esc(idLabel)}</code></td>
-      <td>${esc(name)}</td>
-      <td>${email !== '—' ? `<a href="mailto:${esc(email)}">${esc(email)}</a>` : '—'}</td>
-      <td>${esc(phone)}</td>
-      <td>${esc(session)}</td>
-      ${isReservations ? `<td>${esc(paymentAmountLabel)}</td><td><code>${esc(paymentReference)}</code></td>` : ''}
-      <td><span class="status-pill">${esc(labelForValue(status))}</span></td>
-      ${isReservations ? `<td><span class="status-pill">${esc(labelForValue(paymentStatus))}</span></td>` : ''}
-      <td>${esc(created)}</td>
-      <td>${renderManagementPanel(r, isReservations)}</td>
+      <td data-label="${isReservations ? 'ID réservation' : 'ID client'}"><code>${esc(idLabel)}</code></td>
+      <td data-label="Nom">${esc(name)}</td>
+      <td data-label="E-mail">${email !== '—' ? `<a href="mailto:${esc(email)}">${esc(email)}</a>` : '—'}</td>
+      <td data-label="Téléphone">${esc(phone)}</td>
+      <td data-label="Session">${esc(session)}</td>
+      ${isReservations ? `<td data-label="Montant">${esc(paymentAmountLabel)}</td><td data-label="Référence paiement"><code>${esc(paymentReference)}</code></td>` : ''}
+      <td data-label="Statut"><span class="status-pill">${esc(labelForValue(status))}</span></td>
+      ${isReservations ? `<td data-label="Paiement"><span class="status-pill">${esc(labelForValue(paymentStatus))}</span></td>` : ''}
+      <td data-label="Création">${esc(created)}</td>
+      <td data-label="Gestion">${renderManagementPanel(r, isReservations)}</td>
     </tr>`;
   }).join('');
   return `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`;
@@ -410,8 +481,9 @@ function renderManagementPanel(r, isReservation){
   const statuses = ['reçu','inscrit','en cours','terminé','abandonné','en attente','confirmée','annulée'];
   const paymentStatuses = ['en attente de virement','virement reçu','payé','non payé','à relancer'];
   return `<details class="management-panel"><summary>Gérer</summary>
-    <div class="status-actions mini-actions">
-      ${statuses.map(st => `<button data-action="status" data-id="${esc(r.id)}" data-value="${esc(st)}">${esc(labelForValue(st))}</button>`).join('')}
+    <div class="quick-status-v80">
+      <select aria-label="Choisir le statut" data-status-choice>${statuses.map(st => `<option value="${esc(st)}" ${String(r.status || '') === st ? 'selected' : ''}>${esc(labelForValue(st))}</option>`).join('')}</select>
+      <button data-action="status-choice" data-id="${esc(r.id)}">Appliquer</button>
     </div>
     <div class="management-grid" data-id="${esc(r.id)}">
       <label>Étape<select data-field="currentStep">${steps.map(s=>`<option ${String(r.currentStep||r.journeyLevel||'CAND')===s?'selected':''}>${s}</option>`).join('')}</select></label>
@@ -424,7 +496,7 @@ function renderManagementPanel(r, isReservation){
       <label>Titre document<input data-field="documentTitle" placeholder="Ex. Attestation" value="${esc(r.documentTitle || '')}"></label>
       <label>Lien document<input data-field="documentUrl" placeholder="https://…" value="${esc(r.documentUrl || '')}"></label>
     </div>
-    <div class="mini-actions"><button data-action="save-followup" data-id="${esc(r.id)}">Enregistrer le suivi</button><button data-action="notify" data-id="${esc(r.id)}">Notifier / journaliser email</button><button class="danger" data-action="delete" data-id="${esc(r.id)}">Supprimer</button></div>
+    <div class="mini-actions"><button data-action="save-followup" data-id="${esc(r.id)}">Enregistrer le suivi</button><button data-action="notify" data-id="${esc(r.id)}">Ajouter au suivi e-mail</button><button class="danger" data-action="delete" data-id="${esc(r.id)}">Supprimer</button></div>
     <p class="secondary-muted">Les e-mails automatiques nécessitent une intégration sécurisée. Ici, la notification est journalisée pour traitement par l’équipe.</p>
   </details>`;
 }
@@ -466,13 +538,17 @@ async function handleRecordAction(e){
     await modules.deleteDoc(modules.doc(db, currentCollection, id));
     return;
   }
-  if (action === 'status') {
-    const value = btn.dataset.value;
+  if (action === 'status' || action === 'status-choice') {
+    const value = action === 'status-choice'
+      ? btn.closest('.management-panel')?.querySelector('[data-status-choice]')?.value
+      : btn.dataset.value;
+    if (!value) return;
     const patch = { updatedAt: modules.serverTimestamp() };
     if (currentCollection === 'payments') patch.paymentStatus = value;
     else if (currentCollection === 'services' || currentCollection === 'slots') patch.active = value === 'actif';
     else patch.status = value;
     await modules.updateDoc(modules.doc(db, currentCollection, id), patch);
+    setAdminStatus('Statut mis à jour.');
   }
 }
 
@@ -490,13 +566,14 @@ exportBtn.addEventListener('click', () => {
     keys.map(k => csvCell(labelForField(k))).join(';'),
     ...exportRows.map(r => keys.map(k => csvCell(formatValue(k, r[k]))).join(';'))
   ].join('\r\n');
-  const blob = new Blob(['\\uFEFF', csv], {type:'text/csv;charset=utf-8'});
+  const blob = new Blob(['\uFEFF', csv], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a');
   const stamp = new Date().toISOString().slice(0, 10);
   a.href = URL.createObjectURL(blob);
   a.download = `${currentCollection}-equilibre-vital-${stamp}.csv`;
   a.click();
-  URL.revokeObjectURL(a.href);
+  setAdminStatus(exportRows.length + ' ligne' + (exportRows.length > 1 ? 's exportées.' : ' exportée.'));
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
 });
 
 async function seedPages(){
@@ -578,7 +655,9 @@ async function seedServices(){
 }
 
 function switchTab(tab){
+  if (!labels[tab]) return;
   currentCollection = tab;
+  saveAdminView();
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   loadCollection();
 }

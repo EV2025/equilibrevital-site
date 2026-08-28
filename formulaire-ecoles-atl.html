@@ -20,6 +20,7 @@
 <meta content="https://ev2025.github.io/pssr/formulaire-ecoles-atl.html" property="og:url"/>
 <meta content="website" property="og:type"/>
 <meta content="./wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png" property="og:image"/>
+<link href="./assets/css/form-comfort-v80.css" rel="stylesheet"/>
 </head>
 <body class="pssr-page v30-circle-global partner-form-page-v47 ev39-page">
 <main id="main">
@@ -33,29 +34,30 @@
 </section>
 <section class="partner-form-section-v47">
 <div class="partner-form-shell-v47">
-<form action="#" autocomplete="on" class="partner-form-v47" data-firebase-collection="messages" method="post" novalidate="">
+<form action="#" autocomplete="on" class="form-comfort-v80 partner-form-v47" data-firebase-collection="messages" method="post" novalidate="">
 <input name="type" type="hidden" value="demande-ecoles-atl"/>
 <input aria-hidden="true" autocomplete="off" name="website" style="position:absolute;left:-9999px;height:0;width:0;opacity:0;" tabindex="-1" type="text" value=""/>
+<p class="form-essentials-v80">Pour un premier contact, seuls le nom de la structure, l’e-mail et la description de la demande sont indispensables. Les autres informations peuvent être complétées plus tard.</p>
 <fieldset>
 <legend>Structure</legend>
-<label>Nom de la structure *<input name="nom" placeholder="Nom de l’école, ATL ou structure" required=""/></label>
-<label>Type de structure *<select name="typeStructure" required=""><option value="">Choisir</option><option>École</option><option>Accueil temps libre</option><option>Structure éducative</option><option>Association jeunesse</option><option>Autre</option></select></label>
-<label>Commune *<input name="commune" required=""/></label>
+<label>Nom de la structure<input name="nom" placeholder="Nom de l’école, ATL ou structure" required=""/></label>
+<label>Type de structure<select name="typeStructure"><option value="">Choisir</option><option>École</option><option>Accueil temps libre</option><option>Structure éducative</option><option>Association jeunesse</option><option>Autre</option></select></label>
+<label>Commune<input name="commune"/></label>
 <label>Public concerné<input name="publicConcerne" placeholder="ex. enfants 6-12 ans, ados, groupe mixte"/></label>
 </fieldset>
 <fieldset>
 <legend>Contact</legend>
-<label>Personne de contact *<input name="personneContact" required=""/></label>
-<label>Fonction *<input name="fonction" required=""/></label>
-<label>Email *<input name="email" required="" type="email"/></label>
+<label>Personne de contact<input name="personneContact"/></label>
+<label>Fonction<input name="fonction"/></label>
+<label>Email<input name="email" required="" type="email"/></label>
 <label>Téléphone<input name="telephone" type="tel"/></label>
 </fieldset>
 <fieldset>
 <legend>Demande</legend>
-<label>Type d’action souhaitée *<select name="typeAction" required=""><option value="">Choisir</option><option>Animation sportive</option><option>Temps collectif</option><option>Projet éducatif</option><option>Projet autour du mouvement</option><option>Autre</option></select></label>
+<label>Type d’action souhaitée<select name="typeAction"><option value="">Choisir</option><option>Animation sportive</option><option>Temps collectif</option><option>Projet éducatif</option><option>Projet autour du mouvement</option><option>Autre</option></select></label>
 <label>Période souhaitée<input name="periodeSouhaitee" placeholder="ex. septembre, trimestre, vacances"/></label>
 <label>Nombre approximatif de participants<input inputmode="numeric" name="nombreParticipants"/></label>
-<label class="full">Message *<textarea name="message" placeholder="Décrivez brièvement votre besoin, le contexte et les contraintes éventuelles." required="" rows="5"></textarea></label>
+<label class="full">Message<textarea name="message" placeholder="Décrivez brièvement votre besoin, le contexte et les contraintes éventuelles." required="" rows="5"></textarea></label>
 </fieldset>
 <label class="consent full"><input name="rgpdConsent" required="" type="checkbox"/><span>J’accepte que mes données soient utilisées pour traiter cette demande. <a href="./confidentialite-rgpd.html" rel="noopener" target="_blank">Politique de confidentialité</a>.</span></label>
 <div class="partner-form-actions-v47">
@@ -69,5 +71,6 @@
 </main>
 <script defer="" src="./assets/js/firebase-contact.js" type="module"></script><script defer="" src="./assets/js/media-fallback.js"></script>
 <script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script>
+<script defer src="./assets/js/form-comfort-v80.js"></script>
 </body>
 </html>

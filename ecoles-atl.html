@@ -15,6 +15,7 @@
 <meta content="https://ev2025.github.io/pssr/ecoles-atl.html" property="og:url"/>
 <meta content="website" property="og:type"/>
 <meta content="./wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png" property="og:image"/>
+<link href="./assets/css/form-comfort-v80.css" rel="stylesheet"/>
 </head>
 <body class="pssr-page v30-circle-global ev39-page">
 <main class="pssr-main atl-page-v9" id="main">
@@ -33,20 +34,20 @@
 </section>
 <section class="panel">
 <h2>Formulaire de demande</h2>
-<form action="#" autocomplete="on" class="form-grid atl-form-v9" data-firebase-collection="messages" id="atl-form" method="post" novalidate="">
+<form action="#" autocomplete="on" class="form-comfort-v80 form-grid atl-form-v9" data-firebase-collection="messages" id="atl-form" method="post" novalidate="">
 <input name="type" type="hidden" value="ecoles-atl"/>
-<input name="message" type="hidden" value="Demande de collaboration Écoles &amp; ATL"/>
+<input name="message" type="hidden" value="Demande initiale de collaboration Écoles &amp; ATL"/>
 <input aria-hidden="true" autocomplete="off" name="website" style="position:absolute;left:-9999px;height:0;width:0;opacity:0;" tabindex="-1" type="text" value=""/>
-<fieldset><legend>A. Informations générales</legend>
-<label>Nom de l’établissement *<input name="nom" placeholder="Nom de l’établissement" required=""/></label>
-<label>Pouvoir Organisateur (PO) *<input name="pouvoirOrganisateur" required=""/></label>
-<label class="full">Adresse complète *<input name="adresse" required=""/></label>
-<label>Personne de contact *<input name="personneContact" required=""/></label>
-<label>Fonction *<input name="fonction" required=""/></label>
-<label>Téléphone *<input name="tel" required="" type="tel"/></label>
-<label>Email *<input name="email" required="" type="email"/></label>
+<p class="form-essentials-v80">Commencez par les coordonnées essentielles. Les sections suivantes permettent de préciser le projet, mais restent facultatives.</p><fieldset><legend>A. Contact essentiel</legend>
+<label>Nom de l’établissement<input name="nom" placeholder="Nom de l’établissement" required=""/></label>
+<label>Pouvoir Organisateur (PO)<input name="pouvoirOrganisateur"/></label>
+<label class="full">Adresse complète<input name="adresse"/></label>
+<label>Personne de contact<input name="personneContact" required=""/></label>
+<label>Fonction<input name="fonction"/></label>
+<label>Téléphone<input name="tel" type="tel"/></label>
+<label>Email<input name="email" required="" type="email"/></label>
 </fieldset>
-<fieldset><legend>B. Services souhaités</legend>
+<details class="optional-fields-v80 full"><summary>B. Services souhaités (facultatif)</summary><fieldset>
 <div class="checkbox-grid-v9">
 <label><input name="serviceAccueilMatin" type="checkbox" value="oui"/> Accueil du matin</label>
 <label><input name="serviceAccueilSoir" type="checkbox" value="oui"/> Accueil du soir</label>
@@ -55,15 +56,15 @@
 <label><input name="serviceDevoirs" type="checkbox" value="oui"/> Aide aux devoirs</label>
 </div>
 <label class="full">Autre service à préciser<input name="serviceAutre" placeholder="Autre besoin"/></label>
-</fieldset>
-<fieldset><legend>C. Informations pratiques</legend>
+</fieldset></details>
+<details class="optional-fields-v80 full"><summary>C. Informations pratiques (facultatif)</summary><fieldset>
 <label>Nombre d’enfants inscrits dans l’école<input inputmode="numeric" name="nombreEnfantsEcole"/></label>
 <label>Nombre estimé à l’accueil<input inputmode="numeric" name="nombreEnfantsAccueil"/></label>
 <label class="full">Plages horaires à couvrir<input name="plagesHoraires" placeholder="ex. 07h00-08h30, 15h30-18h00"/></label>
 <label>Locaux mis à disposition<input name="locaux"/></label>
 <label>Contraintes d’infrastructure<input name="contraintesInfrastructure"/></label>
-</fieldset>
-<fieldset><legend>D. Exigences réglementaires</legend>
+</fieldset></details>
+<details class="optional-fields-v80 full"><summary>D. Exigences réglementaires (facultatif)</summary><fieldset>
 <div class="checkbox-grid-v9">
 <label><input name="exigenceProjetATL" type="checkbox" value="oui"/> Projet d’accueil ATL</label>
 <label><input name="exigenceCoordinationATL" type="checkbox" value="oui"/> Coordination ATL</label>
@@ -72,25 +73,26 @@
 <label><input name="exigenceSecurite" type="checkbox" value="oui"/> Plan de sécurité / évacuation</label>
 <label><input name="exigenceConvention" type="checkbox" value="oui"/> Convention d’occupation des locaux</label>
 </div>
-</fieldset>
-<fieldset><legend>E. Besoins pédagogiques</legend>
+</fieldset></details>
+<details class="optional-fields-v80 full"><summary>E. Besoins pédagogiques (facultatif)</summary><fieldset>
 <label class="full">Objectifs prioritaires<textarea name="objectifs" rows="3"></textarea></label>
 <label class="full">Publics spécifiques<textarea name="publicsSpecifiques" rows="3"></textarea></label>
 <label class="full">Attentes vis-à-vis de l’équipe d’encadrement<textarea name="attentesEquipe" rows="3"></textarea></label>
-</fieldset>
-<fieldset><legend>F. Modalités souhaitées</legend>
+</fieldset></details>
+<details class="optional-fields-v80 full"><summary>F. Modalités souhaitées (facultatif)</summary><fieldset>
 <label>Date de début souhaitée<input name="dateDebut" type="date"/></label>
 <label>Durée du partenariat envisagée<input name="dureePartenariat"/></label>
 <label>Fréquence des évaluations<input name="frequenceEvaluations"/></label>
 <label>Mode de communication privilégié<input name="communication" placeholder="ex. email, réunions mensuelles"/></label>
-</fieldset>
-<fieldset><legend>G. Zone libre</legend>
+</fieldset></details>
+<details class="optional-fields-v80 full"><summary>G. Zone libre (facultatif)</summary><fieldset>
 <label class="full">Remarques ou besoins supplémentaires<textarea name="remarques" rows="4"></textarea></label>
-</fieldset>
+</fieldset></details>
 <label class="consent full"><input name="rgpdConsent" required="" type="checkbox"/><span>J’accepte que mes données soient utilisées pour traiter cette demande. <a href="./confidentialite-rgpd.html" rel="noopener" target="_blank">Politique de confidentialité</a>.</span></label>
 <button class="btn" type="submit">Envoyer la demande</button>
 <p class="msg" hidden="" id="contact-msg"></p>
 </form>
 </section>
 </main><script defer="" src="./assets/js/firebase-contact.js" type="module"></script><script defer="" src="./assets/js/media-fallback.js"></script>
-<script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script></body></html>
+<script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script><script defer src="./assets/js/form-comfort-v80.js"></script>
+</body></html>

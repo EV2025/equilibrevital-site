@@ -22,6 +22,7 @@
 <meta content="https://equilibrevital.be/wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png" property="og:image"/>
 <meta content="Logo Équilibre Vital" property="og:image:alt"/>
 <meta content="summary" name="twitter:card"/>
+<link href="./assets/css/form-comfort-v80.css" rel="stylesheet"/>
 </head>
 <body class="pssr-page v30-circle-global partner-form-page-v47 ev39-page">
 <main id="main">
@@ -35,28 +36,29 @@
 </section>
 <section class="partner-form-section-v47">
 <div class="partner-form-shell-v47">
-<form action="#" autocomplete="on" class="partner-form-v47" data-firebase-collection="messages" method="post" novalidate="">
+<form action="#" autocomplete="on" class="form-comfort-v80 partner-form-v47" data-firebase-collection="messages" method="post" novalidate="">
 <input name="type" type="hidden" value="demande-institution-sociale"/>
 <input aria-hidden="true" autocomplete="off" name="website" style="position:absolute;left:-9999px;height:0;width:0;opacity:0;" tabindex="-1" type="text" value=""/>
+<p class="form-essentials-v80">Pour un premier contact, seuls le nom de la structure, l’e-mail et la description de la demande sont indispensables. Les autres informations peuvent être complétées plus tard.</p>
 <fieldset>
 <legend>Structure</legend>
-<label>Nom de la structure *<input name="nom" required=""/></label>
-<label>Type de structure *<select name="typeStructure" required=""><option value="">Choisir</option><option>CPAS</option><option>Service social</option><option>Service jeunesse</option><option>Mission locale</option><option>Acteur de l’insertion</option><option>Maison de quartier</option><option>Association d’accompagnement</option><option>Autre</option></select></label>
-<label class="full">Commune / territoire concerné *<input name="territoire" required=""/></label>
+<label>Nom de la structure<input name="nom" required=""/></label>
+<label>Type de structure<select name="typeStructure"><option value="">Choisir</option><option>CPAS</option><option>Service social</option><option>Service jeunesse</option><option>Mission locale</option><option>Acteur de l’insertion</option><option>Maison de quartier</option><option>Association d’accompagnement</option><option>Autre</option></select></label>
+<label class="full">Commune / territoire concerné<input name="territoire"/></label>
 </fieldset>
 <fieldset>
 <legend>Contact</legend>
-<label>Nom et prénom de la personne de contact *<input name="personneContact" required=""/></label>
-<label>Fonction *<input name="fonction" required=""/></label>
-<label>Email *<input name="email" required="" type="email"/></label>
+<label>Nom et prénom de la personne de contact<input name="personneContact"/></label>
+<label>Fonction<input name="fonction"/></label>
+<label>Email<input name="email" required="" type="email"/></label>
 <label>Téléphone<input name="telephone" type="tel"/></label>
 </fieldset>
 <fieldset>
 <legend>Public et besoin</legend>
-<label>Public accompagné *<input name="publicAccompagne" placeholder="ex. jeunes adultes, familles, demandeurs d’emploi" required=""/></label>
+<label>Public accompagné<input name="publicAccompagne" placeholder="ex. jeunes adultes, familles, demandeurs d’emploi"/></label>
 <label>Nombre approximatif de personnes<input inputmode="numeric" name="nombrePersonnes"/></label>
-<label class="full">Besoin principal *<select name="besoinPrincipal" required=""><option value="">Choisir</option><option>Remise en mouvement</option><option>Inclusion sociale</option><option>Insertion socio-professionnelle</option><option>Santé / prévention</option><option>Cohésion sociale</option><option>Orientation vers une activité</option><option>Accompagnement renforcé</option></select></label>
-<label class="full">Description de la demande *<textarea name="message" placeholder="Expliquez la situation, le public concerné et le type d’accompagnement recherché." required="" rows="5"></textarea></label>
+<label class="full">Besoin principal<select name="besoinPrincipal"><option value="">Choisir</option><option>Remise en mouvement</option><option>Inclusion sociale</option><option>Insertion socio-professionnelle</option><option>Santé / prévention</option><option>Cohésion sociale</option><option>Orientation vers une activité</option><option>Accompagnement renforcé</option></select></label>
+<label class="full">Description de la demande<textarea name="message" placeholder="Expliquez la situation, le public concerné et le type d’accompagnement recherché." required="" rows="5"></textarea></label>
 <label class="full">Période souhaitée<input name="periodeSouhaitee" placeholder="ex. dès que possible, trimestre, année académique"/></label>
 </fieldset>
 <label class="consent full"><input name="rgpdConsent" required="" type="checkbox"/><span>J’accepte que mes données soient utilisées pour traiter cette demande. <a href="./confidentialite-rgpd.html" rel="noopener" target="_blank">Politique de confidentialité</a>.</span></label>
@@ -71,5 +73,6 @@
 </main>
 <script defer="" src="./assets/js/firebase-contact.js" type="module"></script><script defer="" src="./assets/js/media-fallback.js"></script>
 <script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script>
+<script defer src="./assets/js/form-comfort-v80.js"></script>
 </body>
 </html>

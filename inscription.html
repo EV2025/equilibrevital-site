@@ -18,6 +18,7 @@
 <meta content="https://ev2025.github.io/pssr/inscription.html" property="og:url"/>
 <meta content="website" property="og:type"/>
 <meta content="./wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png" property="og:image"/>
+<link href="./assets/css/form-comfort-v80.css" rel="stylesheet"/>
 </head>
 <body class="pssr-page v30-circle-global ev39-page">
 <main class="pssr-main" id="main">
@@ -25,7 +26,7 @@
 <p class="eyebrow">Inscription rapide</p>
 <h1>Créer mon espace membre</h1>
 <p class="intro">Quelques informations suffisent pour commencer. L’équipe vous recontacte ensuite pour finaliser les détails.</p>
-<form class="form-grid compact-form form-v14" id="register-form">
+<form class="form-comfort-v80 form-grid compact-form form-v14" id="register-form">
 <div class="form-step-title full ev39-form-section">
 <span class="step-kicker">Étape 1</span>
 <h2>Informations personnelles</h2>
@@ -43,7 +44,9 @@
 <label class="field-v14">Mot de passe <span aria-hidden="true" class="req">*</span>
 <input autocomplete="new-password" minlength="6" name="password" placeholder="Minimum 6 caractères" required="" type="password"/>
 </label>
-<div class="ev39-form-section full" data-form-section="Coordonnées complémentaires"><span class="step-kicker">Étape 2</span><h2>Coordonnées complémentaires</h2><p>Ajoutez les coordonnées utiles pour limiter la paperasse et nous concentrer sur l’essentiel.</p></div><label class="field-v14">Téléphone
+<details class="optional-fields-v80 full">
+<summary>Ajouter téléphone, date de naissance ou adresse <span>(facultatif)</span></summary>
+<div class="optional-grid-v80"><label class="field-v14">Téléphone
 <input autocomplete="tel" name="phone" placeholder="Votre numéro de téléphone" type="tel"/>
 </label>
 <label class="field-v14">Date de naissance
@@ -53,8 +56,9 @@
 <input autocomplete="street-address" name="address" placeholder="Votre adresse complète"/>
 </label>
 <input name="modules" type="hidden" value=""/>
-<div class="ev39-form-section full" data-form-section="Consentement"><span class="step-kicker">Étape 3</span><h2>Consentement</h2><p>Votre accord permet de traiter votre demande dans un cadre clair et conforme au RGPD.</p></div><label class="full consent consent-v14"><input name="rgpdConsent" required="" type="checkbox"/> <span>J’accepte les conditions et la <a href="./confidentialite-rgpd.html" rel="noopener" target="_blank">politique de confidentialité</a>.</span></label>
-<div class="ev39-form-section full" data-form-section="Action"><span class="step-kicker">Étape 4</span><h2>Action</h2><p>Validez la création de votre espace membre.</p></div><button class="btn btn-v14-submit" type="submit">Créer mon espace membre</button>
+</div>
+</details><p class="form-essentials-v80 full">Les champs marqués d’un * sont nécessaires pour créer votre espace. Les coordonnées complémentaires peuvent être ajoutées plus tard.</p><label class="full consent consent-v14"><input name="rgpdConsent" required="" type="checkbox"/> <span>J’accepte les conditions et la <a href="./confidentialite-rgpd.html" rel="noopener" target="_blank">politique de confidentialité</a>.</span></label>
+<button class="btn btn-v14-submit" type="submit">Créer mon espace membre</button>
 <p class="msg" hidden="" id="register-msg"></p>
 </form>
 </section>
@@ -70,4 +74,5 @@
 </script>
 <script defer="" src="./assets/js/register.js" type="module"></script>
 <script defer="" src="./assets/js/media-fallback.js"></script>
-<script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script></body></html>
+<script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script><script defer src="./assets/js/form-comfort-v80.js"></script>
+</body></html>

@@ -22,6 +22,7 @@
 <meta content="https://equilibrevital.be/wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png" property="og:image"/>
 <meta content="Logo Équilibre Vital" property="og:image:alt"/>
 <meta content="summary" name="twitter:card"/>
+<link href="./assets/css/form-comfort-v80.css" rel="stylesheet"/>
 </head>
 <body class="pssr-page v30-circle-global partner-form-page-v47 ev39-page">
 <main id="main">
@@ -35,27 +36,28 @@
 </section>
 <section class="partner-form-section-v47">
 <div class="partner-form-shell-v47">
-<form action="#" autocomplete="on" class="partner-form-v47" data-firebase-collection="messages" method="post" novalidate="">
+<form action="#" autocomplete="on" class="form-comfort-v80 partner-form-v47" data-firebase-collection="messages" method="post" novalidate="">
 <input name="type" type="hidden" value="demande-partenariat-local"/>
 <input aria-hidden="true" autocomplete="off" name="website" style="position:absolute;left:-9999px;height:0;width:0;opacity:0;" tabindex="-1" type="text" value=""/>
+<p class="form-essentials-v80">Pour un premier contact, seuls le nom de la structure, l’e-mail et la description de la demande sont indispensables. Les autres informations peuvent être complétées plus tard.</p>
 <fieldset>
 <legend>Structure</legend>
-<label>Nom de la structure *<input name="nom" required=""/></label>
-<label>Type de structure *<select name="typeStructure" required=""><option value="">Choisir</option><option>Commune</option><option>Association</option><option>Structure de quartier</option><option>Institution locale</option><option>Acteur socio-éducatif</option><option>Collectif local</option><option>Autre</option></select></label>
-<label class="full">Commune / territoire concerné *<input name="territoire" required=""/></label>
+<label>Nom de la structure<input name="nom" required=""/></label>
+<label>Type de structure<select name="typeStructure"><option value="">Choisir</option><option>Commune</option><option>Association</option><option>Structure de quartier</option><option>Institution locale</option><option>Acteur socio-éducatif</option><option>Collectif local</option><option>Autre</option></select></label>
+<label class="full">Commune / territoire concerné<input name="territoire"/></label>
 </fieldset>
 <fieldset>
 <legend>Contact</legend>
-<label>Nom et prénom de la personne de contact *<input name="personneContact" required=""/></label>
-<label>Fonction *<input name="fonction" required=""/></label>
-<label>Email *<input name="email" required="" type="email"/></label>
+<label>Nom et prénom de la personne de contact<input name="personneContact"/></label>
+<label>Fonction<input name="fonction"/></label>
+<label>Email<input name="email" required="" type="email"/></label>
 <label>Téléphone<input name="telephone" type="tel"/></label>
 </fieldset>
 <fieldset>
 <legend>Projet</legend>
 <label>Public concerné<input name="publicConcerne" placeholder="ex. habitants, jeunes, familles, seniors"/></label>
-<label>Objectif principal *<select name="objectifPrincipal" required=""><option value="">Choisir</option><option>Inclusion</option><option>Cohésion sociale</option><option>Santé / prévention</option><option>Remise en mouvement</option><option>Action collective</option><option>Projet territorial</option></select></label>
-<label class="full">Description de la demande *<textarea name="message" placeholder="Décrivez l’idée, le territoire concerné et l’objectif de l’action." required="" rows="5"></textarea></label>
+<label>Objectif principal<select name="objectifPrincipal"><option value="">Choisir</option><option>Inclusion</option><option>Cohésion sociale</option><option>Santé / prévention</option><option>Remise en mouvement</option><option>Action collective</option><option>Projet territorial</option></select></label>
+<label class="full">Description de la demande<textarea name="message" placeholder="Décrivez l’idée, le territoire concerné et l’objectif de l’action." required="" rows="5"></textarea></label>
 <label>Période souhaitée<input name="periodeSouhaitee"/></label>
 <label>Nombre approximatif de participants<input inputmode="numeric" name="nombreParticipants"/></label>
 </fieldset>
@@ -71,5 +73,6 @@
 </main>
 <script defer="" src="./assets/js/firebase-contact.js" type="module"></script><script defer="" src="./assets/js/media-fallback.js"></script>
 <script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script>
+<script defer src="./assets/js/form-comfort-v80.js"></script>
 </body>
 </html>

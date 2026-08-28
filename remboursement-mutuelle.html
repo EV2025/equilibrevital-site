@@ -41,6 +41,7 @@
 .attestation-panel{max-width:980px;margin:clamp(36px,5vw,66px) auto 0;padding:clamp(18px,3vw,34px);border:1px solid rgba(216,196,242,.72);border-radius:32px;background:rgba(255,255,255,.9);box-shadow:var(--shadow-card,0 18px 44px rgba(36,17,47,.08))}
 .attestation-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px}.field{display:flex;flex-direction:column;gap:8px}.field-full{grid-column:1/-1}.field label{font-weight:900;color:var(--brand-text);font-size:.94rem}.field input,.field select,.field textarea{width:100%;min-height:52px;border:1px solid rgba(216,196,242,.95);border-radius:18px;background:#fff;padding:12px 14px;font:inherit;color:var(--brand-text);outline:none;transition:border-color .18s ease,box-shadow .18s ease}.field textarea{min-height:126px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand-secondary);box-shadow:0 0 0 4px rgba(139,92,246,.13)}.consent-box{grid-column:1/-1;margin:4px 0 0;padding:16px 18px;border-radius:20px;background:rgba(245,236,255,.74);color:var(--brand-body);font-weight:720;line-height:1.55}.form-actions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center;margin-top:4px}.mutuelle-submit{min-height:50px;border:0;border-radius:999px;padding:13px 24px;background:linear-gradient(135deg,var(--brand-primary),var(--brand-secondary));color:#fff;font:inherit;font-weight:950;cursor:pointer;box-shadow:0 14px 32px rgba(139,92,246,.22)}.mutuelle-submit:hover{filter:brightness(1.03)}.mutuelle-msg{grid-column:1/-1;margin:4px 0 0;padding:15px 18px;border-radius:18px;background:rgba(46,158,111,.10);color:#244b31;font-weight:800;text-align:center}.mutuelle-msg[hidden]{display:none!important}.honeypot{position:absolute!important;left:-9999px!important;opacity:0!important}@media(max-width:1100px){.mutuelle-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:820px){.mutuelle-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mutuelle-docs{grid-template-columns:1fr}}@media(max-width:760px){.mutuelle-main{padding-top:86px}.mutuelle-wrap{width:min(100%,calc(100vw - 24px))}.mutuelle-hero{text-align:left}.mutuelle-hero p{margin-left:0}.mutuelle-grid{grid-template-columns:1fr;gap:13px}.mutuelle-card{min-height:auto;padding:18px;border-radius:22px}.mutuelle-card h3{text-align:left;font-size:1.12rem}.mutuelle-card p{text-align:left;font-size:.96rem}.mutuelle-card span{align-self:flex-start}.mutuelle-section-head{text-align:left}.mutuelle-note{text-align:left}.mutuelle-docs{border-radius:24px}.mutuelle-docs-media{order:-1}.attestation-panel{padding:18px;border-radius:24px}.attestation-form{grid-template-columns:1fr;gap:14px}.field input,.field select,.field textarea{min-height:50px;border-radius:16px}.form-actions{justify-content:stretch}.mutuelle-submit{width:100%}}@media(max-width:420px){.mutuelle-main{padding-top:78px}.mutuelle-hero h1{font-size:2.12rem}.mutuelle-kicker{font-size:.76rem}.mutuelle-card{padding:16px}.mutuelle-docs{padding:14px}.attestation-panel{padding:14px}}
 </style>
+<link href="./assets/css/form-comfort-v80.css" rel="stylesheet"/>
 </head>
 <body class="ev39-page pssr-page remboursement-mutuelle-page">
 <main id="main" class="mutuelle-main">
@@ -82,12 +83,12 @@
         <h2 id="attestation-title">Demander mon attestation Équilibre Vital</h2>
         <p>Remplissez le formulaire ci-dessous. Nous préparerons votre attestation à remettre à votre mutuelle.</p>
       </div>
-      <form class="attestation-form" id="form-attestation-mutuelle" action="mailto:equilibrevital.bruxelles@gmail.com" method="post" enctype="text/plain">
+      <form class="form-comfort-v80 attestation-form" id="form-attestation-mutuelle" action="mailto:equilibrevital.bruxelles@gmail.com" method="post" enctype="text/plain">
         <p class="honeypot"><label>Ne pas remplir <input name="website" autocomplete="off"></label></p>
         <div class="field"><label for="prenom">Prénom</label><input id="prenom" name="prenom" type="text" autocomplete="given-name" required></div>
         <div class="field"><label for="nom">Nom</label><input id="nom" name="nom" type="text" autocomplete="family-name" required></div>
         <div class="field"><label for="date_naissance">Date de naissance</label><input id="date_naissance" name="date_naissance" type="date" required></div>
-        <div class="field"><label for="telephone">Téléphone</label><input id="telephone" name="telephone" type="tel" autocomplete="tel" required></div>
+        <div class="field"><label for="telephone">Téléphone <span class="field-help-v80">facultatif</span></label><input id="telephone" name="telephone" type="tel" autocomplete="tel"></div>
         <div class="field"><label for="email">Adresse e-mail</label><input id="email" name="email" type="email" autocomplete="email" required></div>
         <div class="field"><label for="mutuelle">Nom de la mutuelle</label><select id="mutuelle" name="mutuelle" required><option value="">Choisir une mutuelle</option><option>MC</option><option>Partenamut</option><option>Solidaris Brabant</option><option>Mutualité Neutre</option><option>ML MUTPLUS.be</option><option>Autre</option></select></div>
         <div class="field"><label for="participant">Nom du participant</label><input id="participant" name="participant" type="text" required></div>
@@ -108,5 +109,6 @@
 </script>
 <script defer src="./assets/js/v39-complet-coherence-roles.js"></script>
 <script defer src="./assets/js/v41-footer-burger.js"></script>
+<script defer src="./assets/js/form-comfort-v80.js"></script>
 </body>
 </html>

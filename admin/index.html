@@ -47,7 +47,7 @@ body.admin-page{background:#f8f4fc}
 .admin-table th,.admin-table td{padding:12px 13px;vertical-align:top;border-bottom:1px solid #eadff2;text-align:left}
 .admin-table tbody tr:hover{background:#fff8fc}
 .admin-table code{overflow-wrap:anywhere}
-.management-panel{min-width:240px}.management-panel>summary{cursor:pointer;font-weight:900;color:#5b21b6}
+.record-tools-v81{display:grid;gap:9px;min-width:260px}.management-panel{min-width:240px}.management-panel>summary,.full-record-v81>summary{cursor:pointer;font-weight:900;color:#5b21b6}.full-record-v81{border:1px solid rgba(124,58,237,.18);border-radius:14px;background:#fff}.full-record-v81>summary{padding:10px 12px}.full-record-v81 dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;margin:0;padding:0 12px 12px}.full-record-v81 dl div{min-width:0;padding:9px;border-bottom:1px solid #f0e8f7}.full-record-v81 dt{color:#6a5575;font-size:.74rem;font-weight:900;text-transform:uppercase}.full-record-v81 dd{margin:3px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;color:#24112f}
 .quick-status-v80{display:grid;grid-template-columns:1fr auto;gap:8px;margin:12px 0}
 .quick-status-v80 select,.quick-status-v80 button{min-height:42px}
 .management-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -68,7 +68,7 @@ body.admin-page{background:#f8f4fc}
   .admin-table td{display:grid;grid-template-columns:minmax(105px,.42fr) minmax(0,1fr);gap:10px;padding:9px;border-bottom:1px solid #f0e8f7}
   .admin-table td::before{content:attr(data-label);color:#6a5575;font-size:.75rem;font-weight:900;text-transform:uppercase}
   .admin-table td:last-child{display:block;border-bottom:0}.admin-table td:last-child::before{display:block;margin-bottom:7px}
-  .management-panel{min-width:0}.management-grid{grid-template-columns:1fr}.management-grid .full{grid-column:auto}
+  .record-tools-v81,.management-panel{min-width:0}.full-record-v81 dl{grid-template-columns:1fr}.management-grid{grid-template-columns:1fr}.management-grid .full{grid-column:auto}
 }
 
 </style>
@@ -110,7 +110,7 @@ body.admin-page{background:#f8f4fc}
 <div class="records" id="records"></div>
 </section>
 </main>
-<script defer="" src="../assets/js/admin.js?v=20260828-80" type="module"></script>
+<script defer="" src="../assets/js/admin.js?v=20260828-81" type="module"></script>
 <script defer="" src="../assets/js/media-fallback.js"></script>
 <script defer="True" src="../assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="../assets/js/v41-footer-burger.js"></script></body>
 </html>

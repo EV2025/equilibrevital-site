@@ -329,6 +329,21 @@ function drawCanvasLines(ctx, value, x, y, maxWidth, lineHeight, maxLines = 3){
   return y + lines.length * lineHeight;
 }
 
+function drawFittedCanvasText(ctx, value, x, y, maxWidth, weight = 600, startSize = 18, minSize = 13){
+  let text = String(value || '—');
+  let size = startSize;
+  ctx.font = `${weight} ${size}px Arial`;
+  while (size > minSize && ctx.measureText(text).width > maxWidth){
+    size -= 1;
+    ctx.font = `${weight} ${size}px Arial`;
+  }
+  if (ctx.measureText(text).width > maxWidth){
+    while (text.length > 1 && ctx.measureText(`${text}…`).width > maxWidth) text = text.slice(0, -1);
+    text += '…';
+  }
+  ctx.fillText(text, x, y);
+}
+
 function drawInvoiceInfoBox(ctx, x, y, width, height, title, entries){
   ctx.fillStyle = '#ffffff';
   ctx.strokeStyle = '#d9c7ef';
@@ -344,15 +359,14 @@ function drawInvoiceInfoBox(ctx, x, y, width, height, title, entries){
   ctx.font = '700 23px Arial';
   ctx.fillText(title.toUpperCase(), x + 24, y + 39);
 
-  let lineY = y + 94;
+  let lineY = y + 92;
   for (const [label, value] of entries){
     ctx.fillStyle = '#6a5575';
-    ctx.font = '700 17px Arial';
+    ctx.font = '700 16px Arial';
     ctx.fillText(label, x + 24, lineY);
     ctx.fillStyle = '#24112f';
-    ctx.font = '600 19px Arial';
-    drawCanvasLines(ctx, value || '—', x + 170, lineY, width - 198, 25, 2);
-    lineY += 42;
+    drawFittedCanvasText(ctx, value, x + 158, lineY, width - 182, 600, 18, 13);
+    lineY += 36;
   }
 }
 
@@ -490,7 +504,7 @@ async function buildProfessionalInvoiceCanvas(payload){
   ctx.fillStyle = '#fff7fb';
   ctx.strokeStyle = '#d92e83';
   ctx.lineWidth = 2;
-  roundedRectPath(ctx, 68, 1372, 1104, 126, 20);
+  roundedRectPath(ctx, 68, 1372, 1104, 150, 20);
   ctx.fill();
   ctx.stroke();
   ctx.fillStyle = '#b71968';
@@ -498,23 +512,23 @@ async function buildProfessionalInvoiceCanvas(payload){
   ctx.fillText('DOCUMENT NON ACQUITTÉ', 94, 1414);
   ctx.fillStyle = '#4d315e';
   ctx.font = '600 18px Arial';
-  drawCanvasLines(ctx, 'Cette facture pro forma constitue une demande de paiement et non une preuve de paiement. Le virement sera validé après vérification du compte bancaire par Équilibre Vital ASBL.', 94, 1450, 1048, 25, 2);
+  drawCanvasLines(ctx, 'Cette facture pro forma constitue une demande de paiement et non une preuve de paiement. Le virement sera validé après vérification du compte bancaire par Équilibre Vital ASBL.', 94, 1450, 1048, 24, 3);
 
   ctx.strokeStyle = '#d9c7ef';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(68, 1550);
-  ctx.lineTo(1172, 1550);
+  ctx.moveTo(68, 1562);
+  ctx.lineTo(1172, 1562);
   ctx.stroke();
   ctx.fillStyle = '#604b6c';
   ctx.font = '600 17px Arial';
-  ctx.fillText('Équilibre Vital ASBL · BCE 1019.487.618 · 1080 Bruxelles', 68, 1590);
+  ctx.fillText('Équilibre Vital ASBL · BCE 1019.487.618 · 1080 Bruxelles', 68, 1602);
   ctx.textAlign = 'right';
-  ctx.fillText('equilibrevital.be', 1172, 1590);
+  ctx.fillText('equilibrevital.be', 1172, 1602);
   ctx.textAlign = 'left';
   ctx.fillStyle = '#8a7495';
   ctx.font = '500 15px Arial';
-  ctx.fillText('Document généré automatiquement à la suite de la réservation.', 68, 1630);
+  ctx.fillText('Document généré automatiquement à la suite de la réservation.', 68, 1642);
 
   return {canvas, reference};
 }

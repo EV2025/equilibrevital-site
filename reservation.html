@@ -33,6 +33,40 @@
 .payment-declared-v1[hidden]{display:none}
 .payment-action-status-v1{font-size:.9rem;color:#4d315e;margin:10px 0 0}
 @media(max-width:760px){.payment-actions-v1{grid-template-columns:1fr}.copy-payment-v1{margin:8px 0 0}}
+/* Accusé de réception fluide - ordinateur, tablette et GSM */
+#reservation-msg{grid-column:1/-1;width:100%;max-width:100%;min-width:0;margin:0;overflow:visible}
+#reservation-msg .receipt-card-v58{width:100%;max-width:100%;min-width:0;overflow:hidden;padding:clamp(16px,3vw,24px)}
+#reservation-msg .receipt-card-v58,
+#reservation-msg .receipt-card-v58 *{box-sizing:border-box}
+#reservation-msg .receipt-card-v58 p,
+#reservation-msg .receipt-card-v58 dd,
+#reservation-msg .receipt-card-v58 strong,
+#reservation-msg .receipt-card-v58 code{max-width:100%;overflow-wrap:anywhere;word-break:break-word}
+#reservation-msg .receipt-code-v58{min-width:0}
+#reservation-msg .receipt-code-v58 strong{flex:0 1 auto;min-width:0}
+#reservation-msg .receipt-details-v58{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+#reservation-msg .receipt-details-v58 div{min-width:0}
+#reservation-msg .payment-actions-v1{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+#reservation-msg .payment-actions-v1 .btn{min-width:0;white-space:normal;line-height:1.25;padding:11px 14px}
+@media(max-width:760px){
+  #reservation-msg .receipt-card-v58{border-radius:20px;box-shadow:0 12px 30px rgba(67,33,83,.09)}
+  #reservation-msg .receipt-code-v58{display:grid;grid-template-columns:1fr;gap:6px;padding:14px}
+  #reservation-msg .receipt-code-v58 strong{font-size:clamp(.95rem,4.5vw,1.15rem);letter-spacing:.02em}
+  #reservation-msg .receipt-details-v58,
+  #reservation-msg .payment-actions-v1{grid-template-columns:1fr}
+  #reservation-msg .receipt-payment-v1{padding:15px;border-radius:18px}
+  #reservation-msg .payment-details-clear-v1 div{padding:11px}
+  #reservation-msg .payment-details-clear-v1 dd{font-size:.95rem}
+  #reservation-msg .copy-payment-v1{margin:8px 0 0;width:100%}
+}
+@media(max-width:420px){
+  #reservation-msg .receipt-card-v58{margin:12px 0;padding:14px;border-radius:17px}
+  #reservation-msg .receipt-card-v58 h2{font-size:1.35rem}
+  #reservation-msg .receipt-code-v58,
+  #reservation-msg .receipt-details-v58 div,
+  #reservation-msg .receipt-payment-v1{padding:12px}
+}
+
 </style>
 <meta content="Logo Équilibre Vital" property="og:image:alt"/>
 <meta content="summary" name="twitter:card"/>
@@ -83,7 +117,7 @@
 <p class="payment-intro-v1"><strong>Montant repris automatiquement :</strong> 165 € pour la cotisation PSSR. Après l’envoi, le site affiche les informations bancaires, une référence unique et une facture pro forma professionnelle à télécharger en PDF.</p>
 <input aria-hidden="true" autocomplete="off" class="hp" name="website" tabindex="-1" type="text"/>
 <button class="btn" type="submit">Réserver et afficher les informations de virement</button>
-<p class="msg" hidden="" id="reservation-msg"></p>
+<div class="msg" hidden="" id="reservation-msg"></div>
 <p class="msg-note"><strong>Paiement sans frais en ligne :</strong> aucun montant n’est prélevé automatiquement. Vous effectuez vous-même le virement dans votre application bancaire avec la référence unique affichée.</p>
 </form>
 </section>
@@ -111,7 +145,7 @@
   }
 })();
 </script>
-<script defer="" src="./assets/js/firebase-contact.js?v=20260828-3" type="module"></script>
+<script defer="" src="./assets/js/firebase-contact.js?v=20260828-4" type="module"></script>
 <script defer="" src="./assets/js/media-fallback.js"></script>
 <script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script></body>
 </html>

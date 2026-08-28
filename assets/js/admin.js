@@ -270,7 +270,12 @@ async function init(){
 
   document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
 
-  recordsEl.addEventListener('click', handleRecordAction);
+  recordsEl.addEventListener('click', event => {
+    handleRecordAction(event).catch(err => {
+      console.error('Admin action failed:', err);
+      setAdminStatus('Action impossible. Vérifiez votre connexion et réessayez.', true);
+    });
+  });
   [adminSearch, adminStatus, adminSession, adminDate].forEach(el => el?.addEventListener('input', () => {
     saveAdminView();
     renderRows();
@@ -560,7 +565,10 @@ function csvCell(value){
 
 exportBtn.addEventListener('click', () => {
   const exportRows = applyAdminFilters(rows);
-  if (!exportRows.length) return;
+  if (!exportRows.length){
+    setAdminStatus('Aucune ligne à exporter avec les filtres actuels.', true);
+    return;
+  }
   const keys = [...new Set(exportRows.flatMap(r => Object.keys(r)))];
   const csv = [
     keys.map(k => csvCell(labelForField(k))).join(';'),

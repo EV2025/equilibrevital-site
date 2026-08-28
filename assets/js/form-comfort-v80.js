@@ -8,7 +8,7 @@ document.querySelectorAll('form.form-comfort-v80').forEach(form => {
     if (['tel','phone','telephone'].includes(field.name) && !field.autocomplete) field.autocomplete = 'tel';
     if (['tel','phone','telephone'].includes(field.name) && !field.inputMode) field.inputMode = 'tel';
     const label = field.closest('label');
-    if (field.required && label && !label.querySelector('.form-required-v80')){
+    if (field.required && label && !label.querySelector('.form-required-v80,.req')){
       const marker = document.createElement('span');
       marker.className = 'form-required-v80';
       marker.textContent = '*';

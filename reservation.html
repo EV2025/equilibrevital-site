@@ -30,7 +30,12 @@
 .payment-details-clear-v1 code{font-size:.95em;word-break:break-word}
 .copy-payment-v1{display:inline-flex;align-items:center;justify-content:center;margin-left:8px;min-height:30px;padding:4px 10px;border:1px solid rgba(124,58,237,.24);border-radius:999px;background:#fff;color:#24112f;font-weight:800;cursor:pointer}
 .payment-intro-v1{margin:14px 0 18px;padding:14px 16px;border-radius:18px;background:#fff;color:#24112f;border:1px solid rgba(124,58,237,.18)}
-@media(max-width:760px){.sepa-payment-layout-v1{grid-template-columns:1fr}.copy-payment-v1{margin:8px 0 0}}
+.payment-mobile-help-v1{display:none;margin:12px 0;padding:12px 14px;border-radius:16px;background:#f5ecff;color:#24112f}
+.payment-desktop-help-v1{margin:12px 0;padding:12px 14px;border-radius:16px;background:#f5ecff;color:#24112f}
+.payment-main-actions-v1{display:flex;flex-direction:column;gap:12px}
+.payment-copy-all-v1,.payment-declared-v1{width:100%;text-align:center}
+.payment-declared-v1[hidden]{display:none}
+@media(max-width:760px){.sepa-payment-layout-v1{grid-template-columns:1fr}.payment-main-actions-v1{order:1}.sepa-qr-card-v1{order:2}.payment-mobile-help-v1{display:block}.payment-desktop-help-v1{display:none}.copy-payment-v1{margin:8px 0 0}}
 </style>
 <meta content="Logo Équilibre Vital" property="og:image:alt"/>
 <meta content="summary" name="twitter:card"/>
@@ -78,11 +83,11 @@
 <input name="priceAmount" type="hidden" value="165"/>
 <input name="priceCurrency" type="hidden" value="EUR"/>
 <input name="priceLabel" type="hidden" value="Cotisation PSSR — année académique"/>
-<p class="payment-intro-v1"><strong>Montant repris automatiquement :</strong> 165 € pour la cotisation PSSR. Après l’envoi, le site génère une référence unique et un QR code SEPA/EPC pour votre virement bancaire.</p>
+<p class="payment-intro-v1"><strong>Montant repris automatiquement :</strong> 165 € pour la cotisation PSSR. Après l’envoi, le site affiche les informations à copier dans votre application bancaire. Un QR SEPA reste disponible sur ordinateur ou avec un deuxième appareil.</p>
 <input aria-hidden="true" autocomplete="off" class="hp" name="website" tabindex="-1" type="text"/>
-<button class="btn" type="submit">Réserver et recevoir les instructions de virement</button>
+<button class="btn" type="submit">Réserver et afficher les informations de virement</button>
 <p class="msg" hidden="" id="reservation-msg"></p>
-<p class="msg-note"><strong>Phase 1 :</strong> aucun frais de paiement en ligne. Après l’envoi, le site génère votre référence unique, un QR code SEPA/EPC et les informations de virement bancaire.</p>
+<p class="msg-note"><strong>Paiement sans frais en ligne :</strong> aucun montant n’est prélevé automatiquement. Vous effectuez vous-même le virement dans votre application bancaire avec la référence unique affichée.</p>
 </form>
 </section>
 </main>

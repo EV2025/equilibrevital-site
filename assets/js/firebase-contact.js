@@ -3,6 +3,8 @@ import { firebaseConfig, firebaseEnabled, siteConfig } from './firebase-config.j
 let db = null;
 let addDoc = null;
 let collection = null;
+let doc = null;
+let setDoc = null;
 let serverTimestamp = null;
 
 async function initFirebase(){
@@ -13,6 +15,8 @@ async function initFirebase(){
   db = fsMod.getFirestore(app);
   addDoc = fsMod.addDoc;
   collection = fsMod.collection;
+  doc = fsMod.doc;
+  setDoc = fsMod.setDoc;
   serverTimestamp = fsMod.serverTimestamp;
   return true;
 }
@@ -195,17 +199,27 @@ function paymentRecordFromReservation(payload, reservationId = ''){
 function paymentInstructionHtml(payload){
   const payment = payload.payment || resolvePaymentFromForm(null, payload);
   const epcPayloadB64 = btoa(unescape(encodeURIComponent(payment.epcPayload)));
+  const paymentSummary = [
+    `Bénéficiaire : ${payment.beneficiary}`,
+    `IBAN : ${payment.iban}`,
+    `BIC : ${payment.bic}`,
+    `Montant : ${payment.amountDisplay}`,
+    `Communication : ${payment.communication}`
+  ].join('\n');
+  const paymentSummaryB64 = btoa(unescape(encodeURIComponent(paymentSummary)));
   return `
     <section class="receipt-payment-v1" aria-label="Instructions de virement bancaire">
       <p class="receipt-eyebrow-v58">Paiement par virement SEPA</p>
-      <h3>Scannez le QR code avec votre app bancaire</h3>
+      <h3>Finaliser votre virement</h3>
+      <p class="payment-mobile-help-v1"><strong>Sur téléphone :</strong> copiez toutes les informations, ouvrez votre application bancaire et créez un nouveau virement.</p>
+      <p class="payment-desktop-help-v1"><strong>Sur ordinateur :</strong> vous pouvez scanner le QR avec la fonction de paiement de votre application bancaire. Toutes les banques ne prennent pas ce format en charge.</p>
       <div class="sepa-payment-layout-v1">
         <div class="sepa-qr-card-v1">
+          <strong>QR pour ordinateur ou deuxième appareil</strong>
           <canvas class="sepa-qr-canvas-v1" data-sepa-qr-canvas data-epc-payload="${esc(epcPayloadB64)}" width="256" height="256" aria-label="QR code SEPA/EPC"></canvas>
           <p class="sepa-qr-status-v1" data-sepa-qr-status>Génération du QR code…</p>
         </div>
-        <div>
-          <p class="receipt-note-v58">Votre application bancaire préremplit le bénéficiaire, l’IBAN, le montant et la communication. Vous devez toujours vérifier les informations puis valider le virement dans votre app bancaire.</p>
+        <div class="payment-main-actions-v1">
           <dl class="receipt-details-v58 payment-details-clear-v1">
             <div><dt>Montant</dt><dd><strong>${esc(payment.amountDisplay)}</strong></dd></div>
             <div><dt>Bénéficiaire</dt><dd>${esc(payment.beneficiary)}</dd></div>
@@ -213,9 +227,12 @@ function paymentInstructionHtml(payload){
             <div><dt>BIC</dt><dd><code>${esc(payment.bic)}</code></dd></div>
             <div><dt>Communication</dt><dd><code>${esc(payment.communication)}</code> <button type="button" class="copy-payment-v1" data-copy-value="${esc(payment.communication)}">Copier</button></dd></div>
           </dl>
+          <button type="button" class="btn payment-copy-all-v1" data-copy-payment-summary data-copy-b64="${esc(paymentSummaryB64)}">Copier toutes les informations</button>
+          <button type="button" class="btn secondary payment-declared-v1" data-payment-declared>J’ai effectué mon virement</button>
+          <p class="sepa-qr-status-v1" data-payment-declared-status aria-live="polite"></p>
         </div>
       </div>
-      <p class="receipt-note-v58"><strong>Important :</strong> indiquez exactement la communication. L’équipe vérifiera le compte bancaire et passera votre dossier en “payé” manuellement.</p>
+      <p class="receipt-note-v58"><strong>Important :</strong> le bouton indique seulement à l’équipe que vous avez effectué le virement. Le paiement sera considéré comme reçu après vérification du compte bancaire.</p>
     </section>`;
 }
 
@@ -288,6 +305,43 @@ function initCopyButtons(container){
       }
     });
   });
+
+  container.querySelectorAll('[data-copy-payment-summary]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const value = decodeBase64Utf8(btn.dataset.copyB64 || '');
+      try{
+        await navigator.clipboard.writeText(value);
+        const old = btn.textContent;
+        btn.textContent = 'Informations copiées';
+        setTimeout(() => { btn.textContent = old || 'Copier toutes les informations'; }, 1800);
+      }catch(_){
+        window.prompt('Copiez les informations de paiement :', value);
+      }
+    });
+  });
+}
+
+function initPaymentDeclaredButton(container, payload, reservationId){
+  const btn = container.querySelector('[data-payment-declared]');
+  const status = container.querySelector('[data-payment-declared-status]');
+  if (!btn || !reservationId) return;
+
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    if (status) status.textContent = 'Enregistrement de votre déclaration…';
+    try{
+      const record = paymentRecordFromReservation(payload, reservationId);
+      record.source = 'reservation — virement annoncé par le participant';
+      record.label = `${record.label} — virement annoncé`.slice(0, 180);
+      await setDoc(doc(db, 'payments', reservationId), record);
+      btn.hidden = true;
+      if (status) status.textContent = 'Merci. Votre virement est annoncé à l’équipe et reste à vérifier sur le compte bancaire.';
+    }catch(err){
+      console.error('Payment declaration failed:', err);
+      btn.disabled = false;
+      if (status) status.textContent = 'Impossible d’enregistrer maintenant. Conservez votre référence et contactez l’équipe si nécessaire.';
+    }
+  });
 }
 
 function makeTrackingCode(type = 'GEN'){
@@ -343,7 +397,7 @@ function showMessage(form, message, ok = true){
   }
 }
 
-function showReceipt(form, payload, kind){
+function showReceipt(form, payload, kind, reservationId = ''){
   const msg = findMessageElement(form);
   const code = payload.reservationCode || payload.messageCode || payload.trackingCode || '—';
   const isReservation = kind === 'reservations';
@@ -378,6 +432,7 @@ function showReceipt(form, payload, kind){
       ${isReservation ? paymentInstructionHtml(payload) : ''}
     </article>`;
   initCopyButtons(msg);
+  initPaymentDeclaredButton(msg, payload, reservationId);
   renderSepaQrCodes(msg);
   msg.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
@@ -524,16 +579,11 @@ async function attachForms(){
         const firestorePayload = { ...payload };
         delete firestorePayload.payment;
         const docRef = await addDoc(collection(db, collectionName), firestorePayload);
-        if (isReservation) {
-          await addDoc(collection(db, 'payments'), paymentRecordFromReservation(payload, docRef.id)).catch(err => {
-            console.warn('Payment tracking document not created:', err);
-          });
-        }
         rememberSubmission(payload);
         form.dataset.submittedOk = 'true';
         form.reset();
         form.querySelectorAll('.is-filled-v59,.is-invalid-v59').forEach(el => el.classList.remove('is-filled-v59','is-invalid-v59'));
-        showReceipt(form, payload, collectionName);
+        showReceipt(form, payload, collectionName, docRef.id);
       }catch(err){
         console.error(err);
         showMessage(form, 'Impossible d’enregistrer dans Firebase. Vérifiez la connexion, la configuration ou les règles Firestore.', false);

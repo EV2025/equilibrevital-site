@@ -106,6 +106,15 @@ const fieldLabels = {
   service: 'Service demandé',
   serviceName: 'Service',
   activity: 'Activité',
+  creneau: 'Activité ou créneau',
+  objectif: 'Objectif principal',
+  objectifs: 'Objectifs',
+  modules: 'Modules sélectionnés',
+  mutuelle: 'Mutuelle',
+  mutualite: 'Mutualité',
+  numeroMutuelle: 'Numéro de mutuelle',
+  numeroAffiliation: 'Numéro d’affiliation',
+  questions: 'Questions / demandes',
   price: 'Prix',
   priceLabel: 'Tarif',
   day: 'Jour',
@@ -481,11 +490,36 @@ function renderAdminTable(tableRows){
   return `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
 
+function renderFullRecordDetails(r){
+  const preferredOrder = [
+    'nom','fullName','firstName','lastName','email','tel','phone','telephone',
+    'creneau','activity','service','serviceName','objectif','objectifs','modules',
+    'mutuelle','mutualite','numeroMutuelle','numeroAffiliation','questions','message',
+    'session','preferredDate','preferredTime','status','paymentStatus','paymentAmount',
+    'paymentCurrency','paymentReference','rgpdConsent','createdAt','updatedAt','source'
+  ];
+  const excluded = new Set(['id','payment','epcPayload','userAgent','ownerUid','createdBy','updatedBy']);
+  const rank = key => {
+    const index = preferredOrder.indexOf(key);
+    return index === -1 ? preferredOrder.length : index;
+  };
+  const entries = Object.entries(r)
+    .filter(([key, value]) => !excluded.has(key) && value !== '' && value !== null && value !== undefined)
+    .sort(([a], [b]) => rank(a) - rank(b) || a.localeCompare(b, 'fr'));
+
+  if (!entries.length) return '<p class="secondary-muted">Aucune information complémentaire.</p>';
+
+  return `<details class="full-record-v81">
+    <summary>Voir la fiche complète</summary>
+    <dl>${entries.map(([key, value]) => `<div><dt>${esc(labelForField(key))}</dt><dd>${esc(formatValue(key, value))}</dd></div>`).join('')}</dl>
+  </details>`;
+}
+
 function renderManagementPanel(r, isReservation){
   const steps = ['CAND','ARF','BSS','PDS','APA','CPE','SRS'];
   const statuses = ['reçu','inscrit','en cours','terminé','abandonné','en attente','confirmée','annulée'];
   const paymentStatuses = ['en attente de virement','virement reçu','payé','non payé','à relancer'];
-  return `<details class="management-panel"><summary>Gérer</summary>
+  return `<div class="record-tools-v81">${renderFullRecordDetails(r)}<details class="management-panel"><summary>Gérer le suivi</summary>
     <div class="quick-status-v80">
       <select aria-label="Choisir le statut" data-status-choice>${statuses.map(st => `<option value="${esc(st)}" ${String(r.status || '') === st ? 'selected' : ''}>${esc(labelForValue(st))}</option>`).join('')}</select>
       <button data-action="status-choice" data-id="${esc(r.id)}">Appliquer</button>
@@ -503,7 +537,7 @@ function renderManagementPanel(r, isReservation){
     </div>
     <div class="mini-actions"><button data-action="save-followup" data-id="${esc(r.id)}">Enregistrer le suivi</button><button data-action="notify" data-id="${esc(r.id)}">Ajouter au suivi e-mail</button><button class="danger" data-action="delete" data-id="${esc(r.id)}">Supprimer</button></div>
     <p class="secondary-muted">Les e-mails automatiques nécessitent une intégration sécurisée. Ici, la notification est journalisée pour traitement par l’équipe.</p>
-  </details>`;
+  </details></div>`;
 }
 
 async function handleRecordAction(e){

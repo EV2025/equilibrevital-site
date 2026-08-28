@@ -40,9 +40,6 @@ const bankTransferConfig = {
   qrFormat: 'EPC069-12 / SCT'
 };
 
-const QR_CODE_CDN = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js';
-let qrCodeLibraryPromise = null;
-
 function normalizeIban(value){
   return String(value || '').replace(/\s+/g, '').toUpperCase();
 }
@@ -198,7 +195,6 @@ function paymentRecordFromReservation(payload, reservationId = ''){
 
 function paymentInstructionHtml(payload){
   const payment = payload.payment || resolvePaymentFromForm(null, payload);
-  const epcPayloadB64 = btoa(unescape(encodeURIComponent(payment.epcPayload)));
   const paymentSummary = [
     `Bénéficiaire : ${payment.beneficiary}`,
     `IBAN : ${payment.iban}`,
@@ -208,87 +204,30 @@ function paymentInstructionHtml(payload){
   ].join('\n');
   const paymentSummaryB64 = btoa(unescape(encodeURIComponent(paymentSummary)));
   return `
-    <section class="receipt-payment-v1" aria-label="Instructions de virement bancaire">
-      <p class="receipt-eyebrow-v58">Paiement par virement SEPA</p>
-      <h3>Finaliser votre virement</h3>
-      <p class="payment-mobile-help-v1"><strong>Sur téléphone :</strong> copiez toutes les informations, ouvrez votre application bancaire et créez un nouveau virement.</p>
-      <p class="payment-desktop-help-v1"><strong>Sur ordinateur :</strong> vous pouvez scanner le QR avec la fonction de paiement de votre application bancaire. Toutes les banques ne prennent pas ce format en charge.</p>
-      <div class="sepa-payment-layout-v1">
-        <div class="sepa-qr-card-v1">
-          <strong>QR pour ordinateur ou deuxième appareil</strong>
-          <canvas class="sepa-qr-canvas-v1" data-sepa-qr-canvas data-epc-payload="${esc(epcPayloadB64)}" width="256" height="256" aria-label="QR code SEPA/EPC"></canvas>
-          <p class="sepa-qr-status-v1" data-sepa-qr-status>Génération du QR code…</p>
-        </div>
-        <div class="payment-main-actions-v1">
-          <dl class="receipt-details-v58 payment-details-clear-v1">
-            <div><dt>Montant</dt><dd><strong>${esc(payment.amountDisplay)}</strong></dd></div>
-            <div><dt>Bénéficiaire</dt><dd>${esc(payment.beneficiary)}</dd></div>
-            <div><dt>IBAN</dt><dd><code>${esc(payment.ibanDisplay)}</code> <button type="button" class="copy-payment-v1" data-copy-value="${esc(payment.iban)}">Copier</button></dd></div>
-            <div><dt>BIC</dt><dd><code>${esc(payment.bic)}</code></dd></div>
-            <div><dt>Communication</dt><dd><code>${esc(payment.communication)}</code> <button type="button" class="copy-payment-v1" data-copy-value="${esc(payment.communication)}">Copier</button></dd></div>
-          </dl>
-          <button type="button" class="btn payment-copy-all-v1" data-copy-payment-summary data-copy-b64="${esc(paymentSummaryB64)}">Copier toutes les informations</button>
-          <button type="button" class="btn secondary payment-declared-v1" data-payment-declared>J’ai effectué mon virement</button>
-          <p class="sepa-qr-status-v1" data-payment-declared-status aria-live="polite"></p>
-        </div>
+    <section class="receipt-payment-v1" aria-label="Informations de paiement">
+      <p class="receipt-eyebrow-v58">Paiement par virement bancaire</p>
+      <h3>Vos informations de paiement</h3>
+      <p class="payment-simple-help-v1">Copiez les informations ci-dessous, ouvrez votre application bancaire et créez un nouveau virement. Vérifiez toujours le montant et la communication avant de valider.</p>
+      <dl class="receipt-details-v58 payment-details-clear-v1">
+        <div><dt>Montant</dt><dd><strong>${esc(payment.amountDisplay)}</strong></dd></div>
+        <div><dt>Bénéficiaire</dt><dd>${esc(payment.beneficiary)}</dd></div>
+        <div><dt>IBAN</dt><dd><code>${esc(payment.ibanDisplay)}</code> <button type="button" class="copy-payment-v1" data-copy-value="${esc(payment.iban)}">Copier</button></dd></div>
+        <div><dt>BIC</dt><dd><code>${esc(payment.bic)}</code></dd></div>
+        <div><dt>Communication</dt><dd><code>${esc(payment.communication)}</code> <button type="button" class="copy-payment-v1" data-copy-value="${esc(payment.communication)}">Copier</button></dd></div>
+      </dl>
+      <div class="payment-actions-v1">
+        <button type="button" class="btn payment-copy-all-v1" data-copy-payment-summary data-copy-b64="${esc(paymentSummaryB64)}">Copier toutes les informations</button>
+        <button type="button" class="btn secondary payment-invoice-v1" data-print-invoice>Imprimer votre facture</button>
+        <button type="button" class="btn secondary payment-declared-v1" data-payment-declared>J’ai effectué mon virement</button>
       </div>
-      <p class="receipt-note-v58"><strong>Important :</strong> le bouton indique seulement à l’équipe que vous avez effectué le virement. Le paiement sera considéré comme reçu après vérification du compte bancaire.</p>
+      <p class="payment-action-status-v1" data-payment-declared-status aria-live="polite"></p>
+      <p class="receipt-note-v58"><strong>Important :</strong> le document imprimable est une facture pro forma en attente de paiement. Le paiement sera considéré comme reçu uniquement après vérification du compte bancaire.</p>
     </section>`;
-}
-
-function loadQRCodeLibrary(){
-  if (window.QRCode?.toCanvas) return Promise.resolve(window.QRCode);
-  if (qrCodeLibraryPromise) return qrCodeLibraryPromise;
-  qrCodeLibraryPromise = new Promise((resolve, reject) => {
-    const existing = document.querySelector(`script[src="${QR_CODE_CDN}"]`);
-    if (existing) {
-      existing.addEventListener('load', () => resolve(window.QRCode), { once:true });
-      existing.addEventListener('error', reject, { once:true });
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = QR_CODE_CDN;
-    script.async = true;
-    script.onload = () => window.QRCode?.toCanvas ? resolve(window.QRCode) : reject(new Error('Bibliothèque QR indisponible'));
-    script.onerror = () => reject(new Error('Chargement QR impossible'));
-    document.head.appendChild(script);
-  });
-  return qrCodeLibraryPromise;
 }
 
 function decodeBase64Utf8(value){
   try { return decodeURIComponent(escape(atob(value || ''))); }
   catch(_) { return ''; }
-}
-
-async function renderSepaQrCodes(container){
-  const canvases = Array.from(container.querySelectorAll('[data-sepa-qr-canvas]'));
-  if (!canvases.length) return;
-  try{
-    const QRCode = await loadQRCodeLibrary();
-    for (const canvas of canvases){
-      const payload = decodeBase64Utf8(canvas.dataset.epcPayload || '');
-      const status = canvas.parentElement?.querySelector('[data-sepa-qr-status]');
-      if (!payload) {
-        if (status) status.textContent = 'QR code indisponible : informations manquantes.';
-        continue;
-      }
-      await new Promise((resolve, reject) => {
-        QRCode.toCanvas(canvas, payload, {
-          errorCorrectionLevel: 'M',
-          margin: 2,
-          width: 256,
-          color: { dark: '#111111', light: '#FFFFFF' }
-        }, err => err ? reject(err) : resolve());
-      });
-      if (status) status.textContent = 'QR code SEPA/EPC prêt à scanner.';
-    }
-  }catch(err){
-    console.warn('QR code generation failed:', err);
-    container.querySelectorAll('[data-sepa-qr-status]').forEach(status => {
-      status.textContent = 'QR code indisponible. Utilisez les informations de virement affichées ci-dessous.';
-    });
-  }
 }
 
 function initCopyButtons(container){
@@ -318,6 +257,96 @@ function initCopyButtons(container){
         window.prompt('Copiez les informations de paiement :', value);
       }
     });
+  });
+}
+
+
+function professionalInvoiceHtml(payload){
+  const payment = payload.payment || resolvePaymentFromForm(null, payload);
+  const invoiceNumber = payload.reservationCode || payload.trackingCode || 'À confirmer';
+  const customerName = payload.nom || 'Participant';
+  const customerEmail = payload.email || '';
+  const customerPhone = payload.tel || payload.telephone || payload.phone || '';
+  const service = payload.creneau || payload.modules || payment.label || 'Cotisation PSSR';
+  const issueDate = new Intl.DateTimeFormat('fr-BE', {dateStyle:'long'}).format(new Date());
+
+  return `<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Facture pro forma — ${esc(invoiceNumber)}</title>
+<style>
+@page{size:A4;margin:16mm}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#24112f;background:#fff;font-size:14px;line-height:1.5}
+.invoice{max-width:820px;margin:0 auto}
+.header{display:flex;justify-content:space-between;gap:28px;padding-bottom:22px;border-bottom:3px solid #7c3aed}
+.brand h1{margin:0;color:#b71968;font-size:28px}.brand p{margin:5px 0}
+.status{text-align:right}.status strong{display:inline-block;padding:7px 12px;border-radius:999px;background:#f5ecff;color:#5b21b6}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}
+.box{padding:16px;border:1px solid #d8c4f2;border-radius:14px}.box h2{margin:0 0 9px;font-size:15px;text-transform:uppercase;color:#5b21b6}
+table{width:100%;border-collapse:collapse;margin-top:26px}th,td{padding:12px;border-bottom:1px solid #ddd;text-align:left}th{background:#f8f4fc}.amount{text-align:right;font-weight:700}
+.total{margin:22px 0 0 auto;width:min(340px,100%);padding:16px;border-radius:14px;background:#24112f;color:#fff}.total div{display:flex;justify-content:space-between;gap:20px;font-size:18px}
+.payment{margin-top:26px;padding:18px;border:2px solid #7c3aed;border-radius:14px}.payment h2{margin-top:0}.payment code{font-size:14px;word-break:break-all}
+.notice{margin-top:26px;padding:14px;border-left:4px solid #d92e83;background:#fff7fb}
+.footer{margin-top:34px;padding-top:16px;border-top:1px solid #ddd;color:#604b6c;font-size:12px}
+@media(max-width:640px){.header,.meta{display:block}.status{text-align:left;margin-top:18px}.box{margin-top:12px}}
+@media print{.invoice{max-width:none}}
+</style>
+</head>
+<body>
+<main class="invoice">
+  <header class="header">
+    <div class="brand">
+      <h1>Équilibre Vital ASBL</h1>
+      <p>1080 Bruxelles</p>
+      <p>BCE : 1019.487.618</p>
+      <p>equilibrevital.bruxelles@gmail.com · 0492/691.070</p>
+    </div>
+    <div class="status">
+      <strong>FACTURE PRO FORMA</strong>
+      <p>En attente de paiement</p>
+    </div>
+  </header>
+  <section class="meta">
+    <div class="box"><h2>Document</h2><p><strong>Référence :</strong> ${esc(invoiceNumber)}</p><p><strong>Date :</strong> ${esc(issueDate)}</p></div>
+    <div class="box"><h2>Participant</h2><p><strong>${esc(customerName)}</strong></p><p>${esc(customerEmail)}</p><p>${esc(customerPhone)}</p></div>
+  </section>
+  <table>
+    <thead><tr><th>Description</th><th>Quantité</th><th class="amount">Montant</th></tr></thead>
+    <tbody><tr><td>${esc(service)}</td><td>1</td><td class="amount">${esc(payment.amountDisplay)}</td></tr></tbody>
+  </table>
+  <section class="total"><div><span>Total à payer</span><strong>${esc(payment.amountDisplay)}</strong></div></section>
+  <section class="payment">
+    <h2>Informations de virement</h2>
+    <p><strong>Bénéficiaire :</strong> ${esc(payment.beneficiary)}</p>
+    <p><strong>IBAN :</strong> <code>${esc(payment.ibanDisplay)}</code></p>
+    <p><strong>BIC :</strong> <code>${esc(payment.bic)}</code></p>
+    <p><strong>Communication obligatoire :</strong> <code>${esc(payment.communication)}</code></p>
+  </section>
+  <p class="notice"><strong>Document non acquitté.</strong> Cette facture pro forma est une demande de paiement et ne constitue pas une preuve de paiement. La réception du virement doit être vérifiée par Équilibre Vital ASBL.</p>
+  <footer class="footer">Équilibre Vital ASBL · BCE 1019.487.618 · 1080 Bruxelles · equilibrevital.be</footer>
+</main>
+</body>
+</html>`;
+}
+
+function initInvoiceButton(container, payload){
+  const btn = container.querySelector('[data-print-invoice]');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const invoiceWindow = window.open('', '_blank', 'width=900,height=900');
+    if (!invoiceWindow) {
+      alert('L’impression a été bloquée par le navigateur. Autorisez les fenêtres contextuelles puis réessayez.');
+      return;
+    }
+    invoiceWindow.opener = null;
+    invoiceWindow.document.open();
+    invoiceWindow.document.write(professionalInvoiceHtml(payload));
+    invoiceWindow.document.close();
+    invoiceWindow.focus();
+    setTimeout(() => invoiceWindow.print(), 300);
   });
 }
 
@@ -404,7 +433,7 @@ function showReceipt(form, payload, kind, reservationId = ''){
   const title = isReservation ? 'Réservation reçue' : 'Demande reçue';
   const label = isReservation ? 'Numéro de réservation' : 'Numéro de suivi';
   const next = isReservation
-    ? 'Votre place sera vérifiée par l’équipe. Pour finaliser le dossier, utilisez le QR code SEPA ou les informations de virement ci-dessous.'
+    ? 'Votre place sera vérifiée par l’équipe. Pour finaliser le dossier, utilisez les informations de virement ci-dessous.'
     : 'L’équipe PSSR reviendra vers vous dès que possible.';
   const msgText = isReservation
     ? `Votre demande de réservation a bien été enregistrée. Votre référence de paiement est ${code}.`
@@ -432,8 +461,8 @@ function showReceipt(form, payload, kind, reservationId = ''){
       ${isReservation ? paymentInstructionHtml(payload) : ''}
     </article>`;
   initCopyButtons(msg);
+  initInvoiceButton(msg, payload);
   initPaymentDeclaredButton(msg, payload, reservationId);
-  renderSepaQrCodes(msg);
   msg.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 

@@ -21,21 +21,18 @@
 <meta content="https://equilibrevital.be/wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png" property="og:image"/>
 
 <style>
-/* Phase 1B — QR code SEPA/EPC virement bancaire */
+/* Paiement manuel et facture imprimable */
 .receipt-payment-v1{margin-top:22px;padding:18px;border:1px solid rgba(124,58,237,.22);border-radius:22px;background:rgba(255,255,255,.82)}
-.sepa-payment-layout-v1{display:grid;grid-template-columns:minmax(230px,280px) 1fr;gap:18px;align-items:start;margin-top:14px}
-.sepa-qr-card-v1{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px;border-radius:20px;background:#fff;border:1px solid rgba(36,17,47,.1);box-shadow:0 12px 28px rgba(36,17,47,.08)}
-.sepa-qr-canvas-v1{width:256px;height:256px;max-width:100%;border-radius:12px}
-.sepa-qr-status-v1{font-size:.9rem;text-align:center;color:#4d315e;margin:0}
+.payment-details-clear-v1{margin-top:16px}
 .payment-details-clear-v1 code{font-size:.95em;word-break:break-word}
 .copy-payment-v1{display:inline-flex;align-items:center;justify-content:center;margin-left:8px;min-height:30px;padding:4px 10px;border:1px solid rgba(124,58,237,.24);border-radius:999px;background:#fff;color:#24112f;font-weight:800;cursor:pointer}
 .payment-intro-v1{margin:14px 0 18px;padding:14px 16px;border-radius:18px;background:#fff;color:#24112f;border:1px solid rgba(124,58,237,.18)}
-.payment-mobile-help-v1{display:none;margin:12px 0;padding:12px 14px;border-radius:16px;background:#f5ecff;color:#24112f}
-.payment-desktop-help-v1{margin:12px 0;padding:12px 14px;border-radius:16px;background:#f5ecff;color:#24112f}
-.payment-main-actions-v1{display:flex;flex-direction:column;gap:12px}
-.payment-copy-all-v1,.payment-declared-v1{width:100%;text-align:center}
+.payment-simple-help-v1{margin:12px 0;padding:12px 14px;border-radius:16px;background:#f5ecff;color:#24112f}
+.payment-actions-v1{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}
+.payment-actions-v1 .btn{width:100%;text-align:center}
 .payment-declared-v1[hidden]{display:none}
-@media(max-width:760px){.sepa-payment-layout-v1{grid-template-columns:1fr}.payment-main-actions-v1{order:1}.sepa-qr-card-v1{order:2}.payment-mobile-help-v1{display:block}.payment-desktop-help-v1{display:none}.copy-payment-v1{margin:8px 0 0}}
+.payment-action-status-v1{font-size:.9rem;color:#4d315e;margin:10px 0 0}
+@media(max-width:760px){.payment-actions-v1{grid-template-columns:1fr}.copy-payment-v1{margin:8px 0 0}}
 </style>
 <meta content="Logo Équilibre Vital" property="og:image:alt"/>
 <meta content="summary" name="twitter:card"/>
@@ -83,7 +80,7 @@
 <input name="priceAmount" type="hidden" value="165"/>
 <input name="priceCurrency" type="hidden" value="EUR"/>
 <input name="priceLabel" type="hidden" value="Cotisation PSSR — année académique"/>
-<p class="payment-intro-v1"><strong>Montant repris automatiquement :</strong> 165 € pour la cotisation PSSR. Après l’envoi, le site affiche les informations à copier dans votre application bancaire. Un QR SEPA reste disponible sur ordinateur ou avec un deuxième appareil.</p>
+<p class="payment-intro-v1"><strong>Montant repris automatiquement :</strong> 165 € pour la cotisation PSSR. Après l’envoi, le site affiche les informations bancaires, une référence unique et une facture pro forma professionnelle à imprimer ou enregistrer en PDF.</p>
 <input aria-hidden="true" autocomplete="off" class="hp" name="website" tabindex="-1" type="text"/>
 <button class="btn" type="submit">Réserver et afficher les informations de virement</button>
 <p class="msg" hidden="" id="reservation-msg"></p>

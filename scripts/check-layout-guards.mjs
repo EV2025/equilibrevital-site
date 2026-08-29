@@ -26,7 +26,12 @@ for (const path of protectedPages) {
 }
 const memberHtml = fs.readFileSync('member/dashboard.html', 'utf8');
 const memberCss = fs.readFileSync('assets/css/member-app-v83.css', 'utf8');
+const memberJs = fs.readFileSync('assets/js/member.js', 'utf8');
+const passportPdf = 'assets/js/member-passport-pdf.js';
 if (!/member-app-v83\.css/.test(memberHtml)) errors.push('member/dashboard.html: feuille membre absente');
+if (!/Télécharger mon passeport PDF/.test(memberHtml)) errors.push('member/dashboard.html: action PDF du passeport absente');
+if (!/downloadMemberPassport/.test(memberJs)) errors.push('assets/js/member.js: téléchargement du passeport non relié');
+if (!fs.existsSync(passportPdf) || fs.statSync(passportPdf).size < 5000) errors.push('assets/js/member-passport-pdf.js: générateur PDF absent ou incomplet');
 if (!/#reservation-list \.record/.test(memberCss)) errors.push('assets/css/member-app-v83.css: protection des demandes absente');
 if (!/#slot-list \.slot-card/.test(memberCss)) errors.push('assets/css/member-app-v83.css: protection des modules absente');
 if (!/#journey-panel/.test(memberCss) || !/#journey-steps/.test(memberCss)) errors.push('assets/css/member-app-v83.css: protection du parcours absente');

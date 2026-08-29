@@ -76,8 +76,7 @@
             '@type':'Service',
             name:programme.name,
             description:programme.shortDescription,
-            audience:{'@type':'Audience', audienceType:programme.audience},
-            offers:data.annualFee ? {'@type':'Offer', price:String(data.annualFee), priceCurrency:data.currency || 'EUR'} : undefined
+            audience:{'@type':'Audience', audienceType:programme.audience}
           }
         }))
       });

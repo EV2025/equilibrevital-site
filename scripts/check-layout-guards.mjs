@@ -29,6 +29,8 @@ const memberCss = fs.readFileSync('assets/css/member-app-v83.css', 'utf8');
 if (!/member-app-v83\.css/.test(memberHtml)) errors.push('member/dashboard.html: feuille membre absente');
 if (!/#reservation-list \.record/.test(memberCss)) errors.push('assets/css/member-app-v83.css: protection des demandes absente');
 if (!/#slot-list \.slot-card/.test(memberCss)) errors.push('assets/css/member-app-v83.css: protection des modules absente');
+if (!/#journey-panel/.test(memberCss) || !/#journey-steps/.test(memberCss)) errors.push('assets/css/member-app-v83.css: protection du parcours absente');
+if (!/#participant-kv/.test(memberCss) || !/#passport/.test(memberCss) || !/#gdpr-form/.test(memberCss)) errors.push('assets/css/member-app-v83.css: protection du profil personnel absente');
 
 const admin = fs.readFileSync('admin/index.html', 'utf8');
 if (!/admin-app-v90\.css/.test(admin)) errors.push('admin/index.html: feuille admin-app-v90.css absente');

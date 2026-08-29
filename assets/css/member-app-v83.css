@@ -36,3 +36,22 @@ html body.member-app-v83 #member-content + footer.member-app-footer-v83 a:focus-
  html body.member-app-v83 .member-app-footer-v83{width:calc(100% - 20px);padding:16px!important;border-radius:18px}
  html body.member-app-v83 .member-app-footer-v83 nav{grid-template-columns:1fr!important;gap:12px!important}
 }
+
+
+/* V88 — connexion membre compacte, sans débordement */
+html body.member-app-v83 main.member-app-main-v83 #login-panel{width:100%!important;max-width:720px!important;margin-left:auto!important;margin-right:auto!important;text-align:center}
+html body.member-app-v83 #login-panel #login-form{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:15px!important;width:100%!important;max-width:540px!important;margin:22px auto 0!important;text-align:left}
+html body.member-app-v83 #login-form>*{grid-column:1!important;min-width:0!important;max-width:100%!important}
+html body.member-app-v83 #login-form label,
+html body.member-app-v83 #login-form input,
+html body.member-app-v83 #login-form .btn{width:100%!important}
+html body.member-app-v83 #login-form .password-control-v82{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;width:100%!important;min-width:0!important;overflow:hidden;border-radius:18px}
+html body.member-app-v83 #login-form .password-control-v82 input{min-width:0!important}
+html body.member-app-v83 #login-form .password-toggle-v82{position:static!important;width:auto!important;min-width:88px!important;white-space:nowrap}
+html body.member-app-v83 #login-form .auth-secondary-link{margin:0!important;text-align:center!important}
+html body.member-app-v83 #login-panel>.notice{max-width:540px;margin:16px auto 0!important;text-align:center}
+@media(max-width:620px){
+ html body.member-app-v83 main.member-app-main-v83 #login-panel{padding:22px 14px!important}
+ html body.member-app-v83 #login-panel h1{font-size:clamp(2rem,11vw,3rem)!important}
+ html body.member-app-v83 #login-form .password-toggle-v82{min-width:76px!important;padding-inline:10px!important;font-size:.88rem}
+}

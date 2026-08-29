@@ -105,3 +105,19 @@
  .programmes-page-v84 .programme-actions-v84{grid-template-columns:1fr 1fr}
  .programmes-page-v84 .programme-actions-v84 .btn{min-width:0;padding-inline:10px}
 }
+
+
+/* V94 — hiérarchie uniforme des quatre programmes */
+.programmes-page-v84 .programme-schedule-v94{display:grid;gap:3px;justify-items:center;min-width:150px}
+.programmes-page-v84 .programme-day-v84{margin:0!important;font-size:.98rem!important;letter-spacing:.055em!important}
+.programmes-page-v84 .programme-time-v94{margin:0;color:#24112f;font-size:1.05rem;font-weight:900;line-height:1.2}
+.programmes-page-v84 .programme-label-v94{margin:2px 0 8px;color:#6a5575;font-size:.78rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.programmes-page-v84 .programme-card-v84 h3{max-width:620px;margin:0 auto 10px!important;line-height:1.14!important;overflow-wrap:anywhere}
+.programmes-page-v84 .programme-activities-v94{max-width:620px;margin:0 auto 12px;color:#4d315e;font-size:.98rem;font-weight:800;line-height:1.45;overflow-wrap:anywhere}
+.programmes-page-v84 .programme-actions-v84{margin-top:16px}
+@media(max-width:620px){
+ .programmes-page-v84 .programme-card-top-v84{display:grid!important;justify-items:center!important}
+ .programmes-page-v84 .programme-schedule-v94{min-width:0}
+ .programmes-page-v84 .programme-audience-v84{justify-self:center}
+ .programmes-page-v84 .programme-label-v94{margin-top:6px}
+}

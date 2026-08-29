@@ -78,3 +78,29 @@ html body.member-app-v83 #dashboard .email-verification-v82{max-width:100%!impor
  html body.member-app-v83 #dashboard>.portal-actions{display:grid!important}
  html body.member-app-v83 #dashboard>.portal-actions .btn{width:100%!important}
 }
+
+
+/* V91 — demandes et modules membre sans débordement */
+html body.member-app-v83 #my-reservations,
+html body.member-app-v83 #slots{width:100%!important;max-width:1100px!important;min-width:0!important;overflow:hidden!important}
+html body.member-app-v83 #my-reservations h2,
+html body.member-app-v83 #slots h2{max-width:100%!important;font-size:clamp(1.7rem,4vw,2.7rem)!important;overflow-wrap:anywhere!important}
+html body.member-app-v83 #reservation-list.records{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:14px!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;padding:0!important}
+html body.member-app-v83 #reservation-list .record{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;padding:clamp(16px,3vw,22px)!important;overflow:hidden!important;border:1px solid rgba(124,58,237,.16);border-radius:18px;background:#fff}
+html body.member-app-v83 #reservation-list .record h3{max-width:100%!important;font-size:clamp(1.2rem,3vw,1.65rem)!important;overflow-wrap:anywhere!important}
+html body.member-app-v83 #reservation-list .record dl{display:grid!important;grid-template-columns:minmax(145px,.34fr) minmax(0,1fr)!important;gap:0!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important}
+html body.member-app-v83 #reservation-list .record dt,
+html body.member-app-v83 #reservation-list .record dd{min-width:0!important;max-width:100%!important;margin:0!important;padding:10px!important;overflow-wrap:anywhere!important}
+html body.member-app-v83 #reservation-list .record code{white-space:normal!important;word-break:break-all!important}
+html body.member-app-v83 #slot-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;padding:0!important}
+html body.member-app-v83 #slot-list .slot-card{display:flex!important;flex-direction:column!important;align-items:flex-start!important;width:auto!important;max-width:100%!important;min-width:0!important;margin:0!important;padding:18px!important;overflow:hidden!important;border:1px solid rgba(124,58,237,.16);border-radius:18px;background:#fff}
+html body.member-app-v83 #slot-list .slot-card h3,
+html body.member-app-v83 #slot-list .slot-card p{max-width:100%!important;overflow-wrap:anywhere!important}
+html body.member-app-v83 #slot-list .slot-card .btn{max-width:100%!important;margin-top:auto!important;white-space:normal!important;text-align:center!important}
+@media(max-width:700px){
+ html body.member-app-v83 #reservation-list .record dl{grid-template-columns:1fr!important}
+ html body.member-app-v83 #reservation-list .record dt{padding-bottom:2px!important}
+ html body.member-app-v83 #reservation-list .record dd{padding-top:2px!important}
+ html body.member-app-v83 #slot-list{grid-template-columns:1fr!important}
+ html body.member-app-v83 #slot-list .slot-card .btn{width:100%!important}
+}

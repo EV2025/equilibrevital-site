@@ -4,7 +4,7 @@ body.ev39-role-coach .pssr-main{width:min(1080px,calc(100vw - 24px));min-height:
 body.ev39-role-coach .pssr-main>section.panel{min-height:0!important;margin:0 0 16px!important;padding:clamp(20px,4vw,34px)!important;border:1px solid rgba(124,58,237,.14);border-radius:24px;background:#fff;box-shadow:0 14px 34px rgba(67,33,83,.08)}
 body.ev39-role-coach .pssr-main>section[hidden],
 body.ev39-role-coach #logout[hidden]{display:none!important}
-body.ev39-role-coach #login-panel{max-width:720px;margin-inline:auto!important;text-align:center}
+html body.ev39-role-coach main.pssr-main #login-panel{width:100%!important;max-width:720px!important;margin-left:auto!important;margin-right:auto!important;text-align:center}
 body.ev39-role-coach #login-panel .form-grid{max-width:520px;margin-inline:auto;text-align:left}
 body.ev39-role-coach #login-panel .btn{width:100%}
 body.ev39-role-coach .ev39-logout{display:flex;margin:0 0 12px auto}

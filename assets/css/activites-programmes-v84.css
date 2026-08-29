@@ -59,3 +59,25 @@
 @media(max-width:900px){.programmes-grid-v84,.programme-fallback-v84{grid-template-columns:1fr}.programme-detail-columns-v84{grid-template-columns:1fr}.session-flow-v84{grid-template-columns:repeat(3,minmax(0,1fr))}.professional-entry-v84{grid-template-columns:1fr}.pssr-path-v84{grid-template-columns:1fr}}
 @media(max-width:620px){.programmes-grid-v84{gap:16px}.programme-card-v84{border-radius:22px}.programme-card-top-v84{align-items:flex-start;flex-direction:column}.programme-actions-v84{display:grid}.programme-actions-v84 .btn{width:100%}.session-flow-v84{grid-template-columns:repeat(2,minmax(0,1fr))}.programme-practical-v84{grid-template-columns:1fr}.pssr-transition-v84{border-radius:24px}.programmes-signature-v84{display:grid}.programmes-signature-v84 li{text-align:center}}
 @media(prefers-reduced-motion:reduce){.programme-details-v84{scroll-behavior:auto}}
+
+/* V85 — lecture minimaliste et centrée */
+.programmes-hero-v84{text-align:center}
+.programmes-hero-v84 .breadcrumb{display:flex;justify-content:center}
+.programmes-hero-v84 h1,.programmes-lead-v84{margin-inline:auto}
+.programmes-baseline-v85{margin:18px auto 0;color:#6a5575;font-weight:850;text-align:center}
+.programmes-heading-v84{margin-inline:auto;text-align:center}
+.programme-card-v84{text-align:center}
+.programme-card-top-v84{justify-content:center;flex-wrap:wrap}
+.programme-activities-v84{max-width:620px;margin-inline:auto}
+.programme-actions-v84{justify-content:center}
+.programme-details-v84{text-align:left}
+.programme-details-v84 .programme-hook-v84{text-align:center}
+.programme-details-v84>.programme-highlights-v84{justify-content:center}
+.programme-practical-v84 article{text-align:center}
+.compact-links-v85{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;text-align:center}
+.compact-links-v85 article{display:flex;min-width:0;flex-direction:column;align-items:center;padding:clamp(18px,3vw,26px);border:1px solid rgba(124,58,237,.16);border-radius:22px;background:#fff}
+.compact-links-v85 h2{font-size:clamp(1.35rem,2.5vw,1.85rem)}
+.compact-links-v85 p:not(.eyebrow){max-width:420px}
+.compact-links-v85 .btn{margin-top:auto}
+@media(max-width:980px){.compact-links-v85{grid-template-columns:1fr}.compact-links-v85 article{max-width:680px;width:100%;margin-inline:auto}}
+@media(max-width:620px){.programmes-hero-v84 h1 br{display:none}.programmes-baseline-v85{max-width:290px}.programme-card-top-v84{align-items:center}.programme-details-v84{text-align:center}.programme-detail-columns-v84{text-align:left}.compact-links-v85 .btn{width:100%}}

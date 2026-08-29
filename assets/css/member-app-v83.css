@@ -14,3 +14,25 @@ html body.member-app-v83 #logout[hidden]{display:none!important;visibility:hidde
 @media(max-width:700px){.member-hero-v83 .grid-cards{grid-template-columns:1fr}.member-app-brand-v83 strong{font-size:.95rem}.member-app-header-v83 .btn{min-height:40px;padding:8px 12px}.member-app-v83 .portal-actions{display:grid}.member-app-v83 .portal-actions .btn{width:100%}.member-app-v83 .pssr-kv{grid-template-columns:1fr}.member-app-v83 .pssr-kv>div:nth-child(odd){padding-bottom:0}.member-app-footer-v83 nav{display:grid;grid-template-columns:1fr 1fr}}
 @media(min-width:900px){body.member-app-v83{padding-bottom:100px}.member-bottom-nav-v83{bottom:18px;border-bottom:1px solid rgba(124,58,237,.16);border-radius:22px}.member-app-main-v83{padding-top:28px}}
 @media print{body.printing-passport-v83 *{visibility:hidden!important}body.printing-passport-v83 #passport,body.printing-passport-v83 #passport *{visibility:visible!important}body.printing-passport-v83 #passport{position:absolute;inset:0;width:100%;margin:0;padding:24px;background:#fff;color:#000;box-shadow:none}body.printing-passport-v83{background:#fff;padding:0}}
+
+
+/* Correctifs v85 : isoler l'espace membre des règles générales du site. */
+html body.member-app-v83{display:block!important;min-height:100vh!important}
+html body.member-app-v83 .member-app-main-v83{min-height:0!important;padding:18px 0 8px!important}
+html body.member-app-v83 .member-app-main-v83>section.panel{min-height:0!important;margin:0 0 16px!important;padding:clamp(17px,4vw,30px)!important}
+html body.member-app-v83 .member-app-main-v83>section[hidden],
+html body.member-app-v83 #copy-member-code[hidden],
+html body.member-app-v83 #member-profile-alert[hidden]{display:none!important}
+html body.member-app-v83 .member-app-footer-v83{clear:both;margin:0 auto 18px!important}
+html body.member-app-v83 .member-app-footer-v83 a,
+html body.member-app-v83 .member-app-footer-v83 a:visited{color:#fff!important;-webkit-text-fill-color:#fff!important;text-decoration-color:rgba(255,255,255,.55)!important}
+html body.member-app-v83 .member-app-footer-v83 a:hover,
+html body.member-app-v83 .member-app-footer-v83 a:focus-visible{color:#ffd9eb!important;-webkit-text-fill-color:#ffd9eb!important}
+.member-profile-alert-v85{margin:16px 0 0;padding:14px 16px;border:1px solid #ead5a3;border-radius:16px;background:#fffaf0;color:#493515}
+.member-profile-alert-v85 p{margin:6px 0 0;color:#685330}
+@media(max-width:700px){
+ html body.member-app-v83 .member-app-main-v83{width:min(100% - 20px,1100px);padding-top:10px!important}
+ html body.member-app-v83 .member-app-main-v83>section.panel{border-radius:18px!important;padding:18px 14px!important}
+ html body.member-app-v83 .member-app-footer-v83{width:calc(100% - 20px);padding:16px!important;border-radius:18px}
+ html body.member-app-v83 .member-app-footer-v83 nav{grid-template-columns:1fr!important;gap:12px!important}
+}

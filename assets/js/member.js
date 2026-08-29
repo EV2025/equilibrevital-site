@@ -1,4 +1,5 @@
 import { getFirebase, esc, fmtDate, makeCode, levelLabel } from './firebase-portal.js';
+import { downloadMemberPassport } from './member-passport-pdf.js?v=20260829-93';
 
 const loginPanel = document.getElementById('login-panel');
 const loginForm = document.getElementById('login-form');
@@ -114,12 +115,31 @@ async function init(){
     await fb.signOut(fb.auth);
   });
 
-  document.getElementById('print-passport')?.addEventListener('click', () => {
-    document.body.classList.add('printing-passport-v83');
-    window.print();
-    window.setTimeout(() => document.body.classList.remove('printing-passport-v83'), 800);
+  document.getElementById('print-passport')?.addEventListener('click', async event => {
+    const button = event.currentTarget;
+    const initialLabel = button.textContent;
+    button.disabled = true;
+    button.textContent = 'Création du passeport PDF…';
+    try{
+      await downloadMemberPassport({
+        profile,
+        user: currentUser,
+        steps,
+        currentStep: activeStepKey(),
+        levelLabel
+      });
+      button.textContent = 'Passeport téléchargé';
+    }catch(error){
+      console.error('Passport PDF:', error);
+      button.textContent = 'Téléchargement impossible';
+      window.alert('Le passeport n’a pas pu être créé. Rechargez la page puis réessayez.');
+    }finally{
+      window.setTimeout(() => {
+        button.disabled = false;
+        button.textContent = initialLabel;
+      }, 1800);
+    }
   });
-  window.addEventListener('afterprint', () => document.body.classList.remove('printing-passport-v83'));
   gdprForm.addEventListener('submit', sendGdprRequest);
   copyMemberCodeButton?.addEventListener('click', copyMemberCode);
   initVerificationActions();

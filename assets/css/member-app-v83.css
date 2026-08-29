@@ -24,10 +24,10 @@ html body.member-app-v83 .member-app-main-v83>section[hidden],
 html body.member-app-v83 #copy-member-code[hidden],
 html body.member-app-v83 #member-profile-alert[hidden]{display:none!important}
 html body.member-app-v83 .member-app-footer-v83{clear:both;margin:0 auto 18px!important}
-html body.member-app-v83 .member-app-footer-v83 a,
-html body.member-app-v83 .member-app-footer-v83 a:visited{color:#fff!important;-webkit-text-fill-color:#fff!important;text-decoration-color:rgba(255,255,255,.55)!important}
-html body.member-app-v83 .member-app-footer-v83 a:hover,
-html body.member-app-v83 .member-app-footer-v83 a:focus-visible{color:#ffd9eb!important;-webkit-text-fill-color:#ffd9eb!important}
+html body.member-app-v83 #member-content + footer.member-app-footer-v83 a,
+html body.member-app-v83 #member-content + footer.member-app-footer-v83 a:visited{color:#fff!important;-webkit-text-fill-color:#fff!important;text-decoration-color:rgba(255,255,255,.55)!important}
+html body.member-app-v83 #member-content + footer.member-app-footer-v83 a:hover,
+html body.member-app-v83 #member-content + footer.member-app-footer-v83 a:focus-visible{color:#ffd9eb!important;-webkit-text-fill-color:#ffd9eb!important}
 .member-profile-alert-v85{margin:16px 0 0;padding:14px 16px;border:1px solid #ead5a3;border-radius:16px;background:#fffaf0;color:#493515}
 .member-profile-alert-v85 p{margin:6px 0 0;color:#685330}
 @media(max-width:700px){

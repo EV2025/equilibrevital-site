@@ -55,3 +55,26 @@ html body.member-app-v83 #login-panel>.notice{max-width:540px;margin:16px auto 0
  html body.member-app-v83 #login-panel h1{font-size:clamp(2rem,11vw,3rem)!important}
  html body.member-app-v83 #login-form .password-toggle-v82{min-width:76px!important;padding-inline:10px!important;font-size:.88rem}
 }
+
+
+/* V89 — tableau membre connecté contenu dans son écran */
+html body.member-app-v83 #dashboard{width:100%!important;max-width:1100px!important;min-width:0!important;overflow:hidden!important}
+html body.member-app-v83 #dashboard h1{max-width:100%!important;margin-bottom:22px!important;font-size:clamp(2rem,5vw,4rem)!important;line-height:1.02!important;overflow-wrap:anywhere!important}
+html body.member-app-v83 #dashboard .grid-cards{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;width:100%!important;max-width:100%!important;margin:0!important;padding:0!important;overflow:visible!important}
+html body.member-app-v83 #dashboard .metric{position:static!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:8px!important;width:auto!important;min-width:0!important;max-width:none!important;min-height:132px!important;margin:0!important;padding:18px 12px!important;transform:none!important;overflow:hidden!important;text-align:center!important}
+html body.member-app-v83 #dashboard .metric span,
+html body.member-app-v83 #dashboard .metric strong{display:block!important;position:static!important;max-width:100%!important;margin:0!important;transform:none!important;overflow-wrap:anywhere!important}
+html body.member-app-v83 #dashboard .metric span{font-size:.95rem!important;line-height:1.25!important}
+html body.member-app-v83 #dashboard .metric strong{font-size:clamp(1.2rem,3vw,1.7rem)!important;line-height:1.1!important}
+html body.member-app-v83 #dashboard>.portal-actions{display:flex!important;flex-wrap:wrap!important;justify-content:center!important;gap:10px!important}
+html body.member-app-v83 #dashboard .email-verification-v82{max-width:100%!important;overflow:hidden!important}
+@media(min-width:900px){
+ html body.member-app-v83 .member-bottom-nav-v83{width:min(620px,calc(100vw - 40px))!important}
+}
+@media(max-width:760px){
+ html body.member-app-v83 #dashboard h1{text-align:center!important;font-size:clamp(1.9rem,10vw,2.8rem)!important}
+ html body.member-app-v83 #dashboard .grid-cards{grid-template-columns:1fr!important}
+ html body.member-app-v83 #dashboard .metric{min-height:96px!important}
+ html body.member-app-v83 #dashboard>.portal-actions{display:grid!important}
+ html body.member-app-v83 #dashboard>.portal-actions .btn{width:100%!important}
+}

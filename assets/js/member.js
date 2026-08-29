@@ -16,10 +16,12 @@ const resendVerificationButton = document.getElementById('resend-verification');
 const refreshVerificationButton = document.getElementById('refresh-verification');
 const verificationStatus = document.getElementById('verification-status');
 const copyMemberCodeButton = document.getElementById('copy-member-code');
+const memberProfileAlert = document.getElementById('member-profile-alert');
 
 let fb;
 let currentUser = null;
 let profile = null;
+let hasMemberProfile = false;
 let reservationsUnsubscribe = null;
 let currentView = ['home','parcours','demandes','profil'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
 
@@ -189,8 +191,9 @@ async function loadAll(){
 
 async function loadProfile(){
   const snapshot = await fb.getDoc(fb.doc(fb.db, 'users', currentUser.uid));
-  profile = snapshot.exists() ? snapshot.data() : {
-    displayName: currentUser.displayName || currentUser.email,
+  hasMemberProfile = snapshot.exists();
+  profile = hasMemberProfile ? snapshot.data() : {
+    displayName: currentUser.displayName || '',
     email: currentUser.email,
     memberCode: '—',
     journeyLevel: 'CAND',
@@ -198,12 +201,15 @@ async function loadProfile(){
     badges: ['Bienvenue PSSR']
   };
   const current = activeStepKey();
-  document.getElementById('welcome').textContent = `Bienvenue — ${profile.displayName || ''}`;
+  const rawName = String(profile.displayName || currentUser.displayName || '').trim();
+  const displayName = rawName && !rawName.includes('@') ? rawName : '';
+  document.getElementById('welcome').textContent = displayName ? `Bienvenue — ${displayName}` : 'Bienvenue dans votre espace';
+  memberProfileAlert.hidden = hasMemberProfile;
   document.getElementById('level').textContent = current;
   document.getElementById('attendance-count').textContent = profile.attendanceCount || 0;
   document.getElementById('member-code').textContent = profile.memberCode || '—';
   copyMemberCodeButton.hidden = !profile.memberCode || profile.memberCode === '—';
-  document.getElementById('pass-name').textContent = profile.displayName || '—';
+  document.getElementById('pass-name').textContent = displayName || 'À compléter';
   document.getElementById('pass-email').textContent = profile.email || currentUser.email || '—';
   document.getElementById('pass-code').textContent = profile.memberCode || '—';
   document.getElementById('pass-level').textContent = levelLabel(current) || current;
@@ -225,7 +231,7 @@ async function copyMemberCode(){
 
 function renderParticipant(){
   const rows = [
-    ['Nom', profile.displayName || '—'],
+    ['Nom', profile.displayName && !String(profile.displayName).includes('@') ? profile.displayName : 'À compléter'],
     ['E-mail', profile.email || currentUser.email || '—'],
     ['Téléphone', profile.phone || 'À compléter'],
     ['Référent·e social·e', profile.referent || profile.socialReferent || 'À compléter'],

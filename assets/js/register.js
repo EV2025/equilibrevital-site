@@ -74,9 +74,6 @@ form.addEventListener('submit', async event => {
     }
 
     sessionStorage.setItem('pssrRegistrationReceiptV82', JSON.stringify({
-      displayName: data.displayName,
-      email: data.email,
-      memberCode: data.memberCode,
       verificationSent,
       createdAt: new Date().toISOString()
     }));

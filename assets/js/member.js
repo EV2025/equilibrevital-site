@@ -1,48 +1,30 @@
-
 import { getFirebase, esc, fmtDate, makeCode, levelLabel } from './firebase-portal.js';
 
 const loginPanel = document.getElementById('login-panel');
-const dashboard = document.getElementById('dashboard');
-const participantPanel = document.getElementById('participant-panel');
-const journeyPanel = document.getElementById('journey-panel');
-const passportPanel = document.getElementById('passport-panel');
-const reservationsPanel = document.getElementById('my-reservations');
-const slotsPanel = document.getElementById('slots');
-const gdprPanel = document.getElementById('gdpr-panel');
 const loginForm = document.getElementById('login-form');
 const loginMsg = document.getElementById('login-msg');
 const logoutBtn = document.getElementById('logout');
+const memberSections = Array.from(document.querySelectorAll('[data-member-view]'));
+const bottomNav = document.getElementById('member-bottom-nav');
+const globalStatus = document.getElementById('member-global-status');
 const reservationList = document.getElementById('reservation-list');
 const slotList = document.getElementById('slot-list');
 const gdprForm = document.getElementById('gdpr-form');
 const gdprMsg = document.getElementById('gdpr-msg');
 const emailVerificationPanel = document.getElementById('email-verification-panel');
 const resendVerificationButton = document.getElementById('resend-verification');
+const refreshVerificationButton = document.getElementById('refresh-verification');
 const verificationStatus = document.getElementById('verification-status');
-let fb, currentUser, profile;
+const copyMemberCodeButton = document.getElementById('copy-member-code');
 
-function setLogoutVisibility(isAuthenticated){
-  if (!logoutBtn) return;
-  document.body.classList.toggle('ev49-member-authenticated', isAuthenticated);
-  document.body.classList.toggle('ev50-member-authenticated', isAuthenticated);
-  logoutBtn.hidden = !isAuthenticated;
-  logoutBtn.classList.toggle('is-authenticated', isAuthenticated);
-  logoutBtn.setAttribute('aria-hidden', isAuthenticated ? 'false' : 'true');
-  if (isAuthenticated) {
-    logoutBtn.style.setProperty('display', 'inline-flex', 'important');
-    logoutBtn.style.setProperty('visibility', 'visible', 'important');
-    logoutBtn.style.setProperty('opacity', '1', 'important');
-    logoutBtn.style.setProperty('pointer-events', 'auto', 'important');
-  } else {
-    logoutBtn.style.setProperty('display', 'none', 'important');
-    logoutBtn.style.setProperty('visibility', 'hidden', 'important');
-    logoutBtn.style.setProperty('opacity', '0', 'important');
-    logoutBtn.style.setProperty('pointer-events', 'none', 'important');
-  }
-}
+let fb;
+let currentUser = null;
+let profile = null;
+let reservationsUnsubscribe = null;
+let currentView = ['home','parcours','demandes','profil'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
 
 const steps = [
-  {key:'CAND', title:'Candidature — dépôt & éligibilité', short:'Candidature', desc:'Présenter le dispositif, recueillir le consentement, vérifier les critères et planifier l’entrée.'},
+  {key:'CAND', title:'Candidature — dépôt et validation', short:'Candidature', desc:'Présenter le dispositif, recueillir le consentement, vérifier les critères et préparer l’entrée.'},
   {key:'ARF', title:'Ateliers de Remise en Forme', short:'ARF', desc:'Sensibiliser, informer et remettre progressivement le corps en mouvement.'},
   {key:'BSS', title:'Bilan Socio-Sportif', short:'BSS', desc:'Faire le point sur la santé, l’activité, les freins, les motivations et le plan individuel.'},
   {key:'PDS', title:'Parcours Découverte Sportive', short:'PDS', desc:'Découvrir des disciplines, tester des activités et recueillir les retours d’expérience.'},
@@ -50,153 +32,295 @@ const steps = [
   {key:'CPE', title:'Concertation Partagée d’Engagement', short:'CPE', desc:'Coordonner sport, santé et social pour lever les obstacles.'},
   {key:'SRS', title:'Suivi Renforcé Solution', short:'SRS', desc:'Maintenir une pratique durable et ajuster l’accompagnement dans le temps.'}
 ];
-function showLogin(text){ loginMsg.hidden=false; loginMsg.textContent=text; loginMsg.style.color='#9b2f2f'; }
-function activeStepKey(){ return profile?.journeyLevel || profile?.currentStep || 'CAND'; }
-function stepIndex(key){ return Math.max(0, steps.findIndex(s=>s.key===key)); }
-function moduleList(value){
-  if (Array.isArray(value)) return value.map(String).map(v=>v.trim()).filter(Boolean);
-  return String(value || '').split(/[,;\n]+/).map(v=>v.trim()).filter(Boolean);
-}
-function uniq(values){ return Array.from(new Set(values.filter(Boolean))); }
-function showGdpr(text, ok=false){ gdprMsg.hidden=false; gdprMsg.textContent=text; gdprMsg.style.color=ok?'#356b42':'#9b2f2f'; }
 
-async function init(){
-  setLogoutVisibility(false);
-  fb = await getFirebase();
-  loginForm.addEventListener('submit', async e=>{ e.preventDefault(); const fd=new FormData(loginForm); try{ await fb.signInWithEmailAndPassword(fb.auth, fd.get('email'), fd.get('password')); }catch(err){ showLogin('Connexion refusée. Vérifiez email/mot de passe.'); }});
-  if (logoutBtn) logoutBtn.addEventListener('click', ()=> { setLogoutVisibility(false); fb.signOut(fb.auth); });
-  document.getElementById('print-passport').addEventListener('click', ()=> window.print());
-  gdprForm.addEventListener('submit', sendGdprRequest);
-  fb.onAuthStateChanged(fb.auth, async user=>{
-    currentUser = user;
-    const show = Boolean(user);
-    setLogoutVisibility(show);
-    loginPanel.hidden = show; dashboard.hidden = !show; participantPanel.hidden=!show; journeyPanel.hidden=!show; passportPanel.hidden=!show; reservationsPanel.hidden=!show; slotsPanel.hidden=!show; gdprPanel.hidden=!show;
-    if (user) { renderEmailVerification(user); await loadAll(); }
+function showMessage(element, text, ok = false){
+  if (!element) return;
+  element.hidden = false;
+  element.textContent = text;
+  element.style.color = ok ? '#356b42' : '#9b2f2f';
+}
+
+function friendlyUnavailable(){
+  return 'Vos informations ne sont momentanément pas disponibles. Réessayez dans quelques instants ou contactez l’équipe.';
+}
+
+function setAuthenticatedState(authenticated){
+  document.body.classList.toggle('member-authenticated-v83', authenticated);
+  logoutBtn.hidden = !authenticated;
+  bottomNav.hidden = !authenticated;
+  loginPanel.hidden = authenticated;
+  if (!authenticated) memberSections.forEach(section => { section.hidden = true; });
+  else applyMemberView();
+}
+
+function applyMemberView(){
+  memberSections.forEach(section => {
+    section.hidden = !currentUser || section.dataset.memberView !== currentView;
+  });
+  document.querySelectorAll('[data-member-target]').forEach(button => {
+    const active = button.dataset.memberTarget === currentView;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-current', active ? 'page' : 'false');
   });
 }
-function renderEmailVerification(user){
-  if (!emailVerificationPanel) return;
-  emailVerificationPanel.hidden = Boolean(user?.emailVerified);
-  if (user?.emailVerified || !resendVerificationButton || resendVerificationButton.dataset.ready === 'true') return;
-  resendVerificationButton.dataset.ready = 'true';
-  resendVerificationButton.addEventListener('click', async () => {
-    resendVerificationButton.disabled = true;
-    const initialLabel = resendVerificationButton.textContent;
-    resendVerificationButton.textContent = 'Envoi en cours…';
+
+function switchMemberView(view){
+  if (!['home','parcours','demandes','profil'].includes(view)) return;
+  currentView = view;
+  history.replaceState(null, '', `#${view}`);
+  applyMemberView();
+  document.getElementById('member-content')?.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function moduleList(value){
+  if (Array.isArray(value)) return value.map(String).map(item => item.trim()).filter(Boolean);
+  return String(value || '').split(/[,;\n]+/).map(item => item.trim()).filter(Boolean);
+}
+
+function uniq(values){ return Array.from(new Set(values.filter(Boolean))); }
+function activeStepKey(){
+  if (profile?.currentStep) return profile.currentStep;
+  if (profile?.status === 'dossier reçu') return 'CAND';
+  return profile?.journeyLevel || 'CAND';
+}
+function stepIndex(key){ return Math.max(0, steps.findIndex(step => step.key === key)); }
+
+async function init(){
+  setAuthenticatedState(false);
+  fb = await getFirebase();
+
+  document.querySelectorAll('[data-member-target]').forEach(button => {
+    button.addEventListener('click', () => switchMemberView(button.dataset.memberTarget));
+  });
+
+  loginForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    const fields = new FormData(loginForm);
+    const button = loginForm.querySelector('button[type="submit"]');
+    button.disabled = true;
     try{
-      await fb.sendEmailVerification(user, {
-        url: new URL('/member/dashboard.html', location.origin).href,
-        handleCodeInApp: false
-      });
-      verificationStatus.textContent = 'E-mail renvoyé. Vérifiez votre boîte de réception et les courriers indésirables.';
-      verificationStatus.style.color = '#356b42';
-    }catch(error){
-      console.warn('Email verification resend:', error?.code || error?.message || error);
-      verificationStatus.textContent = error?.code === 'auth/too-many-requests'
-        ? 'Trop de demandes. Attendez quelques minutes avant de réessayer.'
-        : 'L’e-mail n’a pas pu être renvoyé pour le moment.';
-      verificationStatus.style.color = '#9b2f2f';
-    }finally{
-      resendVerificationButton.disabled = false;
-      resendVerificationButton.textContent = initialLabel;
+      await fb.signInWithEmailAndPassword(fb.auth, fields.get('email'), fields.get('password'));
+      loginMsg.hidden = true;
+    }catch(_){
+      showMessage(loginMsg, 'Connexion refusée. Vérifiez votre adresse e-mail et votre mot de passe.');
+    }finally{ button.disabled = false; }
+  });
+
+  logoutBtn.addEventListener('click', async () => {
+    if (reservationsUnsubscribe) reservationsUnsubscribe();
+    reservationsUnsubscribe = null;
+    await fb.signOut(fb.auth);
+  });
+
+  document.getElementById('print-passport')?.addEventListener('click', () => {
+    document.body.classList.add('printing-passport-v83');
+    window.print();
+    window.setTimeout(() => document.body.classList.remove('printing-passport-v83'), 800);
+  });
+  window.addEventListener('afterprint', () => document.body.classList.remove('printing-passport-v83'));
+  gdprForm.addEventListener('submit', sendGdprRequest);
+  copyMemberCodeButton?.addEventListener('click', copyMemberCode);
+  initVerificationActions();
+
+  fb.onAuthStateChanged(fb.auth, async user => {
+    if (reservationsUnsubscribe) reservationsUnsubscribe();
+    reservationsUnsubscribe = null;
+    currentUser = user;
+    profile = null;
+    globalStatus.hidden = true;
+    setAuthenticatedState(Boolean(user));
+    if (!user) return;
+    renderEmailVerification(user);
+    try{ await loadAll(); }
+    catch(error){
+      console.error('Member load:', error);
+      showMessage(globalStatus, friendlyUnavailable());
     }
   });
 }
-async function loadAll(){ await loadProfile(); await loadReservations(); await loadSlots(); }
+
+function initVerificationActions(){
+  resendVerificationButton?.addEventListener('click', async () => {
+    if (!currentUser) return;
+    resendVerificationButton.disabled = true;
+    const initial = resendVerificationButton.textContent;
+    resendVerificationButton.textContent = 'Envoi en cours…';
+    try{
+      await fb.sendEmailVerification(currentUser, {
+        url: new URL('/member/dashboard.html', location.origin).href,
+        handleCodeInApp: false
+      });
+      showMessage(verificationStatus, 'E-mail renvoyé. Vérifiez votre boîte de réception et les courriers indésirables.', true);
+    }catch(error){
+      const text = error?.code === 'auth/too-many-requests'
+        ? 'Trop de demandes. Attendez quelques minutes avant de réessayer.'
+        : 'L’e-mail n’a pas pu être renvoyé pour le moment.';
+      showMessage(verificationStatus, text);
+    }finally{
+      resendVerificationButton.disabled = false;
+      resendVerificationButton.textContent = initial;
+    }
+  });
+
+  refreshVerificationButton?.addEventListener('click', async () => {
+    if (!currentUser) return;
+    refreshVerificationButton.disabled = true;
+    try{
+      await fb.reload(currentUser);
+      currentUser = fb.auth.currentUser;
+      renderEmailVerification(currentUser);
+      if (currentUser?.emailVerified) showMessage(verificationStatus, 'Votre adresse e-mail est maintenant vérifiée.', true);
+      else showMessage(verificationStatus, 'La vérification n’est pas encore confirmée. Ouvrez le lien reçu par e-mail.');
+    }catch(_){ showMessage(verificationStatus, 'Vérification impossible pour le moment.'); }
+    finally{ refreshVerificationButton.disabled = false; }
+  });
+}
+
+function renderEmailVerification(user){
+  if (!emailVerificationPanel) return;
+  emailVerificationPanel.hidden = Boolean(user?.emailVerified);
+}
+
+async function loadAll(){
+  await loadProfile();
+  loadReservations();
+  renderLinkedModules([]);
+}
+
 async function loadProfile(){
-  const snap = await fb.getDoc(fb.doc(fb.db,'users',currentUser.uid));
-  profile = snap.exists() ? snap.data() : {displayName: currentUser.displayName || currentUser.email, email: currentUser.email, memberCode:'—', journeyLevel:'CAND', attendanceCount:0, badges:['Bienvenue PSSR']};
+  const snapshot = await fb.getDoc(fb.doc(fb.db, 'users', currentUser.uid));
+  profile = snapshot.exists() ? snapshot.data() : {
+    displayName: currentUser.displayName || currentUser.email,
+    email: currentUser.email,
+    memberCode: '—',
+    journeyLevel: 'CAND',
+    attendanceCount: 0,
+    badges: ['Bienvenue PSSR']
+  };
   const current = activeStepKey();
-  document.getElementById('welcome').textContent = `Bienvenue ${profile.displayName || ''}`;
+  document.getElementById('welcome').textContent = `Bienvenue — ${profile.displayName || ''}`;
   document.getElementById('level').textContent = current;
   document.getElementById('attendance-count').textContent = profile.attendanceCount || 0;
   document.getElementById('member-code').textContent = profile.memberCode || '—';
+  copyMemberCodeButton.hidden = !profile.memberCode || profile.memberCode === '—';
   document.getElementById('pass-name').textContent = profile.displayName || '—';
   document.getElementById('pass-email').textContent = profile.email || currentUser.email || '—';
   document.getElementById('pass-code').textContent = profile.memberCode || '—';
   document.getElementById('pass-level').textContent = levelLabel(current) || current;
   document.getElementById('pass-att').textContent = profile.attendanceCount || 0;
-  const badges = profile.badges || ['Bienvenue PSSR'];
-  document.getElementById('badges').innerHTML = badges.map(b=>`<span class="badge">${esc(b)}</span>`).join('');
+  document.getElementById('badges').innerHTML = (profile.badges || ['Bienvenue PSSR']).map(badge => `<span class="badge">${esc(badge)}</span>`).join('');
   renderParticipant();
   renderJourney();
 }
+
+async function copyMemberCode(){
+  const code = profile?.memberCode || '';
+  if (!code) return;
+  try{
+    await navigator.clipboard.writeText(code);
+    copyMemberCodeButton.textContent = 'Code copié';
+    window.setTimeout(() => { copyMemberCodeButton.textContent = 'Copier'; }, 1500);
+  }catch(_){ window.prompt('Copiez votre code membre :', code); }
+}
+
 function renderParticipant(){
   const rows = [
     ['Nom', profile.displayName || '—'],
-    ['Email', profile.email || currentUser.email || '—'],
-    ['Téléphone', profile.phone || '—'],
+    ['E-mail', profile.email || currentUser.email || '—'],
+    ['Téléphone', profile.phone || 'À compléter'],
     ['Référent·e social·e', profile.referent || profile.socialReferent || 'À compléter'],
     ['Session', profile.session || 'À confirmer'],
     ['Statut', profile.status || 'Inscrit'],
     ['Modules souhaités', moduleList(profile.modules).join(', ') || '—']
   ];
-  document.getElementById('participant-kv').innerHTML = rows.map(([k,v])=>`<div><strong>${esc(k)}</strong></div><div>${esc(v)}</div>`).join('');
+  document.getElementById('participant-kv').innerHTML = rows.map(([label, value]) => `<div><strong>${esc(label)}</strong></div><div>${esc(value)}</div>`).join('');
 }
+
 function renderJourney(){
   const current = activeStepKey();
-  const idx = stepIndex(current);
+  const activeIndex = stepIndex(current);
   const stepWrap = document.getElementById('journey-steps');
   const panels = document.getElementById('journey-panels');
-  stepWrap.innerHTML = steps.map((s,i)=>`<li class="pssr-step" role="tab" aria-selected="${i===idx}" data-step="${esc(s.key)}" data-active="${i===idx}"><strong>${esc(s.short)}</strong><br><span>${esc(s.title)}</span></li>`).join('');
-  panels.innerHTML = steps.map((s,i)=>`<div class="pssr-panel ${i===idx?'active':''}" id="pssr-panel-${esc(s.key)}" role="tabpanel"><h4>${esc(s.title)}</h4><p>${esc(s.desc)}</p><div class="tag-row"><span>Prévue : ${esc(profile?.journeyDates?.[s.key]?.planned || '—')}</span><span>Réalisée : ${esc(profile?.journeyDates?.[s.key]?.done || '—')}</span></div></div>`).join('');
-  stepWrap.querySelectorAll('.pssr-step').forEach(tile=>{
-    tile.addEventListener('click',()=>{
+  stepWrap.innerHTML = steps.map((step, index) => `<li><button class="pssr-step" type="button" role="tab" aria-selected="${index === activeIndex}" data-step="${esc(step.key)}" data-active="${index === activeIndex}"><strong>${esc(step.short)}</strong><span>${esc(step.key)}</span></button></li>`).join('');
+  panels.innerHTML = steps.map((step, index) => `<article class="pssr-panel ${index === activeIndex ? 'active' : ''}" id="pssr-panel-${esc(step.key)}" role="tabpanel"><p class="eyebrow">${esc(step.key)}</p><h3>${esc(step.title)}</h3><p>${esc(step.desc)}</p><div class="tag-row"><span>Prévue : ${esc(profile?.journeyDates?.[step.key]?.planned || '—')}</span><span>Réalisée : ${esc(profile?.journeyDates?.[step.key]?.done || '—')}</span></div></article>`).join('');
+  stepWrap.querySelectorAll('.pssr-step').forEach(tile => {
+    tile.addEventListener('click', () => {
       const key = tile.dataset.step;
-      stepWrap.querySelectorAll('.pssr-step').forEach(x=>{x.dataset.active='false'; x.setAttribute('aria-selected','false');});
-      tile.dataset.active='true'; tile.setAttribute('aria-selected','true');
-      panels.querySelectorAll('.pssr-panel').forEach(p=>p.classList.remove('active'));
-      document.getElementById('pssr-panel-'+key)?.classList.add('active');
+      stepWrap.querySelectorAll('.pssr-step').forEach(item => { item.dataset.active = 'false'; item.setAttribute('aria-selected', 'false'); });
+      tile.dataset.active = 'true';
+      tile.setAttribute('aria-selected', 'true');
+      panels.querySelectorAll('.pssr-panel').forEach(panel => panel.classList.remove('active'));
+      document.getElementById(`pssr-panel-${key}`)?.classList.add('active');
     });
   });
 }
-async function loadReservations(){
+
+function loadReservations(){
+  reservationList.innerHTML = '<p>Chargement de vos demandes…</p>';
   try{
-    const q = fb.query(fb.collection(fb.db,'reservations'), fb.where('uid','==',currentUser.uid), fb.orderBy('createdAt','desc'));
-    fb.onSnapshot(q, snap=>{
-      const rows = snap.docs.map(d=>({id:d.id,...d.data()}));
-      reservationList.innerHTML = rows.length ? rows.map(r=>`<article class="record"><h3>${esc(r.creneau || r.modules || r.slotTitle || r.reservationCode || r.id)}</h3><dl><dt>Référence</dt><dd>${esc(r.reservationCode || '—')}</dd><dt>Statut</dt><dd><span class="status-pill">${esc(r.status || 'en attente')}</span></dd><dt>Date</dt><dd>${esc(fmtDate(r.createdAt))}</dd><dt>Modules</dt><dd>${esc(r.modules || r.creneau || '—')}</dd><dt>Message</dt><dd>${esc(r.message || '')}</dd></dl></article>`).join('') : '<p>Aucune réservation membre.</p>';
+    const query = fb.query(
+      fb.collection(fb.db, 'reservations'),
+      fb.where('uid', '==', currentUser.uid),
+      fb.orderBy('createdAt', 'desc')
+    );
+    reservationsUnsubscribe = fb.onSnapshot(query, snapshot => {
+      const rows = snapshot.docs.map(doc => ({id:doc.id, ...doc.data()}));
+      reservationList.innerHTML = rows.length ? rows.map(row => `<article class="record"><h3>${esc(row.creneau || row.modules || row.slotTitle || 'Demande PSSR')}</h3><dl><dt>Numéro de réservation</dt><dd><code>${esc(row.reservationCode || '—')}</code></dd><dt>Statut</dt><dd><span class="status-pill">${esc(row.status || 'en attente')}</span></dd><dt>Date</dt><dd>${esc(fmtDate(row.createdAt))}</dd><dt>Modules</dt><dd>${esc(row.modules || row.creneau || '—')}</dd>${row.message ? `<dt>Message</dt><dd>${esc(row.message)}</dd>` : ''}</dl></article>`).join('') : '<p>Aucune réservation disponible pour le moment.</p>';
       renderLinkedModules(rows);
-    }, err=>{ reservationList.innerHTML = `<p class="msg">Lecture impossible : ${esc(err.message)}</p>`; renderLinkedModules([]); });
-  }catch(err){ reservationList.innerHTML = `<p class="msg">${esc(err.message)}</p>`; renderLinkedModules([]); }
+    }, error => {
+      console.error('Member reservations:', error);
+      reservationList.innerHTML = `<p class="msg">${esc(friendlyUnavailable())}</p>`;
+      renderLinkedModules([]);
+    });
+  }catch(error){
+    console.error('Member reservations query:', error);
+    reservationList.innerHTML = `<p class="msg">${esc(friendlyUnavailable())}</p>`;
+    renderLinkedModules([]);
+  }
 }
-async function loadSlots(){
-  renderLinkedModules([]);
-}
+
 function renderLinkedModules(reservations = []){
   const fromProfile = moduleList(profile?.modules);
-  const fromReservations = reservations.flatMap(r => moduleList(r.modules || r.creneau || r.slotTitle));
+  const fromReservations = reservations.flatMap(row => moduleList(row.modules || row.creneau || row.slotTitle));
   const modules = uniq([...fromProfile, ...fromReservations]);
-  if (!slotList) return;
   if (!modules.length){
-    slotList.innerHTML = `<article class="slot-card"><h3>Aucun module lié pour le moment</h3><p class="slot-meta">Vos modules apparaîtront ici après une inscription ou une réservation.</p><a class="btn small" href="../reservation.html">Faire une demande</a></article>`;
+    slotList.innerHTML = '<article class="slot-card"><h3>Aucun module lié pour le moment</h3><p>Vos modules apparaîtront ici après une inscription ou une réservation.</p><a class="btn small" href="../reservation.html">Faire une demande</a></article>';
     return;
   }
-  slotList.innerHTML = modules.map(m => {
-    const params = new URLSearchParams();
-    params.set('modules', m);
-    return `<article class="slot-card"><h3>${esc(m)}</h3><p class="slot-meta">Lié à votre parcours PSSR</p><p>L’équipe PSSR confirme les disponibilités et les modalités de participation.</p><a class="btn small" href="../reservation.html?${params.toString()}">Demander / modifier</a></article>`;
+  slotList.innerHTML = modules.map(module => {
+    const params = new URLSearchParams({modules:module});
+    return `<article class="slot-card"><h3>${esc(module)}</h3><p>Lié à votre parcours PSSR. L’équipe confirme les disponibilités et les modalités.</p><a class="btn small" href="../reservation.html?${params.toString()}">Demander ou modifier</a></article>`;
   }).join('');
 }
-async function sendGdprRequest(e){
-  e.preventDefault();
+
+async function sendGdprRequest(event){
+  event.preventDefault();
   try{
-    const fd = new FormData(gdprForm);
+    const fields = new FormData(gdprForm);
+    const requestType = String(fields.get('requestType') || 'gdpr_deletion_request');
+    const allowedTypes = ['gdpr_deletion_request','gdpr_access_request','gdpr_rectification_request'];
+    const type = allowedTypes.includes(requestType) ? requestType : 'gdpr_deletion_request';
     const consentCode = makeCode('PSSR-DOC');
-    await fb.addDoc(fb.collection(fb.db,'consents'), {
+    await fb.addDoc(fb.collection(fb.db, 'consents'), {
       uid: currentUser.uid,
       consentCode,
       trackingCode: consentCode,
       email: profile.email || currentUser.email || '',
       displayName: profile.displayName || '',
-      type: 'gdpr_deletion_request',
-      reason: String(fd.get('reason')||'').slice(0,1500),
+      type,
+      reason: String(fields.get('reason') || '').slice(0, 1500),
       status: 'reçu',
       createdAt: fb.serverTimestamp()
     });
     gdprForm.reset();
-    showGdpr(`Votre demande a bien été transmise à l’équipe PSSR. Numéro de suivi : ${consentCode}.`, true);
-  }catch(err){ showGdpr('Impossible d’envoyer la demande : '+(err.message||'erreur Firebase')); }
+    showMessage(gdprMsg, `Votre demande a bien été transmise. Numéro de suivi : ${consentCode}.`, true);
+  }catch(error){
+    console.error('GDPR request:', error);
+    showMessage(gdprMsg, 'Votre demande ne peut pas être envoyée pour le moment. Réessayez plus tard.');
+  }
 }
-init().catch(err=>{ console.error(err); showLogin('Erreur Firebase : '+err.message); });
+
+init().catch(error => {
+  console.error('Member init:', error);
+  showMessage(loginMsg, 'L’espace membre est momentanément indisponible. Réessayez dans quelques instants.');
+});

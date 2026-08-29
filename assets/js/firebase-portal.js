@@ -49,6 +49,7 @@ export function levelFromAttendance(count){
 
 export function levelLabel(code){
   return ({
+    CAND:'CAND — Candidature',
     ARF:'ARF — Ateliers de remise en forme',
     BSS:'BSS — Bilan socio-sportif',
     PDS:'PDS — Parcours découverte sportive',

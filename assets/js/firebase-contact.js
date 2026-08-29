@@ -1,6 +1,7 @@
 import { firebaseConfig, firebaseEnabled, siteConfig } from './firebase-config.js';
 
 let db = null;
+let auth = null;
 let addDoc = null;
 let collection = null;
 let doc = null;
@@ -10,8 +11,11 @@ let serverTimestamp = null;
 async function initFirebase(){
   if (!firebaseEnabled) return false;
   const appMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js');
+  const authMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js');
   const fsMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js');
   const app = appMod.initializeApp(firebaseConfig);
+  auth = authMod.getAuth(app);
+  if (typeof auth.authStateReady === 'function') await auth.authStateReady();
   db = fsMod.getFirestore(app);
   addDoc = fsMod.addDoc;
   collection = fsMod.collection;
@@ -876,6 +880,7 @@ async function attachForms(){
         }
         const firestorePayload = { ...payload };
         delete firestorePayload.payment;
+        if (isReservation && auth?.currentUser) firestorePayload.uid = auth.currentUser.uid;
         const docRef = await addDoc(collection(db, collectionName), firestorePayload);
         rememberSubmission(payload);
         form.dataset.submittedOk = 'true';

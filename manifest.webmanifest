@@ -1,0 +1,19 @@
+{
+  "name": "Équilibre Vital — Espace PSSR",
+  "short_name": "PSSR",
+  "description": "Suivi personnel du parcours PSSR Équilibre Vital.",
+  "lang": "fr-BE",
+  "start_url": "/member/dashboard.html#home",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FFF7FB",
+  "theme_color": "#7C3AED",
+  "icons": [
+    {
+      "src": "/wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

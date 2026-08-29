@@ -1,72 +1,46 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <title>Espace membre PSSR</title>
 <meta content="noindex,nofollow" name="robots"/>
 <meta content="#FFF7FB" name="theme-color"/>
 <meta content="light" name="color-scheme"/>
-<style>body{margin:0;font-family:Inter,Manrope,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:#fff8fc;color:#24112F}img{max-width:100%;height:auto}main{min-height:54vh}.ev36-header{position:sticky;top:0;z-index:5000}.ev36-skip-link{position:absolute;left:-999px;top:10px;background:#24112F;color:#fff;padding:10px 14px;border-radius:999px;z-index:9999}.ev36-skip-link:focus{left:12px}</style><noscript></noscript>
-
-  <link href="../assets/css/common-v58.min.css" rel="stylesheet"/>
+<link href="../manifest.webmanifest" rel="manifest"/>
+<link href="../assets/css/common-v58.min.css" rel="stylesheet"/>
+<link href="../assets/css/member-app-v83.css" rel="stylesheet"/>
 </head>
-<body class="pssr-page v30-circle-global ev39-page ev39-role-member">
-<main class="pssr-main" id="main"><button aria-hidden="true" class="btn secondary ev39-logout" hidden="" id="logout" style="display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important" type="button">Déconnexion</button>
-<section class="panel" data-role-block="Connexion membre" id="login-panel">
-<p class="eyebrow">Connexion membre</p>
-<h1>Mon espace PSSR</h1>
-<p>Connectez-vous pour accéder à votre parcours.</p>
-<form class="form-grid small" id="login-form">
-<label>Email<input name="email" required="" type="email"/></label>
-<label>Mot de passe<input name="password" required="" type="password"/></label>
-<button class="btn" type="submit">Connexion</button>
-<p class="auth-secondary-link"><a href="../mot-de-passe-oublie.html?type=membre">Mot de passe oublié ?</a></p>
-<p class="msg" hidden="" id="login-msg"></p>
-</form>
+<body class="pssr-page member-app-v83 ev39-role-member">
+<a class="ev39-skip-link" href="#member-content">Aller au contenu</a>
+<header class="member-app-header-v83">
+<a class="member-app-brand-v83" href="../index.html" aria-label="Retour à l’accueil Équilibre Vital"><img src="../wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png" alt="" width="44" height="44"/><span><strong>Équilibre Vital</strong><small>Espace PSSR</small></span></a>
+<button class="btn secondary" hidden id="logout" type="button">Déconnexion</button>
+</header>
+<main class="member-app-main-v83" id="member-content">
+<p aria-live="polite" class="member-global-status-v83" hidden id="member-global-status"></p>
+<section class="panel" id="login-panel">
+<p class="eyebrow">Connexion membre</p><h1>Mon espace PSSR</h1><p>Connectez-vous pour accéder à votre parcours personnel.</p>
+<form class="form-grid small" id="login-form"><label>E-mail<input autocomplete="email" name="email" required type="email"/></label><label>Mot de passe<input autocomplete="current-password" name="password" required type="password"/></label><button class="btn" type="submit">Connexion</button><p class="auth-secondary-link"><a href="../mot-de-passe-oublie.html?type=membre">Mot de passe oublié ?</a></p><p class="msg" hidden id="login-msg"></p></form>
 <p class="notice">Pas encore de compte ? <a href="../inscription.html"><strong>Créer un espace membre</strong></a>.</p>
 </section>
-<section class="panel" data-role-block="Mon espace PSSR" hidden="" id="dashboard">
-<p class="eyebrow">Parcours personnel</p>
-<h2 id="welcome">Mon espace PSSR</h2>
-<div class="grid-cards">
-<div class="metric"><span>Étape actuelle</span><strong id="level">CAND</strong></div>
-<div class="metric"><span>Présences</span><strong id="attendance-count">0</strong></div>
-<div class="metric"><span>Code membre</span><strong id="member-code">—</strong></div>
-</div>
-<div class="portal-actions"><a class="btn secondary" href="#slots">Voir mes modules</a><a class="btn secondary" href="../reservation.html">Faire une nouvelle demande</a></div>
-<aside class="notice email-verification-v82" hidden id="email-verification-panel"><strong>Adresse e-mail à vérifier</strong><p>Ouvrez le message envoyé par Équilibre Vital et cliquez sur le lien sécurisé. Vérifiez aussi les courriers indésirables.</p><button class="btn secondary" id="resend-verification" type="button">Renvoyer l’e-mail de vérification</button><p aria-live="polite" id="verification-status"></p></aside>
+<section class="panel member-hero-v83" data-member-view="home" hidden id="dashboard">
+<p class="eyebrow">Parcours personnel</p><h1 id="welcome">Bienvenue</h1>
+<div class="grid-cards"><div class="metric"><span>Étape actuelle</span><strong id="level">CAND</strong></div><div class="metric"><span>Présences</span><strong id="attendance-count">0</strong></div><div class="metric"><span>Code membre</span><strong class="member-code-v83" id="member-code">—</strong><div class="member-code-actions-v83"><button class="btn secondary small" hidden id="copy-member-code" type="button">Copier</button></div></div></div>
+<div class="portal-actions"><button class="btn secondary" data-member-target="demandes" type="button">Voir mes modules</button><a class="btn" href="../reservation.html">Faire une nouvelle demande</a></div>
+<aside class="email-verification-v82" hidden id="email-verification-panel"><strong>Vérifiez votre adresse e-mail</strong><p>Ouvrez le message envoyé par Équilibre Vital et cliquez sur le lien sécurisé. Vérifiez aussi les courriers indésirables.</p><div class="portal-actions"><button class="btn secondary" id="resend-verification" type="button">Renvoyer l’e-mail</button><button class="btn secondary" id="refresh-verification" type="button">J’ai vérifié mon e-mail</button></div><p aria-live="polite" id="verification-status"></p></aside>
 </section>
-<section class="panel" hidden="" id="participant-panel">
-<p class="eyebrow">Informations personnelles</p>
-<h2>Mon dossier</h2>
-<div class="pssr-card participant-card">
-<div class="pssr-kv" id="participant-kv"></div>
-</div>
-</section>
-<section class="panel" data-role-block="Mes étapes PSSR" hidden="" id="journey-panel">
-<p class="eyebrow">Suivi du parcours</p>
-<h2>Mes étapes PSSR</h2>
-<p class="muted">Cliquez sur une étape pour voir son objectif. L’équipe PSSR mettra à jour les dates prévues/réalisées selon votre accompagnement.</p>
-<ol class="pssr-steps" id="journey-steps" role="tablist"></ol>
-<div id="journey-panels"></div>
-</section>
-<section class="panel" data-role-block="Passeport socio-sportif numérique" hidden="" id="passport-panel">
-<div class="passport" id="passport"><h2>Passeport Socio-Sportif Numérique</h2><p><strong>Nom :</strong> <span id="pass-name">—</span></p><p><strong>Email :</strong> <span id="pass-email">—</span></p><p><strong>Code membre :</strong> <span id="pass-code">—</span></p><p><strong>Étape :</strong> <span id="pass-level">—</span></p><p><strong>Présences validées :</strong> <span id="pass-att">0</span></p><div class="badge-row" id="badges"></div></div><div class="portal-actions ev39-passport-actions"><button class="btn secondary" id="print-passport">Imprimer mon passeport</button></div>
-</section>
-<section class="panel" data-role-block="Mes réservations" hidden="" id="my-reservations"><p class="eyebrow">Mes demandes</p><h2>Mes réservations</h2><div class="records" id="reservation-list"></div></section>
-<section class="panel" hidden="" id="slots"><p class="eyebrow">Modules liés à mon parcours</p><h2>Mes activités sélectionnées</h2><p class="muted">Cet espace affiche uniquement les activités ou modules liés à votre compte et à vos demandes. L’agenda général est géré par l’équipe PSSR.</p><div class="grid-cards" id="slot-list"></div></section>
-<section class="panel" data-role-block="Mes données personnelles" hidden="" id="gdpr-panel">
-<p class="eyebrow">Données personnelles</p>
-<h2>Demander la suppression de mes données</h2>
-<p class="muted">Vous pouvez demander la suppression de vos données personnelles liées à votre parcours. L’équipe PSSR traitera votre demande conformément au RGPD.</p>
-<form class="form-grid small" id="gdpr-form">
-<label class="full">Motif facultatif<textarea name="reason" placeholder="Expliquez votre demande si nécessaire" rows="3"></textarea></label>
-<button class="btn secondary" type="submit">Envoyer la demande</button>
-<p class="msg" hidden="" id="gdpr-msg"></p>
-</form>
-</section>
+<section class="panel" data-member-view="parcours" hidden id="journey-panel"><p class="eyebrow">Suivi du parcours</p><h2>Mes étapes PSSR</h2><p class="muted">Sélectionnez une étape pour consulter son objectif et les dates prévues ou réalisées.</p><ol class="pssr-steps" id="journey-steps" role="tablist"></ol><div id="journey-panels"></div></section>
+<section class="panel" data-member-view="demandes" hidden id="my-reservations"><p class="eyebrow">Mes demandes</p><h2>Mes réservations</h2><div class="records" id="reservation-list"></div></section>
+<section class="panel" data-member-view="demandes" hidden id="slots"><p class="eyebrow">Modules liés à mon parcours</p><h2>Mes activités sélectionnées</h2><div class="grid-cards" id="slot-list"></div></section>
+<section class="panel" data-member-view="profil" hidden id="participant-panel"><p class="eyebrow">Informations personnelles</p><h2>Mon dossier</h2><div class="pssr-card participant-card"><div class="pssr-kv" id="participant-kv"></div></div></section>
+<section class="panel" data-member-view="profil" hidden id="passport-panel"><div class="passport" id="passport"><h2>Passeport Socio-Sportif Numérique</h2><p><strong>Nom :</strong> <span id="pass-name">—</span></p><p><strong>E-mail :</strong> <span id="pass-email">—</span></p><p><strong>Code membre :</strong> <span id="pass-code">—</span></p><p><strong>Étape :</strong> <span id="pass-level">—</span></p><p><strong>Présences validées :</strong> <span id="pass-att">0</span></p><div class="badge-row" id="badges"></div></div><div class="portal-actions"><button class="btn secondary" id="print-passport" type="button">Télécharger ou imprimer mon passeport</button></div></section>
+<section class="panel" data-member-view="profil" hidden id="gdpr-panel"><p class="eyebrow">Données personnelles</p><h2>Exercer mes droits RGPD</h2><p class="muted">Demandez l’accès, la rectification ou la suppression des données liées à votre parcours. La demande est vérifiée et traitée par l’équipe.</p><form class="form-grid small" id="gdpr-form"><label>Type de demande<select name="requestType" required><option value="gdpr_access_request">Accéder à mes données</option><option value="gdpr_rectification_request">Rectifier mes données</option><option value="gdpr_deletion_request">Supprimer mes données</option></select></label><label class="full">Motif facultatif<textarea name="reason" placeholder="Ajoutez une précision si nécessaire" rows="3"></textarea></label><button class="btn secondary" type="submit">Envoyer la demande</button><p class="msg" hidden id="gdpr-msg"></p></form></section>
 </main>
-<script defer src="../assets/js/auth-comfort.js?v=20260829-82"></script><script defer src="../assets/js/member.js?v=20260829-82" type="module"></script><script defer="" src="../assets/js/media-fallback.js"></script>
-<script defer="True" src="../assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="../assets/js/v41-footer-burger.js"></script></body></html>
+<footer class="member-app-footer-v83"><nav aria-label="Liens utiles"><a href="../index.html">Accueil</a><a href="../coach/index.html">Espace coach</a><a href="../documents.html">Documents</a><a href="../actualites.html">Le terrain en mouvement</a><a href="../ressources-emploi-insertion.html">Formation & emploi</a><a href="../partenaires-institutions.html">Partenaires & institutions</a></nav><nav class="legal-v83" aria-label="Liens légaux"><a href="../mentions-legales.html">Mentions légales</a><a href="../confidentialite-rgpd.html#rgpd">RGPD</a><a href="../confidentialite-rgpd.html">Politique de confidentialité</a></nav></footer>
+<nav aria-label="Navigation de l’espace membre" class="member-bottom-nav-v83" hidden id="member-bottom-nav"><button data-member-target="home" type="button">Accueil</button><button data-member-target="parcours" type="button">Parcours</button><button data-member-target="demandes" type="button">Demandes</button><button data-member-target="profil" type="button">Profil</button></nav>
+<script defer src="../assets/js/auth-comfort.js?v=20260829-82"></script>
+<script defer src="../assets/js/member.js?v=20260829-83" type="module"></script>
+<script defer src="../assets/js/pwa-register.js?v=20260829-83"></script>
+</body>
+</html>

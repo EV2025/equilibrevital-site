@@ -1,0 +1,36 @@
+/* Administration PSSR v90 — isolation des styles publics */
+html body.ev39-role-admin{min-width:320px;overflow-x:hidden;background:#f8f4fc}
+html body.ev39-role-admin,html body.ev39-role-admin *{box-sizing:border-box}
+html body.ev39-role-admin .pssr-main{width:min(1180px,calc(100vw - 24px))!important;min-height:0!important;margin:0 auto!important;padding:24px 0 40px!important}
+html body.ev39-role-admin .pssr-main>section.panel{width:100%!important;min-width:0!important;max-width:100%!important;min-height:0!important;margin:0 0 16px!important;padding:clamp(20px,4vw,34px)!important;overflow:hidden!important;border-radius:24px}
+html body.ev39-role-admin .pssr-main>section[hidden],
+html body.ev39-role-admin #logout[hidden]{display:none!important}
+html body.ev39-role-admin #login-panel{max-width:720px!important;margin-left:auto!important;margin-right:auto!important;text-align:center}
+html body.ev39-role-admin #login-panel form{display:grid!important;grid-template-columns:minmax(0,1fr)!important;width:100%!important;max-width:540px!important;margin:20px auto 0!important;text-align:left}
+html body.ev39-role-admin #login-panel form>*{grid-column:1!important;min-width:0!important;max-width:100%!important}
+html body.ev39-role-admin h1,
+html body.ev39-role-admin h2{max-width:100%!important;font-size:clamp(2rem,5vw,3.5rem)!important;overflow-wrap:anywhere!important}
+html body.ev39-role-admin .ev39-admin-tab-groups{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important;gap:12px!important;min-width:0!important}
+html body.ev39-role-admin .ev39-admin-tab-group{min-width:0!important;max-width:100%!important}
+html body.ev39-role-admin .tabs,
+html body.ev39-role-admin .toolbar,
+html body.ev39-role-admin .admin-primary-actions-v80{display:flex!important;flex-wrap:wrap!important;gap:9px!important;min-width:0!important}
+html body.ev39-role-admin .tab,
+html body.ev39-role-admin .toolbar .btn{max-width:100%!important;white-space:normal!important}
+html body.ev39-role-admin .admin-tools{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))!important;gap:12px!important;min-width:0!important}
+html body.ev39-role-admin .admin-tools>*,
+html body.ev39-role-admin .records,
+html body.ev39-role-admin #admin-records{min-width:0!important;max-width:100%!important}
+html body.ev39-role-admin table{width:100%;max-width:100%}
+@media(max-width:760px){
+ html body.ev39-role-admin .pssr-main{width:calc(100% - 20px)!important;padding-top:12px!important}
+ html body.ev39-role-admin .pssr-main>section.panel{padding:18px 14px!important;border-radius:18px}
+ html body.ev39-role-admin .ev39-admin-tab-groups,
+ html body.ev39-role-admin .admin-tools{grid-template-columns:1fr!important}
+ html body.ev39-role-admin .tabs,
+ html body.ev39-role-admin .toolbar,
+ html body.ev39-role-admin .admin-primary-actions-v80{display:grid!important;grid-template-columns:1fr!important}
+ html body.ev39-role-admin .tab,
+ html body.ev39-role-admin .toolbar .btn,
+ html body.ev39-role-admin .admin-primary-actions-v80 .btn{width:100%!important}
+}

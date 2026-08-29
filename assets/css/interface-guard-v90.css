@@ -1,0 +1,35 @@
+/* Protection responsive commune v90 — pages interactives uniquement */
+html body.interface-page-v90{min-width:320px;overflow-x:hidden}
+html body.interface-page-v90,html body.interface-page-v90 *{box-sizing:border-box}
+html body.interface-page-v90 main,
+html body.interface-page-v90 main>section{min-width:0;max-width:100%}
+html body.interface-page-v90 main>section h1{max-width:100%!important;font-size:clamp(2rem,5vw,4rem)!important;line-height:1.04!important;overflow-wrap:anywhere!important}
+html body.interface-page-v90 form,
+html body.interface-page-v90 fieldset,
+html body.interface-page-v90 .form-grid,
+html body.interface-page-v90 .optional-grid-v80{min-width:0!important;max-width:100%!important}
+html body.interface-page-v90 input:not([type="checkbox"]):not([type="radio"]),
+html body.interface-page-v90 select,
+html body.interface-page-v90 textarea{width:100%!important;max-width:100%!important;min-width:0!important}
+html body.interface-page-v90 .auth-box{width:100%!important;max-width:760px!important;margin-left:auto!important;margin-right:auto!important}
+html body.interface-page-v90 .auth-box form,
+html body.interface-page-v90 form.small{width:100%!important;max-width:560px!important;margin-left:auto!important;margin-right:auto!important}
+html body.interface-page-v90 .password-control-v82{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;width:100%!important;min-width:0!important;overflow:hidden}
+html body.interface-page-v90 .password-control-v82 input{min-width:0!important}
+html body.interface-page-v90 .password-toggle-v82{position:static!important;width:auto!important;white-space:nowrap}
+html body.interface-page-v90 img,
+html body.interface-page-v90 svg,
+html body.interface-page-v90 video{max-width:100%;height:auto}
+@media(max-width:900px){
+ html body.interface-page-v90 main>section h1{font-size:clamp(2rem,8vw,3.2rem)!important}
+ html body.interface-page-v90 .form-grid,
+ html body.interface-page-v90 .optional-grid-v80{grid-template-columns:minmax(0,1fr)!important}
+ html body.interface-page-v90 .form-grid>*,
+ html body.interface-page-v90 .optional-grid-v80>*{grid-column:1!important;min-width:0!important}
+}
+@media(max-width:620px){
+ html body.interface-page-v90 main>section h1{font-size:clamp(1.85rem,10vw,2.65rem)!important}
+ html body.interface-page-v90 main>section{padding-left:14px!important;padding-right:14px!important}
+ html body.interface-page-v90 button,
+ html body.interface-page-v90 .btn{max-width:100%}
+}

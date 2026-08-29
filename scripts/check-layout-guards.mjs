@@ -43,6 +43,22 @@ if (!/admin-app-v90\.css/.test(admin)) errors.push('admin/index.html: feuille ad
 for (const path of ['assets/css/interface-guard-v90.css', 'assets/css/admin-app-v90.css']) {
   if (!fs.existsSync(path) || fs.statSync(path).size < 500) errors.push(`${path}: fichier absent ou incomplet`);
 }
+const programmeData = JSON.parse(fs.readFileSync('assets/data/programmes-v84.json', 'utf8'));
+const programmeNames = Object.fromEntries(programmeData.programmes.map(item => [item.id, item.name]));
+const expectedProgrammeNames = {
+  'ados-mardi':'Cardio Fit Ados',
+  'enfants-vendredi':'Kids Move Training Jeunes (multisport)',
+  'adultes-vendredi':'Fitness & Boxing Loisir',
+  'femmes-samedi':'Mobility & Recovery'
+};
+for (const [id, name] of Object.entries(expectedProgrammeNames)) {
+  if (programmeNames[id] !== name) errors.push(`assets/data/programmes-v84.json: intitulé incorrect pour ${id}`);
+}
+const programmeJs = fs.readFileSync('assets/js/programmes-v84.js', 'utf8');
+if (!/programme-schedule-v94/.test(programmeJs) || !/programme-label-v94/.test(programmeJs)) {
+  errors.push('assets/js/programmes-v84.js: hiérarchie uniforme des programmes absente');
+}
+
 if (errors.length) {
   console.error('Contrôle responsive en échec:\n- ' + errors.join('\n- '));
   process.exit(1);

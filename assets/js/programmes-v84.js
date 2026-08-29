@@ -16,10 +16,15 @@
       : '';
     return `<article class="programme-card-v84 programme-${esc(programme.universe)}-v84" id="${esc(programme.id)}">
       <div class="programme-card-top-v84">
-        <p class="programme-day-v84">${esc(programme.day)} · ${esc(programme.time)}</p>
+        <div class="programme-schedule-v94">
+          <p class="programme-day-v84">${esc(programme.day)}</p>
+          <p class="programme-time-v94">${esc(programme.time)}</p>
+        </div>
         <span class="programme-audience-v84">${esc(programme.audience)}</span>
       </div>
+      <p class="programme-label-v94">Programme</p>
       <h3>${esc(programme.name)}</h3>
+      ${programme.activities?.length ? `<p class="programme-activities-v94">${programme.activities.map(esc).join(' <span aria-hidden="true">•</span> ')}</p>` : ''}
       <div class="programme-actions-v84">
         <button aria-controls="${detailsId}" aria-expanded="false" class="btn secondary" data-programme-toggle="${detailsId}" type="button">Découvrir</button>
         <a class="btn" href="./reservation.html?programme=${encodeURIComponent(programme.id)}">S’inscrire</a>

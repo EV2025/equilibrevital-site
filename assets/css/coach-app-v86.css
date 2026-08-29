@@ -1,0 +1,25 @@
+/* Espace coach v86 — style autonome, compact et responsive */
+body.ev39-role-coach{background:#f8f4fc;color:#24112f}
+body.ev39-role-coach .pssr-main{width:min(1080px,calc(100vw - 24px));min-height:0!important;margin:0 auto;padding:24px 0 36px}
+body.ev39-role-coach .pssr-main>section.panel{min-height:0!important;margin:0 0 16px!important;padding:clamp(20px,4vw,34px)!important;border:1px solid rgba(124,58,237,.14);border-radius:24px;background:#fff;box-shadow:0 14px 34px rgba(67,33,83,.08)}
+body.ev39-role-coach .pssr-main>section[hidden],
+body.ev39-role-coach #logout[hidden]{display:none!important}
+body.ev39-role-coach #login-panel{max-width:720px;margin-inline:auto!important;text-align:center}
+body.ev39-role-coach #login-panel .form-grid{max-width:520px;margin-inline:auto;text-align:left}
+body.ev39-role-coach #login-panel .btn{width:100%}
+body.ev39-role-coach .ev39-logout{display:flex;margin:0 0 12px auto}
+body.ev39-role-coach .tabs{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0}
+body.ev39-role-coach .tab{min-height:42px;padding:9px 14px;border:1px solid rgba(124,58,237,.22);border-radius:999px;background:#fff;color:#4d315e;font-weight:850}
+body.ev39-role-coach .tab.active{border-color:#7c3aed;background:#7c3aed;color:#fff}
+body.ev39-role-coach .ev39-coach-hints{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+body.ev39-role-coach .ev39-coach-hint{display:grid;gap:4px;padding:13px;border-radius:14px;background:#f7f1fd}
+body.ev39-role-coach .ev39-coach-hint span{color:#6a5575;font-size:.9rem}
+body.ev39-role-coach .records{display:grid;gap:12px;min-width:0}
+body.ev39-role-coach .record,body.ev39-role-coach .record-card{min-width:0;overflow-wrap:anywhere}
+@media(max-width:760px){
+ body.ev39-role-coach .pssr-main{width:calc(100% - 20px);padding:12px 0 24px}
+ body.ev39-role-coach .pssr-main>section.panel{padding:18px 14px!important;border-radius:18px}
+ body.ev39-role-coach .ev39-coach-hints{grid-template-columns:1fr}
+ body.ev39-role-coach .tabs{display:grid;grid-template-columns:1fr}
+ body.ev39-role-coach .tab{width:100%}
+}

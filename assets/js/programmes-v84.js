@@ -19,9 +19,7 @@
         <p class="programme-day-v84">${esc(programme.day)} · ${esc(programme.time)}</p>
         <span class="programme-audience-v84">${esc(programme.audience)}</span>
       </div>
-      <p class="eyebrow">Programme</p>
       <h3>${esc(programme.name)}</h3>
-      <p class="programme-activities-v84">${programme.activities.map(esc).join(' <span aria-hidden="true">•</span> ')}</p>
       <div class="programme-actions-v84">
         <button aria-controls="${detailsId}" aria-expanded="false" class="btn secondary" data-programme-toggle="${detailsId}" type="button">Découvrir</button>
         <a class="btn" href="./reservation.html?programme=${encodeURIComponent(programme.id)}">S’inscrire</a>

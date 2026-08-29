@@ -79,19 +79,16 @@
 <h1>Réservation PSSR</h1>
 <p>Complétez votre demande de réservation. L’équipe PSSR vérifie les disponibilités et vous recontacte pour confirmer l’inscription.</p>
 <form class="form-grid form-comfort-v80 reservation-flow-v80" data-firebase-collection="reservations" data-payment-amount="165" data-payment-currency="EUR" data-payment-label="Cotisation PSSR — année académique" id="reservation-form">
-<p class="form-essentials-v80"><strong>Réservation en trois étapes :</strong> choisissez l’activité, indiquez vos coordonnées puis envoyez la demande.</p>
+<p class="form-essentials-v80"><strong>Réservation en trois étapes :</strong> choisissez le programme, indiquez vos coordonnées puis envoyez la demande.</p>
 <fieldset>
 <legend>1. Choisir l’activité</legend>
-<label>Activité ou module souhaité<select name="creneau" required="">
-<option value="">Choisir un créneau</option>
-<optgroup label="Activités sportives officielles">
-<option>Mardi 18:00–19:00 — Cardio Fit Ados — 13–17 ans</option>
-<option>Mardi 19:00–20:00 — Initiation Boxe &amp; Kick-Boxing — 13 ans+</option>
-<option>Vendredi 16:00–17:00 — Kids Move — 6–12 ans</option>
-<option>Vendredi 17:00–18:00 — Training Jeunes — Multisport — 13–17 ans</option>
-<option>Vendredi 19:00–20:00 — Fitness Loisirs Mixte — 18 ans+</option>
-<option>Vendredi 20:00–21:00 — Boxing Loisir &amp; Technique — 18 ans+</option>
-<option>Samedi 08:00–10:00 — Mobility &amp; Recovery — Femmes 40 ans+</option>
+<label>Programme ou accompagnement souhaité<select name="creneau" required="">
+<option value="">Choisir un programme</option>
+<optgroup id="programme-options" label="Programmes socio-sportifs">
+<option data-modules="Cardio Fit Ados • Boxe éducative • Initiation Kick-Boxing" data-programme-id="ados-mardi" value="Programme Ados — Mardi 18h00–20h00">Mardi 18h00–20h00 — Énergie &amp; Maîtrise — 13 ans et plus</option>
+<option data-modules="Kids Move • Training Jeunes • Multisport" data-programme-id="enfants-vendredi" value="Programme Enfants — Vendredi 16h00–18h00">Vendredi 16h00–18h00 — Bouger &amp; Découvrir — 6–12 ans</option>
+<option data-modules="Fitness • Boxing loisir" data-programme-id="adultes-vendredi" value="Programme Adultes — Vendredi 19h00–21h00">Vendredi 19h00–21h00 — Fitness &amp; Boxing Loisir — 18 ans et plus</option>
+<option data-modules="Mobility &amp; Recovery" data-programme-id="femmes-samedi" value="Mobility &amp; Recovery — Samedi 08h00–10h00">Samedi 08h00–10h00 — Mobility &amp; Recovery — Femmes de 40 ans et plus</option>
 </optgroup>
 <optgroup label="Accompagnement socio-professionnel PSSR">
 <option>Coaching individuel</option>
@@ -135,29 +132,7 @@
 </form>
 </section>
 </main>
-<script>
-/* V5 — préremplissage réservation depuis les modules sélectionnés */
-(function(){
-  const params = new URLSearchParams(location.search);
-  const modules = params.get('modules') || params.get('module') || '';
-  if(!modules) return;
-  const decoded = modules.replace(/\s*,\s*/g, ', ');
-  const form = document.getElementById('reservation-form');
-  const select = form?.elements?.creneau;
-  const modulesField = form?.elements?.modules;
-  if(modulesField) modulesField.value = decoded;
-  if(select){
-    const first = decoded.split(',')[0].trim();
-    const options = Array.from(select.options);
-    const found = options.find(o => o.textContent.includes(first) || first.includes(o.textContent));
-    if(found) select.value = found.value;
-    else {
-      const opt = new Option(first, first, true, true);
-      select.add(opt);
-    }
-  }
-})();
-</script>
+<script data-programmes-src="./assets/data/programmes-v84.json" defer src="./assets/js/programmes-v84.js"></script>
 <script defer="" src="./assets/js/firebase-contact.js?v=20260828-4" type="module"></script>
 <script defer="" src="./assets/js/media-fallback.js"></script>
 <script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script><script defer src="./assets/js/form-comfort-v80.js"></script>

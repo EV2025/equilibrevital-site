@@ -24,6 +24,12 @@ for (const path of protectedPages) {
   if (!/interface-page-v90/.test(html)) errors.push(`${path}: classe interface-page-v90 absente`);
   if (!/interface-guard-v90\.css/.test(html)) errors.push(`${path}: feuille interface-guard-v90.css absente`);
 }
+const memberHtml = fs.readFileSync('member/dashboard.html', 'utf8');
+const memberCss = fs.readFileSync('assets/css/member-app-v83.css', 'utf8');
+if (!/member-app-v83\.css/.test(memberHtml)) errors.push('member/dashboard.html: feuille membre absente');
+if (!/#reservation-list \.record/.test(memberCss)) errors.push('assets/css/member-app-v83.css: protection des demandes absente');
+if (!/#slot-list \.slot-card/.test(memberCss)) errors.push('assets/css/member-app-v83.css: protection des modules absente');
+
 const admin = fs.readFileSync('admin/index.html', 'utf8');
 if (!/admin-app-v90\.css/.test(admin)) errors.push('admin/index.html: feuille admin-app-v90.css absente');
 

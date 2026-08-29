@@ -16,6 +16,9 @@ const reservationList = document.getElementById('reservation-list');
 const slotList = document.getElementById('slot-list');
 const gdprForm = document.getElementById('gdpr-form');
 const gdprMsg = document.getElementById('gdpr-msg');
+const emailVerificationPanel = document.getElementById('email-verification-panel');
+const resendVerificationButton = document.getElementById('resend-verification');
+const verificationStatus = document.getElementById('verification-status');
 let fb, currentUser, profile;
 
 function setLogoutVisibility(isAuthenticated){
@@ -52,8 +55,7 @@ function activeStepKey(){ return profile?.journeyLevel || profile?.currentStep |
 function stepIndex(key){ return Math.max(0, steps.findIndex(s=>s.key===key)); }
 function moduleList(value){
   if (Array.isArray(value)) return value.map(String).map(v=>v.trim()).filter(Boolean);
-  return String(value || '').split(/[,;
-]+/).map(v=>v.trim()).filter(Boolean);
+  return String(value || '').split(/[,;\n]+/).map(v=>v.trim()).filter(Boolean);
 }
 function uniq(values){ return Array.from(new Set(values.filter(Boolean))); }
 function showGdpr(text, ok=false){ gdprMsg.hidden=false; gdprMsg.textContent=text; gdprMsg.style.color=ok?'#356b42':'#9b2f2f'; }
@@ -70,7 +72,35 @@ async function init(){
     const show = Boolean(user);
     setLogoutVisibility(show);
     loginPanel.hidden = show; dashboard.hidden = !show; participantPanel.hidden=!show; journeyPanel.hidden=!show; passportPanel.hidden=!show; reservationsPanel.hidden=!show; slotsPanel.hidden=!show; gdprPanel.hidden=!show;
-    if (user) await loadAll();
+    if (user) { renderEmailVerification(user); await loadAll(); }
+  });
+}
+function renderEmailVerification(user){
+  if (!emailVerificationPanel) return;
+  emailVerificationPanel.hidden = Boolean(user?.emailVerified);
+  if (user?.emailVerified || !resendVerificationButton || resendVerificationButton.dataset.ready === 'true') return;
+  resendVerificationButton.dataset.ready = 'true';
+  resendVerificationButton.addEventListener('click', async () => {
+    resendVerificationButton.disabled = true;
+    const initialLabel = resendVerificationButton.textContent;
+    resendVerificationButton.textContent = 'Envoi en cours…';
+    try{
+      await fb.sendEmailVerification(user, {
+        url: new URL('/member/dashboard.html', location.origin).href,
+        handleCodeInApp: false
+      });
+      verificationStatus.textContent = 'E-mail renvoyé. Vérifiez votre boîte de réception et les courriers indésirables.';
+      verificationStatus.style.color = '#356b42';
+    }catch(error){
+      console.warn('Email verification resend:', error?.code || error?.message || error);
+      verificationStatus.textContent = error?.code === 'auth/too-many-requests'
+        ? 'Trop de demandes. Attendez quelques minutes avant de réessayer.'
+        : 'L’e-mail n’a pas pu être renvoyé pour le moment.';
+      verificationStatus.style.color = '#9b2f2f';
+    }finally{
+      resendVerificationButton.disabled = false;
+      resendVerificationButton.textContent = initialLabel;
+    }
   });
 }
 async function loadAll(){ await loadProfile(); await loadReservations(); await loadSlots(); }

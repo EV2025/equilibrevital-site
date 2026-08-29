@@ -1,8 +1,8 @@
-const SHELL_CACHE = 'pssr-shell-v83';
+const SHELL_CACHE = 'pssr-shell-v84';
 const SHELL_ASSETS = [
   '/manifest.webmanifest',
   '/assets/css/common-v58.min.css',
-  '/assets/css/member-app-v83.css',
+  '/assets/css/member-app-v83.css?v=20260829-84',
   '/assets/js/auth-comfort.js',
   '/assets/js/member.js',
   '/wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png'

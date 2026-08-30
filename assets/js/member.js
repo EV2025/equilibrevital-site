@@ -1,5 +1,5 @@
 import { getFirebase, esc, fmtDate, makeCode, levelLabel } from './firebase-portal.js';
-import { downloadMemberPassport } from './member-passport-pdf.js?v=20260829-93';
+import { downloadMemberPassport } from './member-passport-pdf.js?v=20260830-101';
 
 const loginPanel = document.getElementById('login-panel');
 const loginForm = document.getElementById('login-form');
@@ -244,7 +244,6 @@ function applyProfileSnapshot(snapshot){
   document.getElementById('member-code').textContent = profile.memberCode || '—';
   copyMemberCodeButton.hidden = !profile.memberCode || profile.memberCode === '—';
   document.getElementById('pass-name').textContent = displayName || 'À compléter';
-  document.getElementById('pass-email').textContent = profile.email || currentUser.email || '—';
   document.getElementById('pass-code').textContent = profile.memberCode || '—';
   document.getElementById('pass-level').textContent = levelLabel(current) || current;
   document.getElementById('pass-att').textContent = profile.attendanceCount || 0;

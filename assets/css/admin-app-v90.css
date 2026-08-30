@@ -34,3 +34,21 @@ html body.ev39-role-admin table{width:100%;max-width:100%}
  html body.ev39-role-admin .toolbar .btn,
  html body.ev39-role-admin .admin-primary-actions-v80 .btn{width:100%!important}
 }
+
+
+/* V95 — connexion administration compacte et sans débordement */
+html body.ev39-role-admin #login-panel h1{margin-inline:auto!important;font-size:clamp(2rem,5vw,3.25rem)!important;line-height:1.04!important;text-wrap:balance}
+html body.ev39-role-admin #login-form{gap:15px!important}
+html body.ev39-role-admin #login-form label,
+html body.ev39-role-admin #login-form input,
+html body.ev39-role-admin #login-form .btn{width:100%!important;min-width:0!important;max-width:100%!important}
+html body.ev39-role-admin #login-form .password-control-v82{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;width:100%!important;min-width:0!important;overflow:hidden!important;border-radius:18px}
+html body.ev39-role-admin #login-form .password-control-v82 input{min-width:0!important}
+html body.ev39-role-admin #login-form .password-toggle-v82{position:static!important;width:auto!important;min-width:88px!important;white-space:nowrap!important}
+html body.ev39-role-admin .auth-secondary-link,
+html body.ev39-role-admin .admin-back-link-v95{text-align:center!important}
+html body.ev39-role-admin .admin-back-link-v95{margin:16px auto 0!important}
+@media(max-width:560px){
+ html body.ev39-role-admin #login-panel h1{font-size:clamp(1.8rem,10vw,2.7rem)!important}
+ html body.ev39-role-admin #login-form .password-toggle-v82{min-width:76px!important;padding-inline:10px!important;font-size:.88rem}
+}

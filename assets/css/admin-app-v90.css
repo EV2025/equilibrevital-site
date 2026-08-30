@@ -91,3 +91,21 @@ html body.ev39-role-admin .ev39-logout{position:static!important;display:block;m
  html body.ev39-role-admin #dashboard-panel .admin-table{min-width:0!important;max-width:100%!important}
  html body.ev39-role-admin #dashboard-panel .admin-table td{max-width:100%!important}
 }
+
+
+/* V98 — rythme des actions administration */
+html body.ev39-role-admin #dashboard-panel .ev39-admin-tab-groups{gap:16px!important;margin:22px 0 24px!important}
+html body.ev39-role-admin #dashboard-panel .ev39-admin-tab-group{padding:16px!important}
+html body.ev39-role-admin #dashboard-panel .ev39-admin-tab-group .tabs{gap:10px!important;margin-top:12px!important}
+html body.ev39-role-admin #dashboard-panel .admin-primary-actions-v80{gap:12px!important;margin:24px 0 16px!important}
+html body.ev39-role-admin #dashboard-panel .toolbar{gap:12px!important}
+html body.ev39-role-admin #dashboard-panel .mini-actions{display:flex!important;flex-wrap:wrap!important;gap:10px!important;margin-top:16px!important}
+html body.ev39-role-admin #dashboard-panel .quick-status-v80{gap:10px!important;margin:14px 0!important}
+@media(max-width:760px){
+ html body.ev39-role-admin #dashboard-panel .ev39-admin-tab-groups{gap:12px!important;margin:18px 0 20px!important}
+ html body.ev39-role-admin #dashboard-panel .ev39-admin-tab-group .tabs,
+ html body.ev39-role-admin #dashboard-panel .admin-primary-actions-v80,
+ html body.ev39-role-admin #dashboard-panel .toolbar,
+ html body.ev39-role-admin #dashboard-panel .mini-actions{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}
+ html body.ev39-role-admin #dashboard-panel .mini-actions button{width:100%!important}
+}

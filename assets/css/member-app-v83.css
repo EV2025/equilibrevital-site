@@ -159,3 +159,19 @@ html body.member-app-v83 #gdpr-form textarea{width:100%!important;max-width:100%
  .member-header-actions-v95{gap:6px}
  .member-header-actions-v95 .btn{min-height:38px;padding:7px 10px;font-size:.82rem}
 }
+
+
+/* V98 — rythme et espacement des actions membre */
+html body.member-app-v83 #dashboard .grid-cards{gap:16px!important;margin-bottom:0!important}
+html body.member-app-v83 #dashboard>.portal-actions{gap:14px!important;margin:22px 0 24px!important;padding:0 4px!important}
+html body.member-app-v83 #dashboard .email-verification-v82{margin-top:0!important;padding:clamp(18px,3vw,24px)!important}
+html body.member-app-v83 #dashboard .email-verification-v82 .portal-actions{display:flex!important;flex-wrap:wrap!important;justify-content:center!important;gap:12px!important;margin:18px 0 0!important}
+html body.member-app-v83 #passport-panel>.portal-actions{gap:12px!important;margin-top:20px!important}
+html body.member-app-v83 #gdpr-form{row-gap:18px!important;column-gap:14px!important}
+html body.member-app-v83 .member-bottom-nav-v83{gap:8px!important;padding-top:10px!important}
+@media(max-width:700px){
+ html body.member-app-v83 #dashboard>.portal-actions{display:grid!important;gap:12px!important;margin:20px 0 22px!important;padding:0!important}
+ html body.member-app-v83 #dashboard .email-verification-v82 .portal-actions{display:grid!important;gap:10px!important}
+ html body.member-app-v83 #dashboard .email-verification-v82 .portal-actions .btn{width:100%!important}
+ html body.member-app-v83 .member-bottom-nav-v83{gap:5px!important;padding-inline:7px!important}
+}

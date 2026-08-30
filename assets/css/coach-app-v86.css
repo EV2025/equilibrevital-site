@@ -23,3 +23,15 @@ body.ev39-role-coach .record,body.ev39-role-coach .record-card{min-width:0;overf
  body.ev39-role-coach .tabs{display:grid;grid-template-columns:1fr}
  body.ev39-role-coach .tab{width:100%}
 }
+
+
+/* V98 — rythme des actions coach */
+html body.ev39-role-coach #coach-panel>.tabs{gap:12px!important;margin:22px 0 24px!important}
+html body.ev39-role-coach .coach-actions{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:12px!important;margin-top:18px!important}
+html body.ev39-role-coach #coach-status{min-height:1.4em;margin:14px 0!important}
+@media(max-width:700px){
+ html body.ev39-role-coach #coach-panel>.tabs,
+ html body.ev39-role-coach .coach-actions{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}
+ html body.ev39-role-coach #coach-panel>.tabs .tab,
+ html body.ev39-role-coach .coach-actions .btn{width:100%!important}
+}

@@ -52,3 +52,42 @@ html body.ev39-role-admin .admin-back-link-v95{margin:16px auto 0!important}
  html body.ev39-role-admin #login-panel h1{font-size:clamp(1.8rem,10vw,2.7rem)!important}
  html body.ev39-role-admin #login-form .password-toggle-v82{min-width:76px!important;padding-inline:10px!important;font-size:.88rem}
 }
+
+
+/* V97 — isolation définitive du tableau administrateur */
+html body.ev39-role-admin{display:block!important;width:100%!important;min-height:100vh!important;overflow-x:hidden!important}
+html body.ev39-role-admin .admin-private-header-v97{position:sticky;top:0;z-index:300;display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;min-height:68px;padding:10px max(16px,calc((100vw - 1480px)/2));border-bottom:1px solid rgba(124,58,237,.16);background:rgba(255,255,255,.98);box-shadow:0 8px 24px rgba(67,33,83,.07);backdrop-filter:blur(12px)}
+html body.ev39-role-admin .admin-private-brand-v97{display:flex;align-items:center;gap:10px;min-width:0;color:#24112f;text-decoration:none}
+html body.ev39-role-admin .admin-private-brand-v97 img{width:42px;height:42px;flex:0 0 auto;object-fit:contain}
+html body.ev39-role-admin .admin-private-brand-v97 span{display:grid;line-height:1.1}
+html body.ev39-role-admin .admin-private-brand-v97 small{color:#6a5575;font-weight:750}
+html body.ev39-role-admin .admin-member-return-v97{flex:0 0 auto;min-height:40px;padding:8px 14px}
+html body.ev39-role-admin .pssr-main{width:min(1480px,calc(100vw - 32px))!important;max-width:none!important;margin:0 auto!important;padding:18px 0 40px!important}
+html body.ev39-role-admin #dashboard-panel{width:100%!important;max-width:none!important;overflow:visible!important}
+html body.ev39-role-admin #dashboard-panel .ev39-admin-tab-groups{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+html body.ev39-role-admin #dashboard-panel .admin-tools{position:static!important;top:auto!important;z-index:auto!important;grid-template-columns:minmax(240px,2fr) repeat(3,minmax(150px,1fr)) auto!important}
+html body.ev39-role-admin #dashboard-panel .records{width:100%!important;min-width:0!important;overflow:visible!important}
+html body.ev39-role-admin #dashboard-panel .admin-table-wrap{width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:visible!important;overscroll-behavior-inline:contain;scrollbar-width:thin}
+html body.ev39-role-admin #dashboard-panel .admin-table{width:100%!important;min-width:1040px!important;table-layout:auto!important}
+html body.ev39-role-admin #dashboard-panel .admin-table th,
+html body.ev39-role-admin #dashboard-panel .admin-table td{min-width:0!important;max-width:360px!important;overflow-wrap:anywhere!important;word-break:normal!important}
+html body.ev39-role-admin button,
+html body.ev39-role-admin .btn{position:relative;z-index:1;touch-action:manipulation;pointer-events:auto!important}
+html body.ev39-role-admin .ev39-logout{position:static!important;display:block;margin:0 0 12px auto!important}
+@media(max-width:1180px){
+ html body.ev39-role-admin #dashboard-panel .ev39-admin-tab-groups{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ html body.ev39-role-admin #dashboard-panel .admin-tools{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ html body.ev39-role-admin #dashboard-panel .admin-filter-reset-v80{width:100%!important}
+}
+@media(max-width:760px){
+ html body.ev39-role-admin .admin-private-header-v97{min-height:60px;padding:8px 10px}
+ html body.ev39-role-admin .admin-private-brand-v97 span{display:none}
+ html body.ev39-role-admin .admin-member-return-v97{min-height:38px;padding:7px 10px;font-size:.84rem}
+ html body.ev39-role-admin .pssr-main{width:calc(100% - 16px)!important;padding-top:8px!important}
+ html body.ev39-role-admin #dashboard-panel{overflow:hidden!important}
+ html body.ev39-role-admin #dashboard-panel .ev39-admin-tab-groups,
+ html body.ev39-role-admin #dashboard-panel .admin-tools{grid-template-columns:minmax(0,1fr)!important}
+ html body.ev39-role-admin #dashboard-panel .admin-table-wrap{overflow:visible!important}
+ html body.ev39-role-admin #dashboard-panel .admin-table{min-width:0!important;max-width:100%!important}
+ html body.ev39-role-admin #dashboard-panel .admin-table td{max-width:100%!important}
+}

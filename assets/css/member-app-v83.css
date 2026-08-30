@@ -148,3 +148,14 @@ html body.member-app-v83 #gdpr-form textarea{width:100%!important;max-width:100%
  html body.member-app-v83 #passport-panel>.portal-actions .btn,
  html body.member-app-v83 #gdpr-form .btn{width:100%!important}
 }
+
+
+/* V95 — accès équipe visible et contenu sur tous les écrans */
+.member-header-actions-v95{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0}
+.member-header-actions-v95 .btn{min-height:40px;padding:8px 14px;white-space:nowrap;text-decoration:none}
+@media(max-width:560px){
+ .member-app-header-v83{align-items:center;gap:8px}
+ .member-app-brand-v83 span{display:none}
+ .member-header-actions-v95{gap:6px}
+ .member-header-actions-v95 .btn{min-height:38px;padding:7px 10px;font-size:.82rem}
+}

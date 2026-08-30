@@ -70,7 +70,8 @@ const labels = {
   notifications:'Notifications internes',
   attendances:'Présences',
   emailLogs:'Journaux d’e-mails',
-  stats:'Statistiques'
+  stats:'Statistiques',
+  consents:'Demandes RGPD'
 };
 
 function setMsg(text, ok = false){
@@ -393,7 +394,9 @@ function renderSummary(){
 }
 
 function actionsFor(r){
-  if (!['messages','reservations','payments','notifications','services','slots'].includes(currentCollection)) return '';
+  const statusCollections = ['messages','reservations','payments','notifications','services','slots'];
+  const deletableCollections = ['messages','reservations','users','attendances','payments','notifications','emailLogs','consents','pages','services','slots'];
+  if (!statusCollections.includes(currentCollection) && !deletableCollections.includes(currentCollection)) return '';
   const b = [];
   if (currentCollection === 'messages') {
     b.push(['traité','Marquer traité'], ['reçu','Remettre reçu']);
@@ -410,8 +413,23 @@ function actionsFor(r){
   if (currentCollection === 'services' || currentCollection === 'slots') {
     b.push([r.active === false ? 'actif' : 'inactif', r.active === false ? 'Activer' : 'Désactiver']);
   }
-  const updateButtons = b.map(([value,label]) => `<button data-action="status" data-id="${esc(r.id)}" data-value="${esc(value)}">${esc(label)}</button>`).join('');
-  const deleteButton = `<button class="danger" data-action="delete" data-id="${esc(r.id)}">Supprimer</button>`;
+  const updateButtons = b.map(([value,label]) => `<button type="button" data-action="status" data-id="${esc(r.id)}" data-value="${esc(value)}">${esc(label)}</button>`).join('');
+  const deleteLabels = {
+    messages:'Supprimer la demande',
+    reservations:'Supprimer la réservation',
+    users:'Supprimer la fiche membre',
+    attendances:'Supprimer la présence',
+    payments:'Supprimer le suivi paiement',
+    notifications:'Supprimer la notification',
+    emailLogs:'Supprimer le journal',
+    consents:'Supprimer la demande RGPD',
+    pages:'Supprimer le contenu',
+    services:'Supprimer le service',
+    slots:'Supprimer le créneau'
+  };
+  const deleteButton = deletableCollections.includes(currentCollection)
+    ? `<button type="button" class="danger" data-action="delete" data-id="${esc(r.id)}">${esc(deleteLabels[currentCollection] || 'Supprimer')}</button>`
+    : '';
   return `<div class="status-actions">${updateButtons}${deleteButton}</div>`;
 }
 
@@ -602,8 +620,15 @@ async function handleRecordAction(e){
     return;
   }
   if (action === 'delete') {
-    if (!confirm('Supprimer ce document ?')) return;
+    const row = rows.find(item => item.id === id) || {};
+    const itemName = titleForRow(row) || id;
+    const collectionName = labels[currentCollection] || currentCollection;
+    const memberWarning = currentCollection === 'users'
+      ? '\n\nLa fiche Firestore sera supprimée, mais le compte de connexion Firebase Authentication restera actif.'
+      : '';
+    if (!confirm(`Supprimer définitivement « ${itemName} » de ${collectionName} ?${memberWarning}\n\nCette action est irréversible.`)) return;
     await modules.deleteDoc(modules.doc(db, currentCollection, id));
+    setAdminStatus('Élément supprimé. Le tableau a été synchronisé.');
     return;
   }
   if (action === 'status' || action === 'status-choice') {

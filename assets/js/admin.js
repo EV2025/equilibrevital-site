@@ -279,11 +279,20 @@ async function init(){
 
   document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
 
-  recordsEl.addEventListener('click', event => {
-    handleRecordAction(event).catch(err => {
+  recordsEl.addEventListener('click', async event => {
+    const actionButton = event.target.closest('[data-action]');
+    if (!actionButton) return;
+    actionButton.disabled = true;
+    setAdminStatus('Action en cours…');
+    try{
+      await handleRecordAction(event);
+    }catch(err){
       console.error('Admin action failed:', err);
-      setAdminStatus('Action impossible. Vérifiez votre connexion et réessayez.', true);
-    });
+      const denied = err?.code === 'permission-denied';
+      setAdminStatus(denied ? 'Action refusée par les règles Firebase. Publiez les règles Firestore à jour.' : 'Action impossible. Vérifiez votre connexion et réessayez.', true);
+    }finally{
+      actionButton.disabled = false;
+    }
   });
   [adminSearch, adminStatus, adminSession, adminDate].forEach(el => el?.addEventListener('input', () => {
     saveAdminView();
@@ -366,8 +375,12 @@ async function loadCollection(){
     rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderRows();
     renderSummary();
+    setAdminStatus(`Synchronisé en temps réel · ${new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'})}`);
   }, err => {
-    recordsEl.innerHTML = `<p class="msg">Lecture impossible : ${esc(err.message)}</p>`;
+    console.error('Admin realtime sync:', err);
+    const denied = err?.code === 'permission-denied';
+    recordsEl.innerHTML = `<p class="msg">${denied ? 'Accès Firebase refusé. Les règles Firestore publiées doivent être mises à jour.' : 'Synchronisation interrompue. Rechargez la page ou vérifiez votre connexion.'}</p>`;
+    setAdminStatus(denied ? 'Synchronisation refusée par Firebase.' : 'Synchronisation interrompue.', true);
   });
 }
 
@@ -535,8 +548,8 @@ function renderManagementPanel(r, isReservation){
       <label>Titre document<input data-field="documentTitle" placeholder="Ex. Attestation" value="${esc(r.documentTitle || '')}"></label>
       <label>Lien document<input data-field="documentUrl" placeholder="https://…" value="${esc(r.documentUrl || '')}"></label>
     </div>
-    <div class="mini-actions"><button data-action="save-followup" data-id="${esc(r.id)}">Enregistrer le suivi</button><button data-action="notify" data-id="${esc(r.id)}">Ajouter au suivi e-mail</button><button class="danger" data-action="delete" data-id="${esc(r.id)}">Supprimer</button></div>
-    <p class="secondary-muted">Les e-mails automatiques nécessitent une intégration sécurisée. Ici, la notification est journalisée pour traitement par l’équipe.</p>
+    <div class="mini-actions"><button type="button" data-action="save-followup" data-id="${esc(r.id)}">Enregistrer le suivi</button><button type="button" data-action="notify" data-id="${esc(r.id)}">Créer une notification interne</button><button type="button" class="danger" data-action="delete" data-id="${esc(r.id)}">Supprimer</button></div>
+    <p class="secondary-muted">Cette action crée une notification interne et une entrée dans le journal d’e-mails. Elle ne prétend pas qu’un e-mail a été envoyé sans service SMTP sécurisé.</p>
   </details></div>`;
 }
 
@@ -553,23 +566,39 @@ async function handleRecordAction(e){
       patch[field.dataset.field] = field.value || '';
     });
     await modules.updateDoc(modules.doc(db, currentCollection, id), patch);
-    alert('Suivi enregistré.');
+    setAdminStatus('Suivi enregistré et synchronisé.');
     return;
   }
   if (action === 'notify') {
     const panel = btn.closest('.management-panel');
     const row = rows.find(x => x.id === id) || {};
     const message = panel?.querySelector('[data-field="teamMessage"]')?.value || '';
-    await modules.addDoc(modules.collection(db, 'emailLogs'), {
+    const createdAt = modules.serverTimestamp();
+    const reservationCode = row.reservationCode || row.messageCode || row.trackingCode || '';
+    const batch = modules.writeBatch(db);
+    const notificationRef = modules.doc(modules.collection(db, 'notifications'));
+    const emailLogRef = modules.doc(modules.collection(db, 'emailLogs'));
+    batch.set(notificationRef, {
+      type: 'participant-notification',
+      status: 'à traiter',
+      email: row.email || '',
+      reservationId: id,
+      reservationCode,
+      message,
+      createdAt
+    });
+    batch.set(emailLogRef, {
       type: 'participant-notification',
       status: 'to_send',
       email: row.email || '',
       reservationId: id,
-      reservationCode: row.reservationCode || row.messageCode || row.trackingCode || '',
+      reservationCode,
+      notificationId: notificationRef.id,
       message,
-      createdAt: modules.serverTimestamp()
+      createdAt
     });
-    alert('Notification ajoutée aux journaux d’e-mails.');
+    await batch.commit();
+    setAdminStatus('Notification interne enregistrée. Aucun e-mail n’est annoncé comme envoyé.');
     return;
   }
   if (action === 'delete') {

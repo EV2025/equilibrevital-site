@@ -55,9 +55,10 @@ for (const [id, name] of Object.entries(expectedProgrammeNames)) {
   if (programmeNames[id] !== name) errors.push(`assets/data/programmes-v84.json: intitulé incorrect pour ${id}`);
 }
 const programmeJs = fs.readFileSync('assets/js/programmes-v84.js', 'utf8');
-if (!/programme-schedule-v94/.test(programmeJs) || !/programme-label-v94/.test(programmeJs)) {
+if (!/programme-schedule-v94/.test(programmeJs) || !/programme-audience-v84/.test(programmeJs) || !/programme-time-v94/.test(programmeJs)) {
   errors.push('assets/js/programmes-v84.js: hiérarchie uniforme des programmes absente');
 }
+if (/programme-label-v94/.test(programmeJs)) errors.push('assets/js/programmes-v84.js: ancien libellé Programme encore présent');
 
 if (errors.length) {
   console.error('Contrôle responsive en échec:\n- ' + errors.join('\n- '));

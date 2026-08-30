@@ -210,8 +210,28 @@ function renderEmailVerification(user){
 
 async function loadAll(){
   watchProfile();
+  await claimVerifiedReservations();
   loadReservations();
   renderLinkedModules([]);
+}
+
+async function claimVerifiedReservations(){
+  if (!currentUser?.emailVerified || !currentUser.email) return;
+  try{
+    const claimQuery = fb.query(
+      fb.collection(fb.db, 'reservations'),
+      fb.where('email', '==', currentUser.email.toLowerCase())
+    );
+    const snapshot = await fb.getDocs(claimQuery);
+    const pending = snapshot.docs.filter(item => !item.data().uid);
+    await Promise.all(pending.map(item => fb.updateDoc(item.ref, {
+      uid: currentUser.uid,
+      updatedAt: fb.serverTimestamp()
+    })));
+    if (pending.length) showMessage(globalStatus, `${pending.length} ancienne${pending.length > 1 ? 's' : ''} réservation${pending.length > 1 ? 's ont' : ' a'} été reliée${pending.length > 1 ? 's' : ''} à votre espace.`, true);
+  }catch(error){
+    console.error('Reservation claim:', error);
+  }
 }
 
 function watchProfile(){

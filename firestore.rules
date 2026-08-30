@@ -25,6 +25,12 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == userId;
     }
 
+    function hasVerifiedEmail(value) {
+      return signedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == value;
+    }
+
     function validEmail(value) {
       return value is string
         && value.size() >= 5
@@ -274,8 +280,16 @@ service cloud.firestore {
 
     match /reservations/{reservationId} {
       allow create: if validReservationCreate();
-      allow read: if isTeam() || (signedIn() && resource.data.uid == request.auth.uid);
-      allow update, delete: if isAdmin();
+      allow read: if isTeam()
+        || (signedIn() && resource.data.uid == request.auth.uid)
+        || hasVerifiedEmail(resource.data.email);
+      allow update: if isAdmin()
+        || (hasVerifiedEmail(resource.data.email)
+          && !('uid' in resource.data)
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['uid', 'updatedAt'])
+          && request.resource.data.updatedAt is timestamp);
+      allow delete: if isAdmin();
     }
 
     match /payments/{paymentId} {

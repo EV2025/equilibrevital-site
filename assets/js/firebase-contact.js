@@ -669,6 +669,7 @@ function dataFromForm(form){
   if (!data.nom && data.name) data.nom = data.name;
   if (!data.telephone && data.phone) data.telephone = data.phone;
   if (!data.type && data.subject) data.type = data.subject;
+  if (data.email) data.email = data.email.toLowerCase();
 
   const hasConsent = Boolean(raw.rgpdConsent || raw.consent || raw.privacy || raw.accept);
 
@@ -731,6 +732,7 @@ function showReceipt(form, payload, kind, reservationId = ''){
         <div><dt>Date</dt><dd>${esc(new Date().toLocaleString('fr-BE'))}</dd></div>
       </dl>
       <p class="receipt-note-v58">Conservez ce numéro pour toute question. ${esc(next)}</p>
+      ${isReservation && !auth?.currentUser ? '<div class="payment-actions-v1"><a class="btn secondary" href="./inscription.html">Créer mon espace pour suivre cette réservation</a><a class="btn secondary" href="./member/dashboard.html">J’ai déjà un compte</a></div><p class="receipt-note-v58">Utilisez la même adresse e-mail. Après sa vérification, la réservation sera reliée automatiquement à votre espace.</p>' : ''}
       ${isReservation ? paymentInstructionHtml(payload) : ''}
     </article>`;
   initCopyButtons(msg);

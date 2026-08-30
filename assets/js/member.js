@@ -24,6 +24,7 @@ let currentUser = null;
 let profile = null;
 let hasMemberProfile = false;
 let reservationsUnsubscribe = null;
+let profileUnsubscribe = null;
 let currentView = ['home','parcours','demandes','profil'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
 
 const steps = [
@@ -111,7 +112,9 @@ async function init(){
 
   logoutBtn.addEventListener('click', async () => {
     if (reservationsUnsubscribe) reservationsUnsubscribe();
+    if (profileUnsubscribe) profileUnsubscribe();
     reservationsUnsubscribe = null;
+    profileUnsubscribe = null;
     await fb.signOut(fb.auth);
   });
 
@@ -146,7 +149,9 @@ async function init(){
 
   fb.onAuthStateChanged(fb.auth, async user => {
     if (reservationsUnsubscribe) reservationsUnsubscribe();
+    if (profileUnsubscribe) profileUnsubscribe();
     reservationsUnsubscribe = null;
+    profileUnsubscribe = null;
     currentUser = user;
     profile = null;
     globalStatus.hidden = true;
@@ -204,13 +209,22 @@ function renderEmailVerification(user){
 }
 
 async function loadAll(){
-  await loadProfile();
+  watchProfile();
   loadReservations();
   renderLinkedModules([]);
 }
 
-async function loadProfile(){
-  const snapshot = await fb.getDoc(fb.doc(fb.db, 'users', currentUser.uid));
+function watchProfile(){
+  const reference = fb.doc(fb.db, 'users', currentUser.uid);
+  profileUnsubscribe = fb.onSnapshot(reference, snapshot => {
+    applyProfileSnapshot(snapshot);
+  }, error => {
+    console.error('Member profile sync:', error);
+    showMessage(globalStatus, error?.code === 'permission-denied' ? 'Votre dossier ne peut pas être lu avec les autorisations Firebase actuelles.' : friendlyUnavailable());
+  });
+}
+
+function applyProfileSnapshot(snapshot){
   hasMemberProfile = snapshot.exists();
   profile = hasMemberProfile ? snapshot.data() : {
     displayName: currentUser.displayName || '',
@@ -237,6 +251,7 @@ async function loadProfile(){
   document.getElementById('badges').innerHTML = (profile.badges || ['Bienvenue PSSR']).map(badge => `<span class="badge">${esc(badge)}</span>`).join('');
   renderParticipant();
   renderJourney();
+  renderLinkedModules([]);
 }
 
 async function copyMemberCode(){

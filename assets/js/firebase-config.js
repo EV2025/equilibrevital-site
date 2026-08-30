@@ -1,6 +1,6 @@
 // Configuration Firebase du site PSSR.
 // Projet Firebase : PSSR Site Web / pssr-site-web
-// URL GitHub Pages : https://ev2025.github.io/pssr/
+// Site officiel : https://equilibrevital.be/
 
 export const firebaseConfig = {
   apiKey: "AIzaSyBdBiJqKc3TIugS139kNad_T61f8Ea4ayc",
@@ -13,7 +13,7 @@ export const firebaseConfig = {
 };
 
 export const siteConfig = {
-  siteUrl: "https://ev2025.github.io/pssr/",
+  siteUrl: "https://equilibrevital.be/",
   contactEmail: "equilibrevital.bruxelles@gmail.com"
 };
 

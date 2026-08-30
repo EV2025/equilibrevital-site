@@ -264,18 +264,18 @@ service cloud.firestore {
 
     match /slots/{slotId} {
       allow read: if true;
-      allow write: if isTeam();
+      allow write: if isAdmin();
     }
 
     match /messages/{messageId} {
       allow create: if validMessageCreate();
-      allow read, update, delete: if isTeam();
+      allow read, update, delete: if isAdmin();
     }
 
     match /reservations/{reservationId} {
       allow create: if validReservationCreate();
       allow read: if isTeam() || (signedIn() && resource.data.uid == request.auth.uid);
-      allow update, delete: if isTeam();
+      allow update, delete: if isAdmin();
     }
 
     match /payments/{paymentId} {
@@ -284,7 +284,8 @@ service cloud.firestore {
     }
 
     match /notifications/{notificationId} {
-      allow read, create, update, delete: if isTeam();
+      allow read, create, update: if isTeam();
+      allow delete: if isAdmin();
     }
 
     match /avis/{reviewId} {
@@ -301,7 +302,8 @@ service cloud.firestore {
     }
 
     match /attendances/{attendanceId} {
-      allow create, update, delete: if isTeam();
+      allow create, update: if isTeam();
+      allow delete: if isAdmin();
       allow read: if isTeam() || (signedIn() && resource.data.uid == request.auth.uid);
     }
 
@@ -317,7 +319,7 @@ service cloud.firestore {
     }
 
     match /emailLogs/{logId} {
-      allow read, create, update, delete: if isTeam();
+      allow read, create, update, delete: if isAdmin();
     }
 
     match /consents/{consentId} {

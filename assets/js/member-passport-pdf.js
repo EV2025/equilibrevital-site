@@ -129,8 +129,6 @@ export async function downloadMemberPassport({profile,user,steps,currentStep,lev
   const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Canvas indisponible');
   const logo=await loadLogo();
   const name=String(profile?.displayName||user?.displayName||'').includes('@')?'À compléter':(profile?.displayName||user?.displayName||'À compléter');
-  const email=profile?.email||user?.email||'À compléter';
-  const phone=profile?.phone||'À compléter';
   const code=profile?.memberCode&&profile.memberCode!=='—'?profile.memberCode:'À compléter';
   const currentIndex=Math.max(0,steps.findIndex(step=>step.key===currentStep));
   const currentDates=profile?.journeyDates?.[currentStep]||{};
@@ -153,7 +151,7 @@ export async function downloadMemberPassport({profile,user,steps,currentStep,lev
   fitText(ctx,`Référence : ${documentRef}`,432,238,690,650,17,12);
 
   infoBox(ctx,68,310,540,'Identité du membre',[
-    ['Nom',name],['E-mail',email],['Téléphone',phone],['Code membre',code],['Session',profile?.session||'À compléter']
+    ['Nom',name],['Code membre',code],['Session',profile?.session||'À compléter']
   ]);
   infoBox(ctx,632,310,540,'Situation PSSR',[
     ['Niveau actuel',levelLabel(currentStep)||currentStep],['Début parcours',formatDate(journeyStart)],

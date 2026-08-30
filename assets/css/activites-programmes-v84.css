@@ -121,3 +121,13 @@
  .programmes-page-v84 .programme-audience-v84{justify-self:center}
  .programmes-page-v84 .programme-label-v94{margin-top:6px}
 }
+
+
+/* V99 — âge prioritaire, libellé redondant supprimé */
+.programmes-page-v84 .programme-audience-v84{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:40px!important;padding:9px 15px!important;border:2px solid color-mix(in srgb,var(--programme-accent) 72%,#fff)!important;border-radius:999px!important;background:var(--programme-accent)!important;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:clamp(.94rem,1.6vw,1.05rem)!important;font-weight:950!important;line-height:1.05!important;letter-spacing:.01em!important;box-shadow:0 8px 18px color-mix(in srgb,var(--programme-accent) 22%,transparent)!important}
+.programmes-page-v84 .programme-card-top-v84{gap:14px!important;margin-bottom:16px!important}
+.programmes-page-v84 .programme-label-v94{display:none!important}
+@media(max-width:620px){
+ .programmes-page-v84 .programme-card-top-v84{gap:10px!important;margin-bottom:14px!important}
+ .programmes-page-v84 .programme-audience-v84{min-height:42px!important;padding:10px 16px!important;font-size:1rem!important}
+}

@@ -22,7 +22,7 @@ const adminResultCount = document.getElementById('admin-result-count');
 const adminActionStatus = document.getElementById('admin-action-status');
 
 let auth, db;
-let currentCollection = 'messages';
+let currentCollection = 'stats';
 let rows = [];
 let modules = {};
 let unsub = null;
@@ -69,7 +69,7 @@ const labels = {
   payments:'Paiements — suivi manuel',
   notifications:'Notifications internes',
   attendances:'Présences',
-  emailLogs:'Journaux d’e-mails',
+  emailLogs:'Préparations e-mail — non envoyées',
   stats:'Statistiques',
   consents:'Demandes RGPD'
 };
@@ -766,7 +766,7 @@ async function countCollection(name){
 }
 
 async function renderStats(){
-  const names = ['messages','reservations','users','slots','services','payments','emailLogs'];
+  const names = ['messages','reservations','users','attendances','consents','payments'];
   const counts = {};
   for (const name of names) counts[name] = await countCollection(name);
   summaryEl.innerHTML = '';
@@ -774,11 +774,10 @@ async function renderStats(){
     <div class="metric"><strong>${counts.messages}</strong><span>Messages</span></div>
     <div class="metric"><strong>${counts.reservations}</strong><span>Réservations</span></div>
     <div class="metric"><strong>${counts.users}</strong><span>Clients / membres</span></div>
-    <div class="metric"><strong>${counts.slots}</strong><span>Créneaux</span></div>
-    <div class="metric"><strong>${counts.services}</strong><span>Services</span></div>
+    <div class="metric"><strong>${counts.attendances}</strong><span>Présences</span></div>
+    <div class="metric"><strong>${counts.consents}</strong><span>Demandes RGPD</span></div>
     <div class="metric"><strong>${counts.payments}</strong><span>Paiements suivis</span></div>
-    <div class="metric"><strong>${counts.emailLogs}</strong><span>Logs emails</span></div>
-  </div><p class="payment-note"><strong>Note :</strong> les paiements en ligne ne sont pas activés dans cette version GitHub Pages + Firebase. L’onglet Paiements sert au suivi manuel ou à une future intégration Stripe/bancontact via backend sécurisé.</p>`;
+  </div><p class="payment-note"><strong>Fonctionnement :</strong> les inscriptions restent gratuites techniquement. Les virements sont vérifiés manuellement, puis les données utiles peuvent être exportées vers Excel.</p>`;
   rows = [];
 }
 

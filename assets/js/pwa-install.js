@@ -1,15 +1,15 @@
 (function () {
-  const installButtons = Array.from(document.querySelectorAll('[data-install-app]'));
-  const statusNodes = Array.from(document.querySelectorAll('[data-install-status]'));
   const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   let installPrompt = null;
 
-  const setStatus = message => statusNodes.forEach(node => {
+  const installButtons = () => Array.from(document.querySelectorAll('[data-install-app]'));
+  const statusNodes = () => Array.from(document.querySelectorAll('[data-install-status]'));
+  const setStatus = message => statusNodes().forEach(node => {
     node.textContent = message;
     node.hidden = !message;
   });
-  const hideButtons = () => installButtons.forEach(button => button.hidden = true);
-  const showButtons = () => installButtons.forEach(button => button.hidden = false);
+  const hideButtons = () => installButtons().forEach(button => button.hidden = true);
+  const showButtons = () => installButtons().forEach(button => button.hidden = false);
 
   if (standalone) {
     hideButtons();
@@ -23,7 +23,9 @@
     showButtons();
   });
 
-  installButtons.forEach(button => button.addEventListener('click', async () => {
+  document.addEventListener('click', async event => {
+    const button = event.target.closest('[data-install-app]');
+    if (!button) return;
     if (installPrompt) {
       installPrompt.prompt();
       const choice = await installPrompt.userChoice;
@@ -38,7 +40,7 @@
     setStatus(isIOS
       ? 'Sur iPhone ou iPad : ouvrez le menu Partager, puis choisissez « Sur l’écran d’accueil ».'
       : 'Ouvrez le menu de votre navigateur, puis choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil ».');
-  }));
+  });
 
   window.addEventListener('appinstalled', () => {
     hideButtons();

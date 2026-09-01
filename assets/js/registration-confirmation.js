@@ -25,7 +25,8 @@ function renderReceipt(profile, user, verificationSent){
       <div><dt>Mot de passe</dt><dd>Non conservé et jamais envoyé par e-mail</dd></div>
     </dl>
     <div class="portal-actions"><button class="btn secondary" type="button" data-copy-code>Copier le code membre</button><a class="btn" href="./member/dashboard.html">Accéder à mon espace</a></div>
-    <p class="notice">${verificationSent === false ? 'Le compte est créé, mais le premier e-mail de vérification n’a pas pu être envoyé. Vous pourrez le renvoyer depuis votre espace.' : `Un e-mail sécurisé de vérification a été envoyé à <strong>${esc(user.email || profile.email || '')}</strong>. Vérifiez aussi les courriers indésirables.`} Votre nom d’utilisateur est votre adresse e-mail.</p>`;
+    <p class="notice">${verificationSent === false ? 'Le compte est créé, mais le premier e-mail de vérification n’a pas pu être envoyé. Vous pourrez le renvoyer depuis votre espace.' : `Un e-mail sécurisé de vérification a été envoyé à <strong>${esc(user.email || profile.email || '')}</strong>. Vérifiez aussi les courriers indésirables.`} Votre nom d’utilisateur est votre adresse e-mail.</p>
+    <aside class="pwa-promo-v1"><h3>Gardez votre parcours à portée de main</h3><p>Installez gratuitement l’application pour consulter vos activités, vos réservations et votre suivi PSSR.</p><div class="pwa-promo-actions-v1"><button class="btn" data-install-app type="button">Installer l’application</button><a class="btn secondary" href="./application.html">Ouvrir l’application</a></div><p class="pwa-promo-help-v1" data-install-status hidden aria-live="polite"></p></aside>`;
   panel.querySelector('[data-copy-code]')?.addEventListener('click', async event => {
     try{ await navigator.clipboard.writeText(memberCode); event.currentTarget.textContent = 'Code copié'; }
     catch(_){ window.prompt('Copiez votre code membre :', memberCode); }

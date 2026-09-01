@@ -21,3 +21,11 @@ assets/css/wordpress-extracts/
 
 # Firebase local logs
 firebase-debug.log
+
+# Application Android — sorties locales et secrets de signature
+android-app/.gradle/
+android-app/**/build/
+android-app/local.properties
+android-app/*.jks
+android-app/*.keystore
+android-app/keystore.properties

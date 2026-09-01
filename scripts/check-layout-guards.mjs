@@ -40,9 +40,9 @@ for (const path of ['member/dashboard.html', 'coach/index.html', 'admin/index.ht
 for (const path of ['index.html', 'reservation.html', 'inscription-confirmee.html']) {
   const html = fs.readFileSync(path, 'utf8');
   if (!/manifest\.webmanifest/.test(html)) errors.push(`${path}: manifeste d’installation absent`);
-  if (!/pwa-install\.js/.test(html)) errors.push(`${path}: aide à l’installation absente`);
+  if (path !== 'index.html' && !/pwa-install\.js/.test(html)) errors.push(`${path}: aide à l’installation absente`);
 }
-if (!/data-install-app/.test(fs.readFileSync('index.html', 'utf8'))) errors.push('index.html: invitation à installer absente');
+if (!/\{label:'Application',href:'application\.html'\}/.test(fs.readFileSync('assets/js/v39-complet-coherence-roles.js', 'utf8'))) errors.push('pied de page: lien discret vers l’application absent');
 if (!/data-install-app/.test(fs.readFileSync('assets/js/pwa-receipt-promo.js', 'utf8'))) errors.push('assets/js/pwa-receipt-promo.js: invitation après réservation absente');
 if (!/data-install-app/.test(fs.readFileSync('assets/js/registration-confirmation.js', 'utf8'))) errors.push('assets/js/registration-confirmation.js: invitation après inscription absente');
 

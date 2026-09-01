@@ -6,7 +6,8 @@ const footerNavigation=[
   {label:'Accueil',href:'index.html'},
   {label:'Espace coach',href:'coach/index.html'},
   {label:'Documents',href:'documents.html'},
-  {label:'Le terrain en mouvement',href:'actualites.html'}
+  {label:'Le terrain en mouvement',href:'actualites.html'},
+  {label:'Application',href:'application.html'}
 ];
 const footerPartners=[
   {label:'Formation & emploi',href:'ressources-emploi-insertion.html'},

@@ -15,6 +15,29 @@ const protectedPages = [
 const viewportPages = [...protectedPages, 'merci.html', 'member/dashboard.html', 'coach/index.html'];
 const errors = [];
 
+const manifestPath = 'manifest.webmanifest';
+const serviceWorkerPath = 'sw.js';
+const appPagePath = 'application.html';
+for (const path of [manifestPath, serviceWorkerPath, appPagePath, 'offline.html', 'assets/js/pwa-install.js', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'assets/icons/icon-maskable-512.png']) {
+  if (!fs.existsSync(path)) errors.push(`${path}: élément PWA absent`);
+}
+if (fs.existsSync(manifestPath)) {
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  if (manifest.start_url !== '/application.html') errors.push('manifest.webmanifest: page de démarrage incorrecte');
+  if (!Array.isArray(manifest.icons) || !manifest.icons.some(icon => icon.sizes === '192x192') || !manifest.icons.some(icon => icon.sizes === '512x512')) errors.push('manifest.webmanifest: icônes installables incomplètes');
+}
+if (fs.existsSync(serviceWorkerPath)) {
+  const serviceWorker = fs.readFileSync(serviceWorkerPath, 'utf8');
+  for (const privatePath of ['/member/', '/admin/', '/coach/']) {
+    if (!serviceWorker.includes(`'${privatePath}'`)) errors.push(`sw.js: ${privatePath} non protégé du cache`);
+  }
+}
+for (const path of ['member/dashboard.html', 'coach/index.html', 'admin/index.html']) {
+  const html = fs.readFileSync(path, 'utf8');
+  if (!/manifest\.webmanifest/.test(html)) errors.push(`${path}: manifeste PWA absent`);
+  if (!/pwa-register\.js/.test(html)) errors.push(`${path}: enregistrement PWA absent`);
+}
+
 for (const path of viewportPages) {
   const html = fs.readFileSync(path, 'utf8');
   if (!/<meta[^>]+name=["']viewport["']/i.test(html)) errors.push(`${path}: balise viewport absente`);

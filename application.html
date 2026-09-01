@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<title>Application Équilibre Vital — PSSR</title>
+<meta content="Accédez aux activités, réservations et espaces sécurisés Équilibre Vital PSSR." name="description"/>
+<meta content="#7C3AED" name="theme-color"/>
+<meta content="light" name="color-scheme"/>
+<link href="./manifest.webmanifest" rel="manifest"/>
+<link href="./assets/icons/icon-192.png" rel="apple-touch-icon"/>
+<link href="./assets/css/common-v58.min.css" rel="stylesheet"/>
+<link href="./assets/css/pwa-app-v1.css" rel="stylesheet"/>
+</head>
+<body>
+<main class="app-launcher-v1">
+<header class="app-header-v1">
+  <a class="app-brand-v1" href="./index.html"><img src="./wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png" alt=""/><span><strong>Équilibre Vital</strong><small>Application PSSR</small></span></a>
+  <button class="btn secondary" data-install-app type="button">Installer l’application</button>
+</header>
+<section class="app-hero-v1">
+  <p class="eyebrow">Votre parcours socio-sportif</p>
+  <h1>Bouger, participer et suivre son parcours.</h1>
+  <p>Un accès simple aux activités Équilibre Vital et à votre suivi personnel PSSR.</p>
+  <div class="app-role-grid-v1">
+    <article class="app-role-v1"><span class="app-role-label-v1">Participer</span><h2>Trouver une activité</h2><p>Consultez les catégories d’âge, les horaires et envoyez votre demande d’inscription.</p><a class="btn" href="./activites.html">Voir les activités</a></article>
+    <article class="app-role-v1"><span class="app-role-label-v1">Espace sécurisé</span><h2>Mon parcours PSSR</h2><p>Retrouvez vos activités, présences, étapes, demandes et votre Passeport Socio-Sportif.</p><a class="btn" href="./member/dashboard.html">Accéder à mon espace</a></article>
+  </div>
+  <details class="app-team-v1"><summary class="btn secondary">Accès équipe</summary><div class="app-team-grid-v1"><a class="btn secondary" href="./coach/index.html">Espace coach</a><a class="btn secondary" href="./admin/index.html">Administration</a></div></details>
+  <p class="app-install-status-v1" data-install-status hidden aria-live="polite"></p>
+  <p class="app-privacy-v1">Les espaces privés nécessitent une connexion Internet. Les données personnelles ne sont pas enregistrées pour une consultation hors connexion.</p>
+</section>
+</main>
+<script defer src="./assets/js/pwa-register.js"></script>
+<script defer src="./assets/js/pwa-install.js"></script>
+</body>
+</html>

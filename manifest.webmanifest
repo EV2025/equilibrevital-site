@@ -1,19 +1,25 @@
 {
-  "name": "Équilibre Vital — Espace PSSR",
-  "short_name": "PSSR",
-  "description": "Suivi personnel du parcours PSSR Équilibre Vital.",
+  "id": "/application.html",
+  "name": "Équilibre Vital — Application PSSR",
+  "short_name": "Équilibre Vital",
+  "description": "Activités, réservations et suivi du parcours PSSR.",
   "lang": "fr-BE",
-  "start_url": "/member/dashboard.html#home",
+  "start_url": "/application.html",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
   "background_color": "#FFF7FB",
   "theme_color": "#7C3AED",
+  "categories": ["health", "sports", "lifestyle"],
   "icons": [
-    {
-      "src": "/wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png",
-      "sizes": "any",
-      "type": "image/png",
-      "purpose": "any"
-    }
+    {"src": "/assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "/assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "shortcuts": [
+    {"name": "Mon parcours PSSR", "short_name": "Mon parcours", "url": "/member/dashboard.html#home", "icons": [{"src": "/assets/icons/icon-192.png", "sizes": "192x192"}]},
+    {"name": "Trouver une activité", "short_name": "Activités", "url": "/activites.html", "icons": [{"src": "/assets/icons/icon-192.png", "sizes": "192x192"}]},
+    {"name": "Espace coach", "short_name": "Coach", "url": "/coach/index.html", "icons": [{"src": "/assets/icons/icon-192.png", "sizes": "192x192"}]}
   ]
 }

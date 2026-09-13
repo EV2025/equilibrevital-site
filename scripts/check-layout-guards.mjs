@@ -104,6 +104,8 @@ if (!/registrationOpen !== false/.test(programmeJs) || !/Inscriptions suspendues
 const reservationHtml = fs.readFileSync('reservation.html', 'utf8');
 if (/data-programme-id="enfants-vendredi"/.test(reservationHtml)) errors.push('reservation.html: créneau suspendu encore présent dans la liste statique');
 if (!/id="programme-unavailable"/.test(reservationHtml)) errors.push('reservation.html: message de suspension absent');
+const faqHtml = fs.readFileSync('faq.html', 'utf8');
+if (!/Comment demander un remboursement/.test(faqHtml) || !/100 % pendant le premier mois/.test(faqHtml) || !/member\/dashboard\.html#demandes/.test(faqHtml)) errors.push('faq.html: informations de remboursement absentes ou incomplètes');
 
 if (errors.length) {
   console.error('Contrôle responsive en échec:\n- ' + errors.join('\n- '));

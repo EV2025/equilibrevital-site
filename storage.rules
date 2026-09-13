@@ -25,6 +25,11 @@ service firebase.storage {
         && request.resource.contentType.matches('image/.*|application/pdf');
     }
 
+    function isRefundProof() {
+      return request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/jpeg|image/png|image/webp|application/pdf');
+    }
+
     match /public/{allPaths=**} {
       allow read: if true;
       allow create, update: if isTeam() && isAllowedFile();
@@ -35,6 +40,13 @@ service firebase.storage {
       allow read: if signedIn() && (request.auth.uid == userId || isTeam());
       allow create, update: if isTeam() && isAllowedFile();
       allow delete: if isTeam();
+    }
+
+    match /refund-proofs/{userId}/{requestId}/{fileName} {
+      allow read: if signedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if signedIn() && request.auth.uid == userId && isRefundProof();
+      allow update: if false;
+      allow delete: if signedIn() && (request.auth.uid == userId || isAdmin());
     }
 
     match /admin/{allPaths=**} {

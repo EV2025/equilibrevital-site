@@ -67,9 +67,15 @@ if (!/#reservation-list \.record/.test(memberCss)) errors.push('assets/css/membe
 if (!/#slot-list \.slot-card/.test(memberCss)) errors.push('assets/css/member-app-v83.css: protection des modules absente');
 if (!/#journey-panel/.test(memberCss) || !/#journey-steps/.test(memberCss)) errors.push('assets/css/member-app-v83.css: protection du parcours absente');
 if (!/#participant-kv/.test(memberCss) || !/#passport/.test(memberCss) || !/#gdpr-form/.test(memberCss)) errors.push('assets/css/member-app-v83.css: protection du profil personnel absente');
+if (!/id="refund-form"/.test(memberHtml) || !/declaration/.test(memberHtml) || !/accept="image\/jpeg,image\/png,image\/webp,application\/pdf"/.test(memberHtml)) errors.push('member/dashboard.html: formulaire de remboursement sécurisé incomplet');
+if (!/sendRefundRequest/.test(memberJs) || !/refund-proofs/.test(memberJs) || !/5 \* 1024 \* 1024/.test(memberJs)) errors.push('assets/js/member.js: dépôt du justificatif de remboursement incomplet');
+if (!/#refund-panel/.test(memberCss) || !/refund-declaration-v105/.test(memberCss)) errors.push('assets/css/member-app-v83.css: affichage responsive du remboursement absent');
 
 const admin = fs.readFileSync('admin/index.html', 'utf8');
 if (!/admin-app-v90\.css/.test(admin)) errors.push('admin/index.html: feuille admin-app-v90.css absente');
+if (!/data-tab="refundRequests"/.test(admin) || !/refundRequests/.test(fs.readFileSync('assets/js/admin.js', 'utf8'))) errors.push('administration: suivi des remboursements absent');
+if (!/match \/refundRequests\//.test(fs.readFileSync('firestore.rules', 'utf8'))) errors.push('firestore.rules: protection des remboursements absente');
+if (!/match \/refund-proofs\//.test(fs.readFileSync('storage.rules', 'utf8'))) errors.push('storage.rules: protection des justificatifs absente');
 
 for (const path of ['assets/css/interface-guard-v90.css', 'assets/css/admin-app-v90.css']) {
   if (!fs.existsSync(path) || fs.statSync(path).size < 500) errors.push(`${path}: fichier absent ou incomplet`);

@@ -18,6 +18,13 @@ const refreshVerificationButton = document.getElementById('refresh-verification'
 const verificationStatus = document.getElementById('verification-status');
 const copyMemberCodeButton = document.getElementById('copy-member-code');
 const memberProfileAlert = document.getElementById('member-profile-alert');
+const refundForm = document.getElementById('refund-form');
+const refundMessage = document.getElementById('refund-msg');
+const refundReservation = document.getElementById('refund-reservation');
+const refundList = document.getElementById('refund-list');
+const refundToggle = document.getElementById('refund-toggle');
+const refundFormWrap = document.getElementById('refund-form-wrap');
+const refundEstimate = document.getElementById('refund-estimate');
 
 let fb;
 let currentUser = null;
@@ -25,6 +32,8 @@ let profile = null;
 let hasMemberProfile = false;
 let reservationsUnsubscribe = null;
 let profileUnsubscribe = null;
+let refundsUnsubscribe = null;
+let memberReservations = [];
 let currentView = ['home','parcours','demandes','profil'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
 
 const steps = [
@@ -144,14 +153,25 @@ async function init(){
     }
   });
   gdprForm.addEventListener('submit', sendGdprRequest);
+  refundForm?.addEventListener('submit', sendRefundRequest);
+  refundToggle?.addEventListener('click', () => {
+    const open = refundFormWrap.hidden;
+    refundFormWrap.hidden = !open;
+    refundToggle.setAttribute('aria-expanded', String(open));
+    refundToggle.textContent = open ? 'Fermer le formulaire' : 'Demander un remboursement';
+    if (open) refundReservation?.focus({preventScroll:true});
+  });
+  refundForm?.elements.amount?.addEventListener('input', renderRefundEstimate);
   copyMemberCodeButton?.addEventListener('click', copyMemberCode);
   initVerificationActions();
 
   fb.onAuthStateChanged(fb.auth, async user => {
     if (reservationsUnsubscribe) reservationsUnsubscribe();
     if (profileUnsubscribe) profileUnsubscribe();
+    if (refundsUnsubscribe) refundsUnsubscribe();
     reservationsUnsubscribe = null;
     profileUnsubscribe = null;
+    refundsUnsubscribe = null;
     currentUser = user;
     profile = null;
     globalStatus.hidden = true;
@@ -212,6 +232,7 @@ async function loadAll(){
   watchProfile();
   await claimVerifiedReservations();
   loadReservations();
+  loadRefundRequests();
   renderLinkedModules([]);
 }
 
@@ -325,6 +346,8 @@ function loadReservations(){
     );
     reservationsUnsubscribe = fb.onSnapshot(query, snapshot => {
       const rows = snapshot.docs.map(doc => ({id:doc.id, ...doc.data()}));
+      memberReservations = rows;
+      renderRefundReservationOptions(rows);
       reservationList.innerHTML = rows.length ? rows.map(row => `<article class="record"><h3>${esc(row.creneau || row.modules || row.slotTitle || 'Demande PSSR')}</h3><dl><dt>Numéro de réservation</dt><dd><code>${esc(row.reservationCode || '—')}</code></dd><dt>Statut</dt><dd><span class="status-pill">${esc(row.status || 'en attente')}</span></dd><dt>Date</dt><dd>${esc(fmtDate(row.createdAt))}</dd><dt>Modules</dt><dd>${esc(row.modules || row.creneau || '—')}</dd>${row.message ? `<dt>Message</dt><dd>${esc(row.message)}</dd>` : ''}</dl></article>`).join('') : '<p>Aucune réservation disponible pour le moment.</p>';
       renderLinkedModules(rows);
     }, error => {
@@ -336,6 +359,146 @@ function loadReservations(){
     console.error('Member reservations query:', error);
     reservationList.innerHTML = `<p class="msg">${esc(friendlyUnavailable())}</p>`;
     renderLinkedModules([]);
+  }
+}
+
+function renderRefundReservationOptions(reservations = []){
+  if (!refundReservation) return;
+  const selected = refundReservation.value;
+  refundReservation.innerHTML = '<option value="">Choisir une réservation</option>' + reservations.map(row => {
+    const course = row.creneau || row.modules || row.slotTitle || 'Activité PSSR';
+    const code = row.reservationCode || row.id;
+    return `<option value="${esc(row.id)}">${esc(course)} — ${esc(code)}</option>`;
+  }).join('');
+  if (reservations.some(row => row.id === selected)) refundReservation.value = selected;
+}
+
+function loadRefundRequests(){
+  if (!refundList) return;
+  refundList.innerHTML = '<p>Chargement de vos demandes…</p>';
+  try{
+    const query = fb.query(
+      fb.collection(fb.db, 'refundRequests'),
+      fb.where('uid', '==', currentUser.uid)
+    );
+    refundsUnsubscribe = fb.onSnapshot(query, snapshot => {
+      const requests = snapshot.docs.map(item => ({id:item.id, ...item.data()})).sort((a, b) => {
+        const aTime = a.createdAt?.toMillis?.() || 0;
+        const bTime = b.createdAt?.toMillis?.() || 0;
+        return bTime - aTime;
+      });
+      refundList.innerHTML = requests.length ? requests.map(item => `<article class="record"><h4>${esc(item.course || 'Demande de remboursement')}</h4><dl><dt>Référence</dt><dd><code>${esc(item.refundCode || item.id)}</code></dd><dt>Montant demandé</dt><dd>${esc(Number(item.amount || 0).toLocaleString('fr-BE', {style:'currency', currency:'EUR'}))}</dd><dt>Motif</dt><dd>${esc(item.reason || '—')}</dd><dt>Statut</dt><dd><span class="status-pill">${esc(item.status || 'reçu')}</span></dd><dt>Date</dt><dd>${esc(fmtDate(item.createdAt))}</dd></dl></article>`).join('') : '<p>Aucune demande de remboursement envoyée.</p>';
+    }, error => {
+      console.error('Refund requests:', error);
+      refundList.innerHTML = `<p class="msg">${esc(friendlyUnavailable())}</p>`;
+    });
+  }catch(error){
+    console.error('Refund requests query:', error);
+    refundList.innerHTML = `<p class="msg">${esc(friendlyUnavailable())}</p>`;
+  }
+}
+
+function currentRefundRate(date = new Date()){
+  const year = date.getMonth() >= 8 ? date.getFullYear() : date.getFullYear() - 1;
+  const start = new Date(year, 8, 15);
+  const end = new Date(year + 1, 4, 31, 23, 59, 59);
+  if (date < start) return 100;
+  if (date > end) return 0;
+  const boundaries = [
+    new Date(year, 9, 15), new Date(year, 10, 15), new Date(year, 11, 15),
+    new Date(year + 1, 0, 15), new Date(year + 1, 1, 15), new Date(year + 1, 2, 15),
+    new Date(year + 1, 3, 15), new Date(year + 1, 4, 15)
+  ];
+  return Math.max(20, 100 - boundaries.filter(boundary => date >= boundary).length * 10);
+}
+
+function renderRefundEstimate(){
+  if (!refundEstimate || !refundForm) return;
+  const amount = Number(String(refundForm.elements.amount?.value || '').replace(',', '.'));
+  const rate = currentRefundRate();
+  if (!Number.isFinite(amount) || amount <= 0){
+    refundEstimate.textContent = 'L’estimation apparaîtra après indication du montant.';
+    return;
+  }
+  const estimate = Math.round(amount * rate) / 100;
+  refundEstimate.textContent = `Estimation selon la date de la demande : ${rate} %, soit ${estimate.toLocaleString('fr-BE', {style:'currency', currency:'EUR'})}. Cette estimation reste soumise à la validation de l’administration.`;
+}
+
+async function sendRefundRequest(event){
+  event.preventDefault();
+  if (!currentUser || !refundForm) return;
+  if (!currentUser.emailVerified){
+    showMessage(refundMessage, 'Vérifiez d’abord votre adresse e-mail avant d’envoyer une demande de remboursement.');
+    return;
+  }
+  const fields = new FormData(refundForm);
+  const reservation = memberReservations.find(row => row.id === String(fields.get('reservationId') || ''));
+  const file = fields.get('proof');
+  const medicalFile = fields.get('medicalProof');
+  const allowedTypes = ['image/jpeg','image/png','image/webp','application/pdf'];
+  const maxSize = 5 * 1024 * 1024;
+  if (!reservation){ showMessage(refundMessage, 'Choisissez une réservation liée à votre compte.'); return; }
+  if (!(file instanceof File) || !file.size){ showMessage(refundMessage, 'Ajoutez une preuve de paiement.'); return; }
+  if (!allowedTypes.includes(file.type) || file.size > maxSize){ showMessage(refundMessage, 'La preuve doit être une image JPG, PNG, WebP ou un PDF de 5 Mo maximum.'); return; }
+  if (medicalFile instanceof File && medicalFile.size && (!allowedTypes.includes(medicalFile.type) || medicalFile.size > maxSize)){ showMessage(refundMessage, 'L’attestation médicale doit être une image JPG, PNG, WebP ou un PDF de 5 Mo maximum.'); return; }
+  if (!fields.get('declaration')){ showMessage(refundMessage, 'Vous devez accepter la déclaration sur l’honneur.'); return; }
+  const amount = Number(String(fields.get('amount') || '').replace(',', '.'));
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 99999){ showMessage(refundMessage, 'Indiquez un montant valide.'); return; }
+
+  const submit = refundForm.querySelector('button[type="submit"]');
+  const initialLabel = submit.textContent;
+  const requestRef = fb.doc(fb.collection(fb.db, 'refundRequests'));
+  const extension = file.type === 'application/pdf' ? 'pdf' : ({'image/jpeg':'jpg','image/png':'png','image/webp':'webp'})[file.type];
+  const proofPath = `refund-proofs/${currentUser.uid}/${requestRef.id}/preuve.${extension}`;
+  const proofRef = fb.ref(fb.storage, proofPath);
+  const medicalExtension = medicalFile instanceof File && medicalFile.size ? (medicalFile.type === 'application/pdf' ? 'pdf' : ({'image/jpeg':'jpg','image/png':'png','image/webp':'webp'})[medicalFile.type]) : '';
+  const medicalProofPath = medicalExtension ? `refund-proofs/${currentUser.uid}/${requestRef.id}/attestation-medicale.${medicalExtension}` : '';
+  const medicalProofRef = medicalProofPath ? fb.ref(fb.storage, medicalProofPath) : null;
+  submit.disabled = true;
+  submit.textContent = 'Envoi sécurisé…';
+  try{
+    await fb.uploadBytes(proofRef, file, {contentType:file.type});
+    if (medicalProofRef) await fb.uploadBytes(medicalProofRef, medicalFile, {contentType:medicalFile.type});
+    const refundCode = makeCode('PSSR-RMB');
+    const refundRate = currentRefundRate();
+    const payload = {
+      uid: currentUser.uid,
+      email: profile?.email || currentUser.email || '',
+      displayName: profile?.displayName || currentUser.displayName || '',
+      memberCode: profile?.memberCode || '',
+      refundCode,
+      trackingCode: refundCode,
+      reservationId: reservation.id,
+      reservationCode: reservation.reservationCode || '',
+      course: reservation.creneau || reservation.modules || reservation.slotTitle || 'Activité PSSR',
+      amount: Math.round(amount * 100) / 100,
+      currency: 'EUR',
+      refundRate,
+      estimatedRefund: Math.round(amount * refundRate) / 100,
+      policyVersion: 'season-2026-2027-v1',
+      reason: String(fields.get('reason') || '').slice(0, 120),
+      remarks: String(fields.get('remarks') || '').trim().slice(0, 1500),
+      proofPath,
+      proofName: String(file.name || 'preuve').slice(0, 180),
+      proofType: file.type,
+      proofSize: file.size,
+      declarationAccepted: true,
+      declarationTextVersion: '2026-09-v1',
+      status: 'reçu',
+      createdAt: fb.serverTimestamp()
+    };
+    if (medicalProofRef) Object.assign(payload, {medicalProofPath, medicalProofName:String(medicalFile.name || 'attestation').slice(0, 180), medicalProofType:medicalFile.type, medicalProofSize:medicalFile.size});
+    await fb.setDoc(requestRef, payload);
+    refundForm.reset();
+    showMessage(refundMessage, `Demande envoyée. Votre référence de suivi est ${refundCode}.`, true);
+  }catch(error){
+    console.error('Refund request:', error);
+    try{ await fb.deleteObject(proofRef); }catch(_){ }
+    if (medicalProofRef) try{ await fb.deleteObject(medicalProofRef); }catch(_){ }
+    showMessage(refundMessage, error?.code === 'storage/unauthorized' ? 'Le dépôt du justificatif est refusé. Publiez les nouvelles règles Firebase Storage puis réessayez.' : 'La demande n’a pas pu être envoyée. Vérifiez votre connexion et réessayez.');
+  }finally{
+    submit.disabled = false;
+    submit.textContent = initialLabel;
   }
 }
 

@@ -1,19 +1,21 @@
 
 import { firebaseConfig, firebaseEnabled } from './firebase-config.js';
 
-let app, auth, db, modules;
+let app, auth, db, storage, modules;
 
 export async function getFirebase(){
   if (!firebaseEnabled) throw new Error('Firebase n’est pas configuré.');
-  if (modules) return { app, auth, db, ...modules };
+  if (modules) return { app, auth, db, storage, ...modules };
   const appMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js');
   const authMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js');
   const fsMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js');
+  const storageMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js');
   app = appMod.initializeApp(firebaseConfig);
   auth = authMod.getAuth(app);
   db = fsMod.getFirestore(app);
-  modules = { ...authMod, ...fsMod };
-  return { app, auth, db, ...modules };
+  storage = storageMod.getStorage(app);
+  modules = { ...authMod, ...fsMod, ...storageMod };
+  return { app, auth, db, storage, ...modules };
 }
 
 export function esc(v){

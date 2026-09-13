@@ -76,6 +76,10 @@ for (const path of ['assets/css/interface-guard-v90.css', 'assets/css/admin-app-
 }
 const programmeData = JSON.parse(fs.readFileSync('assets/data/programmes-v84.json', 'utf8'));
 const programmeNames = Object.fromEntries(programmeData.programmes.map(item => [item.id, item.name]));
+const suspendedKidsProgramme = programmeData.programmes.find(item => item.id === 'enfants-vendredi');
+if (!suspendedKidsProgramme || suspendedKidsProgramme.registrationOpen !== false || !suspendedKidsProgramme.registrationNotice) {
+  errors.push('assets/data/programmes-v84.json: suspension Kids Move absente');
+}
 const expectedProgrammeNames = {
   'ados-mardi':'Cardio Fit Ados',
   'enfants-vendredi':'Kids Move Training Jeunes (multisport)',
@@ -90,6 +94,10 @@ if (!/programme-schedule-v94/.test(programmeJs) || !/programme-audience-v84/.tes
   errors.push('assets/js/programmes-v84.js: hiérarchie uniforme des programmes absente');
 }
 if (/programme-label-v94/.test(programmeJs)) errors.push('assets/js/programmes-v84.js: ancien libellé Programme encore présent');
+if (!/registrationOpen !== false/.test(programmeJs) || !/Inscriptions suspendues/.test(programmeJs)) errors.push('assets/js/programmes-v84.js: blocage des inscriptions suspendues absent');
+const reservationHtml = fs.readFileSync('reservation.html', 'utf8');
+if (/data-programme-id="enfants-vendredi"/.test(reservationHtml)) errors.push('reservation.html: créneau suspendu encore présent dans la liste statique');
+if (!/id="programme-unavailable"/.test(reservationHtml)) errors.push('reservation.html: message de suspension absent');
 
 if (errors.length) {
   console.error('Contrôle responsive en échec:\n- ' + errors.join('\n- '));

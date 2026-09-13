@@ -11,6 +11,13 @@
 
   function renderProgramme(programme){
     const detailsId = `programme-details-${programme.id}`;
+    const registrationOpen = programme.registrationOpen !== false;
+    const registrationAction = registrationOpen
+      ? `<a class="btn" href="./reservation.html?programme=${encodeURIComponent(programme.id)}">S’inscrire</a>`
+      : '<span class="programme-registration-closed-v104" aria-disabled="true">Inscriptions suspendues</span>';
+    const registrationNotice = registrationOpen
+      ? ''
+      : `<p class="programme-unavailable-v104" role="status">${esc(programme.registrationNotice || 'Ce créneau n’est pas disponible actuellement.')}</p>`;
     const perspective = programme.perspective
       ? `<aside class="programme-perspective-v84"><h4>Et si je veux aller plus loin ?</h4><p>${esc(programme.perspective)}</p></aside>`
       : '';
@@ -26,8 +33,9 @@
       ${programme.activities?.length ? `<p class="programme-activities-v94">${programme.activities.map(esc).join(' <span aria-hidden="true">•</span> ')}</p>` : ''}
       <div class="programme-actions-v84">
         <button aria-controls="${detailsId}" aria-expanded="false" class="btn secondary" data-programme-toggle="${detailsId}" type="button">Découvrir</button>
-        <a class="btn" href="./reservation.html?programme=${encodeURIComponent(programme.id)}">S’inscrire</a>
+        ${registrationAction}
       </div>
+      ${registrationNotice}
       <section class="programme-details-v84" hidden id="${detailsId}">
         <p class="programme-hook-v84">${esc(programme.hook)}</p>
         <p>${esc(programme.shortDescription)}</p>
@@ -97,10 +105,10 @@
   function populateReservation(data){
     const group = document.getElementById('programme-options');
     if (!group) return;
-    group.replaceChildren(...data.programmes.map(programmeOption));
+    group.replaceChildren(...data.programmes.filter(programme => programme.registrationOpen !== false).map(programmeOption));
   }
 
-  function prefillReservation(){
+  function prefillReservation(data){
     const form = document.getElementById('reservation-form');
     if (!form) return;
     const params = new URLSearchParams(location.search);
@@ -109,6 +117,17 @@
     const select = form.elements.creneau;
     const modulesField = form.elements.modules;
     const options = Array.from(select?.options || []);
+    const requestedProgramme = data?.programmes?.find(programme => programme.id === programmeId);
+    if (requestedProgramme?.registrationOpen === false){
+      const notice = document.getElementById('programme-unavailable');
+      if (notice){
+        notice.textContent = requestedProgramme.registrationNotice || 'Ce créneau n’est pas disponible actuellement.';
+        notice.hidden = false;
+      }
+      if (select) select.value = '';
+      if (modulesField) modulesField.value = '';
+      return;
+    }
     let found = programmeId ? options.find(option => option.dataset.programmeId === programmeId) : null;
     if (!found && modules){
       const decoded = modules.replace(/\s*,\s*/g, ', ');
@@ -133,7 +152,7 @@
       if (!Array.isArray(data.programmes) || !data.programmes.length) throw new Error('Liste de programmes invalide');
       renderActivities(data);
       populateReservation(data);
-      prefillReservation();
+      prefillReservation(data);
     })
     .catch(error => {
       console.error('Programmes:', error);

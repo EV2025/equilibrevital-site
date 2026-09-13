@@ -131,3 +131,8 @@
  .programmes-page-v84 .programme-card-top-v84{gap:10px!important;margin-bottom:14px!important}
  .programmes-page-v84 .programme-audience-v84{min-height:42px!important;padding:10px 16px!important;font-size:1rem!important}
 }
+
+/* V104 — créneau temporairement suspendu */
+.programme-registration-closed-v104{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:11px 18px;border:1px solid #d8c4f2;border-radius:999px;background:#f3eef7;color:#6a5575;font-weight:900;cursor:not-allowed}
+.programme-unavailable-v104{max-width:620px;margin:16px auto 0;padding:13px 16px;border:1px solid #e5c86c;border-radius:16px;background:#fff9df;color:#503f0a;font-weight:800;line-height:1.45;text-align:center}
+@media(max-width:620px){.programme-registration-closed-v104{width:100%}}

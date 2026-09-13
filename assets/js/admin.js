@@ -71,7 +71,8 @@ const labels = {
   attendances:'Présences',
   emailLogs:'Préparations e-mail — non envoyées',
   stats:'Statistiques',
-  consents:'Demandes RGPD'
+  consents:'Demandes RGPD',
+  refundRequests:'Demandes de remboursement'
 };
 
 function setMsg(text, ok = false){
@@ -134,6 +135,17 @@ const fieldLabels = {
   messageCode: 'Numéro de suivi',
   trackingCode: 'Référence de suivi',
   consentCode: 'Référence document',
+  refundCode: 'Référence remboursement',
+  course: 'Cours concerné',
+  reason: 'Motif',
+  remarks: 'Remarques',
+  proofPath: 'Justificatif privé',
+  proofName: 'Nom du justificatif',
+  medicalProofPath: 'Attestation médicale privée',
+  medicalProofName: 'Nom de l’attestation médicale',
+  refundRate: 'Taux indicatif',
+  estimatedRefund: 'Remboursement estimé',
+  declarationAccepted: 'Déclaration sur l’honneur',
   memberCode: 'Code membre',
   uid: 'ID utilisateur',
   role: 'Rôle',
@@ -215,7 +227,9 @@ const technicalFields = new Set([
   'ownerUid',
   'createdBy',
   'updatedBy',
-  'epcPayload'
+  'epcPayload',
+  'proofPath',
+  'medicalProofPath'
 ]);
 
 function labelForField(key){
@@ -253,10 +267,11 @@ async function init(){
   const appMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js');
   const authMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js');
   const fsMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js');
+  const storageMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js');
   const app = appMod.initializeApp(firebaseConfig);
   auth = authMod.getAuth(app);
   db = fsMod.getFirestore(app);
-  modules = { ...authMod, ...fsMod };
+  modules = { ...authMod, ...fsMod, ...storageMod, storage: storageMod.getStorage(app) };
 
   loginForm.addEventListener('submit', async e => {
     e.preventDefault();
@@ -394,8 +409,8 @@ function renderSummary(){
 }
 
 function actionsFor(r){
-  const statusCollections = ['messages','reservations','payments','notifications','services','slots'];
-  const deletableCollections = ['messages','reservations','users','attendances','payments','notifications','emailLogs','consents','pages','services','slots'];
+  const statusCollections = ['messages','reservations','refundRequests','payments','notifications','services','slots'];
+  const deletableCollections = ['messages','reservations','refundRequests','users','attendances','payments','notifications','emailLogs','consents','pages','services','slots'];
   if (!statusCollections.includes(currentCollection) && !deletableCollections.includes(currentCollection)) return '';
   const b = [];
   if (currentCollection === 'messages') {
@@ -406,6 +421,9 @@ function actionsFor(r){
   }
   if (currentCollection === 'payments') {
     b.push(['payé','Marquer payé'], ['à relancer','À relancer']);
+  }
+  if (currentCollection === 'refundRequests') {
+    b.push(['en cours','Mettre en cours'], ['approuvé','Approuver'], ['refusé','Refuser'], ['remboursé','Marquer remboursé']);
   }
   if (currentCollection === 'notifications') {
     b.push(['lu','Marquer lu'], ['à traiter','À traiter']);
@@ -420,6 +438,7 @@ function actionsFor(r){
     users:'Supprimer la fiche membre',
     attendances:'Supprimer la présence',
     payments:'Supprimer le suivi paiement',
+    refundRequests:'Supprimer la demande de remboursement',
     notifications:'Supprimer la notification',
     emailLogs:'Supprimer le journal',
     consents:'Supprimer la demande RGPD',
@@ -427,10 +446,16 @@ function actionsFor(r){
     services:'Supprimer le service',
     slots:'Supprimer le créneau'
   };
+  const proofButton = currentCollection === 'refundRequests' && r.proofPath
+    ? `<button type="button" data-action="view-proof" data-id="${esc(r.id)}">Voir le justificatif</button>`
+    : '';
+  const medicalProofButton = currentCollection === 'refundRequests' && r.medicalProofPath
+    ? `<button type="button" data-action="view-medical-proof" data-id="${esc(r.id)}">Voir l’attestation médicale</button>`
+    : '';
   const deleteButton = deletableCollections.includes(currentCollection)
     ? `<button type="button" class="danger" data-action="delete" data-id="${esc(r.id)}">${esc(deleteLabels[currentCollection] || 'Supprimer')}</button>`
     : '';
-  return `<div class="status-actions">${updateButtons}${deleteButton}</div>`;
+  return `<div class="status-actions">${proofButton}${medicalProofButton}${updateButtons}${deleteButton}</div>`;
 }
 
 
@@ -577,6 +602,21 @@ async function handleRecordAction(e){
   const id = btn.dataset.id;
   const action = btn.dataset.action;
   if (!id) return;
+  if (action === 'view-proof' || action === 'view-medical-proof') {
+    const row = rows.find(item => item.id === id) || {};
+    const privatePath = action === 'view-medical-proof' ? row.medicalProofPath : row.proofPath;
+    if (!privatePath) return;
+    btn.disabled = true;
+    try{
+      const url = await modules.getDownloadURL(modules.ref(modules.storage, privatePath));
+      window.open(url, '_blank', 'noopener,noreferrer');
+      setAdminStatus('Justificatif ouvert dans un nouvel onglet sécurisé.');
+    }catch(error){
+      console.error('Refund proof:', error);
+      setAdminStatus('Impossible d’ouvrir le justificatif. Vérifiez les règles Firebase Storage.', true);
+    }finally{ btn.disabled = false; }
+    return;
+  }
   if (action === 'save-followup') {
     const panel = btn.closest('.management-panel');
     const patch = { updatedAt: modules.serverTimestamp() };
@@ -627,6 +667,16 @@ async function handleRecordAction(e){
       ? '\n\nLa fiche Firestore sera supprimée, mais le compte de connexion Firebase Authentication restera actif.'
       : '';
     if (!confirm(`Supprimer définitivement « ${itemName} » de ${collectionName} ?${memberWarning}\n\nCette action est irréversible.`)) return;
+    if (currentCollection === 'refundRequests' && row.proofPath) {
+      try{ await modules.deleteObject(modules.ref(modules.storage, row.proofPath)); }
+      catch(error){
+        if (error?.code !== 'storage/object-not-found') throw error;
+      }
+    }
+    if (currentCollection === 'refundRequests' && row.medicalProofPath) {
+      try{ await modules.deleteObject(modules.ref(modules.storage, row.medicalProofPath)); }
+      catch(error){ if (error?.code !== 'storage/object-not-found') throw error; }
+    }
     await modules.deleteDoc(modules.doc(db, currentCollection, id));
     setAdminStatus('Élément supprimé. Le tableau a été synchronisé.');
     return;
@@ -766,13 +816,14 @@ async function countCollection(name){
 }
 
 async function renderStats(){
-  const names = ['messages','reservations','users','attendances','consents','payments'];
+  const names = ['messages','reservations','refundRequests','users','attendances','consents','payments'];
   const counts = {};
   for (const name of names) counts[name] = await countCollection(name);
   summaryEl.innerHTML = '';
   recordsEl.innerHTML = `<div class="admin-summary">
     <div class="metric"><strong>${counts.messages}</strong><span>Messages</span></div>
     <div class="metric"><strong>${counts.reservations}</strong><span>Réservations</span></div>
+    <div class="metric"><strong>${counts.refundRequests}</strong><span>Remboursements</span></div>
     <div class="metric"><strong>${counts.users}</strong><span>Clients / membres</span></div>
     <div class="metric"><strong>${counts.attendances}</strong><span>Présences</span></div>
     <div class="metric"><strong>${counts.consents}</strong><span>Demandes RGPD</span></div>

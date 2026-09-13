@@ -49,6 +49,7 @@ service cloud.firestore {
           || (prefix == 'MSG' && value.matches('^PSSR-MSG-[0-9]{8}-[A-Z0-9]{4}$'))
           || (prefix == 'MBR' && value.matches('^PSSR-MBR-[0-9]{8}-[A-Z0-9]{4}$'))
           || (prefix == 'DOC' && value.matches('^PSSR-DOC-[0-9]{8}-[A-Z0-9]{4}$'))
+          || (prefix == 'RMB' && value.matches('^PSSR-RMB-[0-9]{8}-[A-Z0-9]{4}$'))
         );
     }
 
@@ -295,6 +296,65 @@ service cloud.firestore {
     match /payments/{paymentId} {
       allow create: if isAdmin() || validPaymentCreate();
       allow read, update, delete: if isAdmin();
+    }
+
+    match /refundRequests/{requestId} {
+      allow create: if signedIn()
+        && hasVerifiedEmail(request.resource.data.email)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          'uid', 'email', 'displayName', 'memberCode', 'refundCode', 'trackingCode',
+          'reservationId', 'reservationCode', 'course', 'amount', 'currency',
+          'reason', 'remarks', 'proofPath', 'proofName', 'proofType', 'proofSize',
+          'medicalProofPath', 'medicalProofName', 'medicalProofType', 'medicalProofSize',
+          'refundRate', 'estimatedRefund', 'policyVersion',
+          'declarationAccepted', 'declarationTextVersion', 'status', 'createdAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'uid', 'email', 'refundCode', 'trackingCode', 'reservationId', 'course',
+          'amount', 'currency', 'refundRate', 'estimatedRefund', 'policyVersion',
+          'reason', 'proofPath', 'proofName', 'proofType',
+          'proofSize', 'declarationAccepted', 'status', 'createdAt'
+        ])
+        && validEmail(request.resource.data.email)
+        && validTrackingCode(request.resource.data.refundCode, 'RMB')
+        && request.resource.data.trackingCode == request.resource.data.refundCode
+        && validString(request.resource.data.reservationId, 140)
+        && validString(request.resource.data.course, 300)
+        && request.resource.data.amount is number
+        && request.resource.data.amount > 0
+        && request.resource.data.amount <= 99999
+        && request.resource.data.refundRate is int
+        && request.resource.data.refundRate >= 0
+        && request.resource.data.refundRate <= 100
+        && request.resource.data.estimatedRefund is number
+        && request.resource.data.estimatedRefund >= 0
+        && request.resource.data.estimatedRefund <= request.resource.data.amount
+        && request.resource.data.policyVersion == 'season-2026-2027-v1'
+        && request.resource.data.currency == 'EUR'
+        && validString(request.resource.data.reason, 120)
+        && optionalString('remarks', 1500)
+        && validString(request.resource.data.proofPath, 500)
+        && request.resource.data.proofPath.matches('^refund-proofs/' + request.auth.uid + '/' + requestId + '/[^/]+$')
+        && validString(request.resource.data.proofName, 180)
+        && request.resource.data.proofType in ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
+        && request.resource.data.proofSize is int
+        && request.resource.data.proofSize > 0
+        && request.resource.data.proofSize <= 5 * 1024 * 1024
+        && optionalString('medicalProofPath', 500)
+        && (!('medicalProofPath' in request.resource.data) || request.resource.data.medicalProofPath.matches('^refund-proofs/' + request.auth.uid + '/' + requestId + '/[^/]+$'))
+        && optionalString('medicalProofName', 180)
+        && (!('medicalProofType' in request.resource.data) || request.resource.data.medicalProofType in ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])
+        && (!('medicalProofSize' in request.resource.data) || (request.resource.data.medicalProofSize is int && request.resource.data.medicalProofSize > 0 && request.resource.data.medicalProofSize <= 5 * 1024 * 1024))
+        && request.resource.data.declarationAccepted == true
+        && request.resource.data.status == 'reçu'
+        && request.resource.data.createdAt is timestamp
+        && optionalString('displayName', 120)
+        && optionalString('memberCode', 80)
+        && optionalString('reservationCode', 80)
+        && optionalString('declarationTextVersion', 30);
+      allow read: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow update, delete: if isAdmin();
     }
 
     match /notifications/{notificationId} {

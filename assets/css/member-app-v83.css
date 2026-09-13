@@ -37,6 +37,39 @@ html body.member-app-v83 #member-content + footer.member-app-footer-v83 a:focus-
  html body.member-app-v83 .member-app-footer-v83 nav{grid-template-columns:1fr!important;gap:12px!important}
 }
 
+/* V105 — demande de remboursement privée et adaptée à tous les écrans */
+html body.member-app-v83 #refund-panel{width:100%!important;max-width:1100px!important;min-width:0!important;overflow:hidden!important}
+html body.member-app-v83 #refund-panel h2{font-size:clamp(1.7rem,4vw,2.7rem)!important;overflow-wrap:anywhere!important}
+html body.member-app-v83 #refund-form{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important;width:100%!important;min-width:0!important;margin-top:20px!important}
+html body.member-app-v83 #refund-form>*{min-width:0!important;max-width:100%!important}
+html body.member-app-v83 #refund-form .full{grid-column:1/-1!important}
+html body.member-app-v83 #refund-form input,
+html body.member-app-v83 #refund-form select,
+html body.member-app-v83 #refund-form textarea{width:100%!important;max-width:100%!important;min-width:0!important}
+html body.member-app-v83 #refund-form input[type="checkbox"]{width:22px!important;min-width:22px!important;height:22px;margin:2px 0 0}
+.refund-file-v105 small{display:block;margin-top:7px;color:#6a5575;line-height:1.45}
+.refund-toggle-v105{display:flex;margin:20px auto 0;max-width:100%;white-space:normal}
+.refund-policy-v105{margin-top:16px;padding:clamp(15px,3vw,22px);border:1px solid rgba(124,58,237,.18);border-radius:18px;background:#faf7ff}
+.refund-policy-v105 h3{margin-top:0}.refund-policy-v105 p{margin-bottom:0;color:#604b6c;line-height:1.5}
+.refund-policy-grid-v105{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0 14px}
+.refund-policy-grid-v105 span{display:flex;justify-content:space-between;gap:8px;padding:9px 11px;border-radius:12px;background:#fff;border:1px solid rgba(124,58,237,.12);font-size:.88rem}
+.refund-estimate-v105{padding:14px;border-radius:14px;background:#f2eaff;color:#4c1d95;font-weight:800;line-height:1.5}
+.refund-declaration-v105{display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;align-items:start!important;gap:10px!important;padding:14px!important;border:1px solid rgba(124,58,237,.2);border-radius:16px;background:#faf7ff}
+.refund-privacy-v105{margin:0!important;padding:12px 14px;border-left:3px solid #7c3aed;background:#faf7ff;color:#604b6c;font-size:.9rem;line-height:1.5}
+.refund-list-v105{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:14px!important;margin-top:14px!important}
+.refund-list-v105 .record{min-width:0!important;overflow:hidden!important;border:1px solid rgba(124,58,237,.16);border-radius:18px;background:#fff;padding:18px!important}
+.refund-list-v105 .record dl{display:grid!important;grid-template-columns:minmax(145px,.34fr) minmax(0,1fr)!important;margin:0!important}
+.refund-list-v105 .record dt,.refund-list-v105 .record dd{min-width:0!important;margin:0!important;padding:9px!important;overflow-wrap:anywhere!important}
+@media(max-width:700px){
+ html body.member-app-v83 #refund-form{grid-template-columns:1fr!important}
+ html body.member-app-v83 #refund-form .full{grid-column:1!important}
+ html body.member-app-v83 #refund-form .btn{width:100%!important}
+ .refund-list-v105 .record dl{grid-template-columns:1fr!important}
+ .refund-list-v105 .record dt{padding-bottom:2px!important;font-weight:850!important}
+ .refund-list-v105 .record dd{padding-top:2px!important}
+ .refund-policy-grid-v105{grid-template-columns:1fr!important}
+}
+
 
 /* V88 — connexion membre compacte, sans débordement */
 html body.member-app-v83 main.member-app-main-v83 #login-panel{width:100%!important;max-width:720px!important;margin-left:auto!important;margin-right:auto!important;text-align:center}

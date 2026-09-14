@@ -23,11 +23,6 @@
 .documents-hero h1{margin:0;color:var(--brand-text);font-size:clamp(2.2rem,6vw,4.8rem);font-weight:950;line-height:1.04;letter-spacing:-.04em}
 .documents-hero p{max-width:680px;margin:18px auto 0;color:var(--brand-body);font-size:clamp(1rem,1.6vw,1.12rem)}
 .documents-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(18px,3vw,32px);align-items:stretch}
-.documents-section{margin-top:clamp(38px,6vw,72px)}
-.documents-section-heading{max-width:760px;margin:0 auto clamp(22px,4vw,34px);text-align:center}
-.documents-section-heading .eyebrow{display:inline-flex;margin-bottom:10px;color:var(--brand-primary);font-size:.82rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
-.documents-section-heading h2{margin:0 0 12px;color:var(--brand-text);font-size:clamp(1.8rem,4vw,3rem)}
-.documents-section-heading p{margin:0;color:var(--brand-body)}
 .document-card{display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(216,196,242,.75);border-radius:32px;background:rgba(255,255,255,.88);box-shadow:var(--shadow-card,0 18px 44px rgba(36,17,47,.08))}
 .document-media{position:relative;background:#120818;overflow:hidden;aspect-ratio:4/5}
 .document-media img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
@@ -39,7 +34,7 @@
 .document-actions .btn.secondary{background:#fff;color:var(--brand-secondary);border:1px solid rgba(216,196,242,.95);box-shadow:none}
 .documents-note{max-width:900px;margin:clamp(24px,4vw,42px) auto 0;padding:18px 20px;border:1px solid rgba(216,196,242,.65);border-radius:24px;background:rgba(255,255,255,.72);text-align:center;color:var(--brand-body)}
 @media(max-width:1020px){.documents-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:820px){.documents-main{padding-top:86px}.documents-hero{text-align:left}.documents-hero p{margin-left:0}.documents-grid{grid-template-columns:1fr}.documents-section-heading{text-align:left;margin-left:0}.document-card{border-radius:26px}.document-body{text-align:left;align-items:flex-start}.document-actions{justify-content:flex-start}.documents-note{text-align:left}.document-media{aspect-ratio:3/4}}
+@media(max-width:820px){.documents-main{padding-top:86px}.documents-hero{text-align:left}.documents-hero p{margin-left:0}.documents-grid{grid-template-columns:1fr}.document-card{border-radius:26px}.document-body{text-align:left;align-items:flex-start}.document-actions{justify-content:flex-start}.documents-note{text-align:left}.document-media{aspect-ratio:3/4}}
 @media(max-width:520px){.documents-wrap{width:min(100%,calc(100vw - 24px))}.documents-main{padding-top:78px}.documents-hero h1{font-size:2.25rem}.document-card{border-radius:22px}.document-body{padding:16px}.document-actions{width:100%}.document-actions .btn{width:100%;justify-content:center}.document-media{aspect-ratio:4/5}}
 </style>
 <meta content="Logo Équilibre Vital" property="og:image:alt"/>
@@ -55,6 +50,15 @@
     </header>
 
     <section class="documents-grid" aria-label="Documents Équilibre Vital à télécharger">
+      <article class="document-card">
+        <div class="document-body">
+          <h2>Dossier parent & santé</h2>
+          <p>Complétez en ligne les contacts d’urgence, informations de santé utiles et autorisations, puis téléchargez un PDF professionnel.</p>
+          <div class="document-actions">
+            <a class="btn" href="./dossier-parents.html">Compléter le dossier</a>
+          </div>
+        </div>
+      </article>
       <article class="document-card">
         <div class="document-media">
           <picture>
@@ -108,68 +112,7 @@
       </article>
     </section>
 
-    <section class="documents-section" aria-labelledby="affiches-activites-title">
-      <header class="documents-section-heading">
-        <span class="eyebrow">Supports complémentaires</span>
-        <h2 id="affiches-activites-title">Affiches des activités</h2>
-        <p>Consultez, téléchargez ou partagez les nouveaux supports de présentation. Les inscriptions restent accessibles depuis la page Activités.</p>
-      </header>
-
-      <div class="documents-grid">
-        <article class="document-card">
-          <div class="document-media">
-            <picture>
-              <source srcset="./wp-content/uploads/2026/09/fitness-boxing-loisir.webp" type="image/webp">
-              <img src="./wp-content/uploads/2026/09/fitness-boxing-loisir.webp" alt="Affiche Fitness et Boxing Loisir Équilibre Vital" width="720" height="1080" loading="lazy" decoding="async">
-            </picture>
-          </div>
-          <div class="document-body">
-            <h2>Fitness &amp; Boxing Loisir</h2>
-            <p>Support complémentaire présentant le cardio, le renforcement, la boxe loisir et le bien-être.</p>
-            <div class="document-actions">
-              <a class="btn" href="./wp-content/uploads/2026/09/fitness-boxing-loisir.webp" target="_blank" rel="noopener">Ouvrir l’affiche</a>
-              <a class="btn secondary" href="./wp-content/uploads/2026/09/fitness-boxing-loisir.webp" download>Télécharger</a>
-            </div>
-          </div>
-        </article>
-
-        <article class="document-card">
-          <div class="document-media">
-            <picture>
-              <source srcset="./wp-content/uploads/2026/09/cardio-fit-jeunes.webp" type="image/webp">
-              <img src="./wp-content/uploads/2026/09/cardio-fit-jeunes.webp" alt="Affiche Cardio Fit Jeunes et initiation kick-boxing Équilibre Vital" width="720" height="1080" loading="lazy" decoding="async">
-            </picture>
-          </div>
-          <div class="document-body">
-            <h2>Cardio Fit Jeunes</h2>
-            <p>Support complémentaire consacré aux activités ludiques, au multisport et à l’initiation kick-boxing.</p>
-            <div class="document-actions">
-              <a class="btn" href="./wp-content/uploads/2026/09/cardio-fit-jeunes.webp" target="_blank" rel="noopener">Ouvrir l’affiche</a>
-              <a class="btn secondary" href="./wp-content/uploads/2026/09/cardio-fit-jeunes.webp" download>Télécharger</a>
-            </div>
-          </div>
-        </article>
-
-        <article class="document-card">
-          <div class="document-media">
-            <picture>
-              <source srcset="./wp-content/uploads/2026/09/fitness-mobilite-recovery.webp" type="image/webp">
-              <img src="./wp-content/uploads/2026/09/fitness-mobilite-recovery.webp" alt="Affiche Fitness Mobilité et Recovery Équilibre Vital" width="720" height="1080" loading="lazy" decoding="async">
-            </picture>
-          </div>
-          <div class="document-body">
-            <h2>Fitness · Mobilité · Recovery</h2>
-            <p>Support complémentaire autour du renforcement musculaire, de la souplesse et de la récupération.</p>
-            <div class="document-actions">
-              <a class="btn" href="./wp-content/uploads/2026/09/fitness-mobilite-recovery.webp" target="_blank" rel="noopener">Ouvrir l’affiche</a>
-              <a class="btn secondary" href="./wp-content/uploads/2026/09/fitness-mobilite-recovery.webp" download>Télécharger</a>
-            </div>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <p class="documents-note">Les nouvelles affiches complètent les programmes réguliers présentés sur la page Activités. Ces supports peuvent être partagés pour informer les publics et préparer une inscription.</p>
+    <p class="documents-note">Ces supports peuvent être utilisés pour présenter les activités, préparer une inscription ou accompagner une demande d’attestation auprès d’une mutuelle.</p>
   </div>
 </main>
 <script defer src="./assets/js/media-fallback.js"></script>

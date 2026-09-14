@@ -1,5 +1,5 @@
 {
-  "version": "2026-09-14-v107",
+  "version": "2026-09-14-v108",
   "currency": "EUR",
   "annualFee": 165,
   "programmes": [
@@ -8,7 +8,7 @@
       "universe": "ados",
       "day": "Mardi",
       "time": "18h00–20h00",
-      "audience": "6–15 ans",
+      "audience": "13 ans et plus",
       "name": "Cardio Fit Ados",
       "activities": [
         "Boxe éducative / Initiation Kick-Boxing"
@@ -62,8 +62,8 @@
       "time": "16h00–18h00",
       "audience": "6–12 ans",
       "name": "Kids Move Training Jeunes (multisport)",
-      "registrationOpen": false,
-      "registrationNotice": "Créneau temporairement suspendu. Les inscriptions seront ouvertes dès que sa mise en place sera finalisée.",
+      "availability": "suspended",
+      "availabilityMessage": "Activité temporairement suspendue. Les inscriptions rouvriront dès qu’un encadrement adapté sera confirmé.",
       "activities": [],
       "hook": "Bouger, essayer, jouer… et trouver ce qu’on aime.",
       "shortDescription": "Un programme où les enfants découvrent différentes façons de bouger grâce aux jeux, aux défis, aux exercices de coordination et aux activités multisports.",

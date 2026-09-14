@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'equilibre-vital-pwa-v1';
+const CACHE_VERSION = 'equilibre-vital-pwa-v3';
 const OFFLINE_URL = '/offline.html';
 const APP_SHELL = [
   '/application.html',

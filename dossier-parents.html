@@ -45,6 +45,8 @@
       <div class="fields">
         <div class="field"><label for="emergencyName">Contact d’urgence <span class="required">*</span></label><input id="emergencyName" name="emergencyName" required></div>
         <div class="field"><label for="emergencyPhone">Téléphone d’urgence <span class="required">*</span></label><input id="emergencyPhone" name="emergencyPhone" type="tel" required></div>
+        <div class="field"><label for="emergencyRelation">Lien avec l’enfant <span class="required">*</span></label><input id="emergencyRelation" name="emergencyRelation" required placeholder="Parent, grand-parent, proche…"></div>
+        <div class="field"><label for="secondaryContact">Deuxième contact (facultatif)</label><input id="secondaryContact" name="secondaryContact" placeholder="Nom et téléphone"></div>
         <div class="field full"><label for="pickupPeople">Personnes autorisées à reprendre l’enfant</label><textarea id="pickupPeople" name="pickupPeople" placeholder="Nom, prénom et lien avec l’enfant"></textarea></div>
         <div class="field full"><label for="leaveAlone">Départ de l’enfant</label><select id="leaveAlone" name="leaveAlone"><option>L’enfant doit être repris par une personne autorisée</option><option>J’autorise expressément l’enfant à rentrer seul</option></select></div>
       </div>
@@ -59,6 +61,9 @@
         <div class="field"><label for="medication">Traitement ou médicament d’urgence</label><textarea id="medication" name="medication" placeholder="Nom et consignes prescrites"></textarea></div>
         <div class="field"><label for="limitations">Blessure, douleur ou limitation actuelle</label><textarea id="limitations" name="limitations"></textarea></div>
         <div class="field full"><label for="needs">Besoin particulier ou adaptation utile</label><textarea id="needs" name="needs"></textarea></div>
+        <div class="field"><label for="doctorName">Médecin traitant (facultatif)</label><input id="doctorName" name="doctorName"></div>
+        <div class="field"><label for="doctorPhone">Téléphone du médecin (facultatif)</label><input id="doctorPhone" name="doctorPhone" type="tel"></div>
+        <div class="field full"><label for="medicalInstructions">Consignes ou protocole particulier</label><textarea id="medicalInstructions" name="medicalInstructions" placeholder="Comment réagir et quelles précautions prendre ?"></textarea></div>
         <div class="field full"><label for="medicalStatus">Avis médical</label><select id="medicalStatus" name="medicalStatus"><option>Aucune contre-indication connue déclarée par le représentant légal</option><option>Un avis médical sera demandé avant la participation</option><option>Un certificat médical est joint au dossier</option></select></div>
       </div>
       <p class="info-box"><strong>Médicament :</strong> l’équipe ne fournit aucun médicament. Tout traitement d’urgence doit être remis dans son emballage identifié, avec une prescription et des instructions écrites.</p>
@@ -76,6 +81,7 @@
         <div class="field"><label for="signatureDate">Date <span class="required">*</span></label><input id="signatureDate" name="signatureDate" type="date" required></div>
       </div>
       <label class="choice"><input type="checkbox" name="privacyConsent" required><span>Je confirme l’exactitude des informations et accepte qu’elles soient utilisées uniquement pour l’organisation et la sécurité de l’activité. <span class="required">*</span></span></label>
+      <label class="choice"><input type="checkbox" name="updateConsent" required><span>Je m’engage à signaler toute modification de santé, de traitement, de contact ou d’autorisation utile à l’encadrement. <span class="required">*</span></span></label>
     </section>
 
     <p class="status" id="pdf-status" role="status" aria-live="polite"></p>

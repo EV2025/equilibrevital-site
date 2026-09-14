@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr-BE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dossier parent — Équilibre Vital / PSSR</title>
+<meta name="description" content="Complétez et téléchargez le dossier parent nécessaire à la participation aux activités Équilibre Vital.">
+<link rel="canonical" href="https://equilibrevital.be/dossier-parents.html">
+<meta name="theme-color" content="#fff7fb">
+<link rel="stylesheet" href="./assets/css/common-v58.min.css">
+<style>
+:root{--ink:#24112f;--body:#594764;--pink:#c41769;--violet:#6d35c5;--line:#dcc9ef;--soft:#fff7fb}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#fff9fc,#f4edff);color:var(--body);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}.parent-main{padding:clamp(34px,6vw,78px) 0 90px}.parent-wrap{width:min(980px,calc(100vw - 28px));margin:auto}.parent-hero{text-align:center;max-width:800px;margin:0 auto 30px}.parent-hero img{width:92px;height:92px;object-fit:contain;margin:0 auto 14px}.parent-hero h1{margin:0;color:var(--ink);font-size:clamp(2.15rem,7vw,4.4rem);line-height:1}.parent-hero p{font-size:1.05rem}.privacy-note,.info-box{padding:16px 18px;border:1px solid var(--line);border-radius:20px;background:#fff}.privacy-note{margin:22px 0;color:var(--ink)}.parent-form{display:grid;gap:18px}.form-card{padding:clamp(18px,4vw,30px);border:1px solid var(--line);border-radius:28px;background:rgba(255,255,255,.94);box-shadow:0 16px 42px rgba(54,26,72,.07)}.form-card h2{margin:0 0 6px;color:var(--ink);font-size:clamp(1.35rem,3vw,1.9rem)}.form-card>p{margin:0 0 20px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.field{display:grid;gap:7px}.field.full{grid-column:1/-1}.field label,.legend{color:var(--ink);font-weight:800}.field input,.field select,.field textarea{width:100%;min-height:48px;padding:11px 13px;border:1px solid #cdb6e7;border-radius:14px;background:#fff;color:var(--ink);font:inherit}.field textarea{min-height:92px;resize:vertical}.choice{display:flex;gap:12px;align-items:flex-start;margin:10px 0;color:var(--ink)}.choice input{width:20px;height:20px;flex:0 0 auto;margin-top:2px}.required{color:var(--pink)}.form-actions{position:sticky;bottom:12px;z-index:5;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:13px;border:1px solid var(--line);border-radius:24px;background:rgba(255,255,255,.96);box-shadow:0 18px 45px rgba(36,17,47,.16)}.btn-parent{min-height:48px;padding:11px 18px;border:1px solid var(--violet);border-radius:999px;background:#fff;color:var(--violet);font:800 1rem/1.2 inherit;cursor:pointer}.btn-parent.primary{border:0;background:linear-gradient(135deg,var(--pink),var(--violet));color:#fff}.btn-parent:disabled{opacity:.6;cursor:wait}.downloads{margin-top:34px}.downloads h2{text-align:center;color:var(--ink)}.download-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.download-card{display:flex;flex-direction:column;gap:12px;padding:20px;border:1px solid var(--line);border-radius:22px;background:#fff}.download-card h3{margin:0;color:var(--ink)}.download-card p{margin:0;flex:1}.status{text-align:center;font-weight:800;color:#356b42;min-height:24px}.back{text-align:center;margin-top:28px}.back a{font-weight:800;color:var(--violet)}
+@media(max-width:680px){.fields,.download-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.form-card{border-radius:22px}.form-actions{position:static}.form-actions .btn-parent{width:100%}.parent-hero{text-align:left}.parent-hero img{margin-left:0}}
+</style>
+</head>
+<body>
+<main class="parent-main" id="main">
+<div class="parent-wrap">
+  <header class="parent-hero">
+    <img src="./wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png" alt="Logo Équilibre Vital" width="120" height="120">
+    <p><strong>Équilibre Vital · Méthode PSSR</strong></p>
+    <h1>Dossier parent</h1>
+    <p>Un formulaire unique pour préparer l’accueil sportif de votre enfant en toute sécurité.</p>
+  </header>
+
+  <aside class="privacy-note"><strong>Confidentialité :</strong> les informations saisies restent sur votre appareil. Elles ne sont ni enregistrées sur le site ni envoyées à Firebase. Téléchargez le PDF, signez-le et remettez-le directement à l’équipe.</aside>
+
+  <form class="parent-form" id="parent-form">
+    <section class="form-card">
+      <h2>1. Enfant et représentant légal</h2><p>Les informations nécessaires pour identifier et contacter la famille.</p>
+      <div class="fields">
+        <div class="field"><label for="childName">Nom et prénom de l’enfant <span class="required">*</span></label><input id="childName" name="childName" required autocomplete="name"></div>
+        <div class="field"><label for="birthDate">Date de naissance <span class="required">*</span></label><input id="birthDate" name="birthDate" type="date" required></div>
+        <div class="field"><label for="programme">Activité <span class="required">*</span></label><select id="programme" name="programme" required><option value="">Choisir</option><option>Cardio Fit Jeunes — mardi 18h00–20h00</option><option>Fitness & Boxing Loisir — vendredi 19h00–21h00</option><option>Fitness · Mobilité · Recovery — samedi 08h00–10h00</option><option>Autre activité PSSR</option></select></div>
+        <div class="field"><label for="parentName">Représentant légal <span class="required">*</span></label><input id="parentName" name="parentName" required autocomplete="name"></div>
+        <div class="field"><label for="email">E-mail <span class="required">*</span></label><input id="email" name="email" type="email" required autocomplete="email"></div>
+        <div class="field"><label for="phone">Téléphone <span class="required">*</span></label><input id="phone" name="phone" type="tel" required autocomplete="tel"></div>
+        <div class="field full"><label for="address">Adresse</label><input id="address" name="address" autocomplete="street-address"></div>
+      </div>
+    </section>
+
+    <section class="form-card">
+      <h2>2. Urgence et départ</h2><p>À utiliser uniquement si la famille principale ne peut pas être jointe.</p>
+      <div class="fields">
+        <div class="field"><label for="emergencyName">Contact d’urgence <span class="required">*</span></label><input id="emergencyName" name="emergencyName" required></div>
+        <div class="field"><label for="emergencyPhone">Téléphone d’urgence <span class="required">*</span></label><input id="emergencyPhone" name="emergencyPhone" type="tel" required></div>
+        <div class="field full"><label for="pickupPeople">Personnes autorisées à reprendre l’enfant</label><textarea id="pickupPeople" name="pickupPeople" placeholder="Nom, prénom et lien avec l’enfant"></textarea></div>
+        <div class="field full"><label for="leaveAlone">Départ de l’enfant</label><select id="leaveAlone" name="leaveAlone"><option>L’enfant doit être repris par une personne autorisée</option><option>J’autorise expressément l’enfant à rentrer seul</option></select></div>
+      </div>
+    </section>
+
+    <section class="form-card">
+      <h2>3. Santé utile à l’encadrement</h2><p>Indiquez seulement ce qui peut influencer la pratique ou la conduite à tenir.</p>
+      <div class="fields">
+        <div class="field full"><label for="health">Problème de santé, malaise à l’effort ou antécédent utile</label><textarea id="health" name="health" placeholder="Écrivez « Aucun connu » si rien n’est à signaler"></textarea></div>
+        <div class="field"><label for="allergies">Allergies</label><textarea id="allergies" name="allergies" placeholder="Allergie et réaction possible"></textarea></div>
+        <div class="field"><label for="asthma">Asthme ou difficulté respiratoire</label><textarea id="asthma" name="asthma"></textarea></div>
+        <div class="field"><label for="medication">Traitement ou médicament d’urgence</label><textarea id="medication" name="medication" placeholder="Nom et consignes prescrites"></textarea></div>
+        <div class="field"><label for="limitations">Blessure, douleur ou limitation actuelle</label><textarea id="limitations" name="limitations"></textarea></div>
+        <div class="field full"><label for="needs">Besoin particulier ou adaptation utile</label><textarea id="needs" name="needs"></textarea></div>
+        <div class="field full"><label for="medicalStatus">Avis médical</label><select id="medicalStatus" name="medicalStatus"><option>Aucune contre-indication connue déclarée par le représentant légal</option><option>Un avis médical sera demandé avant la participation</option><option>Un certificat médical est joint au dossier</option></select></div>
+      </div>
+      <p class="info-box"><strong>Médicament :</strong> l’équipe ne fournit aucun médicament. Tout traitement d’urgence doit être remis dans son emballage identifié, avec une prescription et des instructions écrites.</p>
+    </section>
+
+    <section class="form-card">
+      <h2>4. Autorisations et engagements</h2>
+      <label class="choice"><input type="checkbox" name="activityConsent" required><span>J’autorise l’enfant à participer aux activités sportives adaptées à son âge et à son niveau. <span class="required">*</span></span></label>
+      <label class="choice"><input type="checkbox" name="emergencyConsent" required><span>En cas d’urgence, j’autorise l’équipe à contacter le 112 et à prendre les premières mesures de sécurité nécessaires. <span class="required">*</span></span></label>
+      <label class="choice"><input type="checkbox" name="rulesConsent" required><span>J’ai pris connaissance des règles d’accueil, de sécurité et de départ. <span class="required">*</span></span></label>
+      <div class="fields">
+        <div class="field"><label for="photoConsent">Photos ciblées de l’enfant</label><select id="photoConsent" name="photoConsent"><option>Non, je n’autorise pas</option><option>Oui, j’autorise pour la communication Équilibre Vital</option></select></div>
+        <div class="field"><label for="whatsappConsent">Groupe WhatsApp des parents</label><select id="whatsappConsent" name="whatsappConsent"><option>Non</option><option>Oui, en sachant que mon numéro sera visible par les membres</option></select></div>
+        <div class="field"><label for="signatureName">Nom du signataire <span class="required">*</span></label><input id="signatureName" name="signatureName" required></div>
+        <div class="field"><label for="signatureDate">Date <span class="required">*</span></label><input id="signatureDate" name="signatureDate" type="date" required></div>
+      </div>
+      <label class="choice"><input type="checkbox" name="privacyConsent" required><span>Je confirme l’exactitude des informations et accepte qu’elles soient utilisées uniquement pour l’organisation et la sécurité de l’activité. <span class="required">*</span></span></label>
+    </section>
+
+    <p class="status" id="pdf-status" role="status" aria-live="polite"></p>
+    <div class="form-actions">
+      <button class="btn-parent primary" type="submit">Télécharger mon dossier PDF</button>
+      <button class="btn-parent" type="button" id="blank-dossier">Télécharger un dossier vierge</button>
+      <button class="btn-parent" type="reset">Effacer les champs</button>
+    </div>
+  </form>
+
+  <section class="downloads" aria-labelledby="models-title">
+    <h2 id="models-title">Autres documents utiles</h2>
+    <div class="download-grid">
+      <article class="download-card"><h3>Modèle de certificat médical</h3><p>À faire compléter par un médecin uniquement lorsqu’un avis médical, une assurance ou une affiliation le nécessite.</p><button class="btn-parent" id="medical-certificate" type="button">Télécharger le modèle PDF</button></article>
+      <article class="download-card"><h3>Règles pratiques des séances</h3><p>Tenue, accueil, sécurité, absences, départ des enfants et communication avec les familles.</p><button class="btn-parent" id="session-rules" type="button">Télécharger les règles PDF</button></article>
+    </div>
+  </section>
+  <p class="back"><a href="./activites.html">← Retour aux activités</a> · <a href="./documents.html">Tous les documents</a></p>
+</div>
+</main>
+<script src="./assets/js/parent-dossier-pdf.js?v=20260914-1" defer></script>
+</body>
+</html>

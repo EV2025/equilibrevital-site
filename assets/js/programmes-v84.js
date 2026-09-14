@@ -14,11 +14,11 @@
     const perspective = programme.perspective
       ? `<aside class="programme-perspective-v84"><h4>Et si je veux aller plus loin ?</h4><p>${esc(programme.perspective)}</p></aside>`
       : '';
-    const suspended = programme.availability === 'suspended';
-    const actions = suspended
-      ? `<p class="programme-unavailable-v104" role="status"><strong>Inscriptions suspendues</strong><br>${esc(programme.availabilityMessage || 'Cette activité est temporairement indisponible.')}</p>`
+    const registrationClosed = programme.registrationOpen === false;
+    const actions = registrationClosed
+      ? `<p class="programme-unavailable-v104" role="status"><strong>Inscriptions suspendues</strong><br>${esc(programme.registrationNotice || 'Cette activité est temporairement indisponible.')}</p>`
       : `<div class="programme-actions-v84"><button aria-controls="${detailsId}" aria-expanded="false" class="btn secondary" data-programme-toggle="${detailsId}" type="button">Découvrir</button><a class="btn" href="./reservation.html?programme=${encodeURIComponent(programme.id)}">S’inscrire</a></div>`;
-    return `<article class="programme-card-v84 programme-${esc(programme.universe)}-v84${suspended ? ' programme-suspended-v108' : ''}" id="${esc(programme.id)}">
+    return `<article class="programme-card-v84 programme-${esc(programme.universe)}-v84${registrationClosed ? ' programme-suspended-v108' : ''}" id="${esc(programme.id)}">
       <div class="programme-card-top-v84">
         <div class="programme-schedule-v94">
           <p class="programme-day-v84">${esc(programme.day)}</p>
@@ -98,7 +98,7 @@
   function populateReservation(data){
     const group = document.getElementById('programme-options');
     if (!group) return;
-    group.replaceChildren(...data.programmes.filter(programme => programme.availability !== 'suspended').map(programmeOption));
+    group.replaceChildren(...data.programmes.filter(programme => programme.registrationOpen !== false).map(programmeOption));
   }
 
   function prefillReservation(){
@@ -107,12 +107,12 @@
     const params = new URLSearchParams(location.search);
     const programmeId = params.get('programme') || '';
     if (programmeId) {
-      const suspended = window.__pssrProgrammes?.find(programme => programme.id === programmeId && programme.availability === 'suspended');
+      const suspended = window.__pssrProgrammes?.find(programme => programme.id === programmeId && programme.registrationOpen === false);
       if (suspended) {
-        const message = document.getElementById('reservation-msg');
+        const message = document.getElementById('programme-unavailable');
         if (message) {
           message.hidden = false;
-          message.textContent = suspended.availabilityMessage || 'Cette activité est temporairement suspendue.';
+          message.textContent = suspended.registrationNotice || 'Cette activité est temporairement suspendue.';
         }
         history.replaceState(null, '', location.pathname);
       }

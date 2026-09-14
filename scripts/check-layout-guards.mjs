@@ -82,6 +82,8 @@ for (const path of ['assets/css/interface-guard-v90.css', 'assets/css/admin-app-
 }
 const programmeData = JSON.parse(fs.readFileSync('assets/data/programmes-v84.json', 'utf8'));
 const programmeNames = Object.fromEntries(programmeData.programmes.map(item => [item.id, item.name]));
+const cardioFitProgramme = programmeData.programmes.find(item => item.id === 'ados-mardi');
+if (!cardioFitProgramme || cardioFitProgramme.audience !== '6–15 ans') errors.push('assets/data/programmes-v84.json: tranche d’âge Cardio Fit incorrecte');
 const suspendedKidsProgramme = programmeData.programmes.find(item => item.id === 'enfants-vendredi');
 if (!suspendedKidsProgramme || suspendedKidsProgramme.registrationOpen !== false || !suspendedKidsProgramme.registrationNotice) {
   errors.push('assets/data/programmes-v84.json: suspension Kids Move absente');

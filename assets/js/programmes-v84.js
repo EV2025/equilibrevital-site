@@ -11,17 +11,14 @@
 
   function renderProgramme(programme){
     const detailsId = `programme-details-${programme.id}`;
-    const registrationOpen = programme.registrationOpen !== false;
-    const registrationAction = registrationOpen
-      ? `<a class="btn" href="./reservation.html?programme=${encodeURIComponent(programme.id)}">S’inscrire</a>`
-      : '<span class="programme-registration-closed-v104" aria-disabled="true">Inscriptions suspendues</span>';
-    const registrationNotice = registrationOpen
-      ? ''
-      : `<p class="programme-unavailable-v104" role="status">${esc(programme.registrationNotice || 'Ce créneau n’est pas disponible actuellement.')}</p>`;
     const perspective = programme.perspective
       ? `<aside class="programme-perspective-v84"><h4>Et si je veux aller plus loin ?</h4><p>${esc(programme.perspective)}</p></aside>`
       : '';
-    return `<article class="programme-card-v84 programme-${esc(programme.universe)}-v84" id="${esc(programme.id)}">
+    const suspended = programme.availability === 'suspended';
+    const actions = suspended
+      ? `<p class="programme-unavailable-v104" role="status"><strong>Inscriptions suspendues</strong><br>${esc(programme.availabilityMessage || 'Cette activité est temporairement indisponible.')}</p>`
+      : `<div class="programme-actions-v84"><button aria-controls="${detailsId}" aria-expanded="false" class="btn secondary" data-programme-toggle="${detailsId}" type="button">Découvrir</button><a class="btn" href="./reservation.html?programme=${encodeURIComponent(programme.id)}">S’inscrire</a></div>`;
+    return `<article class="programme-card-v84 programme-${esc(programme.universe)}-v84${suspended ? ' programme-suspended-v108' : ''}" id="${esc(programme.id)}">
       <div class="programme-card-top-v84">
         <div class="programme-schedule-v94">
           <p class="programme-day-v84">${esc(programme.day)}</p>
@@ -31,11 +28,7 @@
       </div>
       <h3>${esc(programme.name)}</h3>
       ${programme.activities?.length ? `<p class="programme-activities-v94">${programme.activities.map(esc).join(' <span aria-hidden="true">•</span> ')}</p>` : ''}
-      <div class="programme-actions-v84">
-        <button aria-controls="${detailsId}" aria-expanded="false" class="btn secondary" data-programme-toggle="${detailsId}" type="button">Découvrir</button>
-        ${registrationAction}
-      </div>
-      ${registrationNotice}
+      ${actions}
       <section class="programme-details-v84" hidden id="${detailsId}">
         <p class="programme-hook-v84">${esc(programme.hook)}</p>
         <p>${esc(programme.shortDescription)}</p>
@@ -105,29 +98,29 @@
   function populateReservation(data){
     const group = document.getElementById('programme-options');
     if (!group) return;
-    group.replaceChildren(...data.programmes.filter(programme => programme.registrationOpen !== false).map(programmeOption));
+    group.replaceChildren(...data.programmes.filter(programme => programme.availability !== 'suspended').map(programmeOption));
   }
 
-  function prefillReservation(data){
+  function prefillReservation(){
     const form = document.getElementById('reservation-form');
     if (!form) return;
     const params = new URLSearchParams(location.search);
     const programmeId = params.get('programme') || '';
+    if (programmeId) {
+      const suspended = window.__pssrProgrammes?.find(programme => programme.id === programmeId && programme.availability === 'suspended');
+      if (suspended) {
+        const message = document.getElementById('reservation-msg');
+        if (message) {
+          message.hidden = false;
+          message.textContent = suspended.availabilityMessage || 'Cette activité est temporairement suspendue.';
+        }
+        history.replaceState(null, '', location.pathname);
+      }
+    }
     const modules = params.get('modules') || params.get('module') || '';
     const select = form.elements.creneau;
     const modulesField = form.elements.modules;
     const options = Array.from(select?.options || []);
-    const requestedProgramme = data?.programmes?.find(programme => programme.id === programmeId);
-    if (requestedProgramme?.registrationOpen === false){
-      const notice = document.getElementById('programme-unavailable');
-      if (notice){
-        notice.textContent = requestedProgramme.registrationNotice || 'Ce créneau n’est pas disponible actuellement.';
-        notice.hidden = false;
-      }
-      if (select) select.value = '';
-      if (modulesField) modulesField.value = '';
-      return;
-    }
     let found = programmeId ? options.find(option => option.dataset.programmeId === programmeId) : null;
     if (!found && modules){
       const decoded = modules.replace(/\s*,\s*/g, ', ');
@@ -150,9 +143,10 @@
     })
     .then(data => {
       if (!Array.isArray(data.programmes) || !data.programmes.length) throw new Error('Liste de programmes invalide');
+      window.__pssrProgrammes = data.programmes;
       renderActivities(data);
       populateReservation(data);
-      prefillReservation(data);
+      prefillReservation();
     })
     .catch(error => {
       console.error('Programmes:', error);

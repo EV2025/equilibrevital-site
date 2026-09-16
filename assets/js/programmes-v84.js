@@ -16,7 +16,7 @@
       : '';
     const registrationClosed = programme.registrationOpen === false;
     const actions = registrationClosed
-      ? `<p class="programme-unavailable-v104" role="status"><strong>Inscriptions suspendues</strong><br>${esc(programme.registrationNotice || 'Cette activité est temporairement indisponible.')}</p>`
+      ? `<p class="programme-unavailable-v104" role="status"><strong>${esc(programme.registrationNotice || 'Indisponible pour le moment.')}</strong></p>`
       : `<div class="programme-actions-v84"><button aria-controls="${detailsId}" aria-expanded="false" class="btn secondary" data-programme-toggle="${detailsId}" type="button">Découvrir</button><a class="btn" href="./reservation.html?programme=${encodeURIComponent(programme.id)}">S’inscrire</a></div>`;
     return `<article class="programme-card-v84 programme-${esc(programme.universe)}-v84${registrationClosed ? ' programme-suspended-v108' : ''}" id="${esc(programme.id)}">
       <div class="programme-card-top-v84">

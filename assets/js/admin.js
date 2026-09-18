@@ -619,10 +619,10 @@ function renderFullRecordDetails(r){
 }
 
 function renderTransferControl(r){
-  if (!programmeChoices.length) return '<p class="secondary-muted">Chargement des groupes disponibles…</p>';
+  if (!programmeChoices.length) return '<div class="admin-transfer-v111"><strong>Changer de groupe</strong><p>Chargement des groupes disponibles…</p></div>';
   const current = reservationActivity(r);
   const options = programmeChoices.filter(choice => choice.label !== current);
-  if (!options.length) return '<p class="secondary-muted">Aucun autre groupe ouvert actuellement.</p>';
+  if (!options.length) return '<div class="admin-transfer-v111"><strong>Changer de groupe</strong><p>Aucun autre groupe ouvert actuellement.</p></div>';
   return `<div class="admin-transfer-v111">
     <strong>Changer de groupe</strong>
     <p>Groupe actuel : ${esc(current || 'Non renseigné')}</p>

@@ -829,6 +829,7 @@ async function seedServices(){
 function switchTab(tab){
   if (!labels[tab]) return;
   currentCollection = tab;
+  if (adminActivityLabel) adminActivityLabel.hidden = tab !== 'reservations';
   saveAdminView();
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   loadCollection();

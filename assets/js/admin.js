@@ -259,6 +259,33 @@ function formatValue(key, value){
   return labelled ?? '';
 }
 
+async function copyEmailAddress(email){
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(email);
+      return;
+    } catch (_) { /* Essayer la copie compatible avec les navigateurs plus anciens. */ }
+  }
+  const field = document.createElement('textarea');
+  field.value = email;
+  field.setAttribute('readonly', '');
+  field.style.position = 'fixed';
+  field.style.opacity = '0';
+  document.body.appendChild(field);
+  field.select();
+  try {
+    if (!document.execCommand('copy')) throw new Error('Clipboard unavailable');
+  } finally {
+    field.remove();
+  }
+}
+
+function emailWithCopy(value){
+  const email = String(value || '').trim();
+  if (!email) return '—';
+  return `<span class="admin-email-copy-v114"><a href="mailto:${esc(email)}">${esc(email)}</a><button type="button" data-copy-email="${esc(email)}" aria-label="Copier l’adresse e-mail">Copier</button></span>`;
+}
+
 function esc(v){
   return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'}[c]));
 }
@@ -302,6 +329,21 @@ async function init(){
   document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
 
   recordsEl.addEventListener('click', async event => {
+    const copyButton = event.target.closest('[data-copy-email]');
+    if (copyButton) {
+      const email = copyButton.dataset.copyEmail;
+      if (!email) return;
+      try {
+        await copyEmailAddress(email);
+        copyButton.textContent = 'Copié !';
+        setAdminStatus('Adresse e-mail copiée.');
+        setTimeout(() => { if (copyButton.isConnected) copyButton.textContent = 'Copier'; }, 2000);
+      } catch (error) {
+        console.error('Copie e-mail:', error);
+        setAdminStatus('Copie impossible. Sélectionnez l’adresse e-mail pour la copier.', true);
+      }
+      return;
+    }
     const actionButton = event.target.closest('[data-action]');
     if (!actionButton) return;
     actionButton.disabled = true;
@@ -550,7 +592,7 @@ function renderRecordCard(r){
   const visibleEntries = entries.filter(([k]) => !technicalFields.has(k));
   const technicalEntries = entries.filter(([k]) => technicalFields.has(k));
   const visibleHtml = visibleEntries.map(([k,v]) =>
-    `<dt>${esc(labelForField(k))}</dt><dd>${esc(formatValue(k, v))}</dd>`
+    `<dt>${esc(labelForField(k))}</dt><dd>${k === 'email' ? emailWithCopy(v) : esc(formatValue(k, v))}</dd>`
   ).join('');
   const technicalHtml = technicalEntries.length ?
     `<details class="technical-details"><summary>Détails techniques</summary><dl>${technicalEntries.map(([k,v]) => `<dt>${esc(labelForField(k))}</dt><dd>${esc(formatValue(k, v))}</dd>`).join('')}<dt>ID du document</dt><dd>${esc(r.id)}</dd></dl></details>` :
@@ -579,7 +621,7 @@ function renderAdminTable(tableRows){
     return `<tr>
       <td data-label="${isReservations ? 'ID réservation' : 'ID client'}"><code>${esc(idLabel)}</code></td>
       <td data-label="Nom">${esc(name)}</td>
-      <td data-label="E-mail">${email !== '—' ? `<a href="mailto:${esc(email)}">${esc(email)}</a>` : '—'}</td>
+      <td data-label="E-mail">${emailWithCopy(email === '—' ? '' : email)}</td>
       <td data-label="Téléphone">${esc(phone)}</td>
       ${isReservations ? `<td data-label="Activité">${esc(reservationActivity(r) || '—')}<details class="admin-transfer-details-v113"><summary>Changer de groupe</summary>${renderTransferControl(r)}</details></td>` : ''}
       <td data-label="Session">${esc(session)}</td>

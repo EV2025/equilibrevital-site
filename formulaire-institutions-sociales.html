@@ -72,6 +72,22 @@
 </div>
 </section>
 </main>
+<script>
+(function(){
+  if(new URLSearchParams(location.search).get('atelier') !== 'arf') return;
+  const form=document.querySelector('.partner-form-v47');
+  const heading=document.querySelector('.partner-form-hero-v47 h1');
+  const lead=document.querySelector('.partner-form-lead-v47');
+  const message=form?.querySelector('textarea[name="message"]');
+  const need=form?.querySelector('select[name="besoinPrincipal"]');
+  const submit=form?.querySelector('button[type="submit"]');
+  if(heading) heading.textContent='Réserver un atelier ARF pour mon groupe';
+  if(lead) lead.textContent='Présentez-nous votre structure et votre groupe. L’équipe Équilibre Vital vous recontactera pour organiser l’atelier de remise en forme adapté à votre public.';
+  if(message && !message.value) message.value='Je souhaite organiser un atelier de remise en forme (ARF) pour mon groupe.\n\nNotre public : \nNombre de participant·es : \nPériode souhaitée : ';
+  if(need && !need.value) need.value='Remise en mouvement';
+  if(submit) submit.textContent='Envoyer ma demande d’atelier ARF';
+})();
+</script>
 <script defer="" src="./assets/js/firebase-contact.js" type="module"></script><script defer="" src="./assets/js/media-fallback.js"></script>
 <script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script>
 <script defer src="./assets/js/form-comfort-v80.js"></script>

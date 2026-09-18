@@ -1,5 +1,5 @@
 {
-  "version": "2026-09-14-v108",
+  "version": "2026-09-18-v110",
   "currency": "EUR",
   "annualFee": 165,
   "programmes": [
@@ -8,7 +8,7 @@
       "universe": "ados",
       "day": "Mardi",
       "time": "18h00–20h00",
-      "audience": "13 ans et plus",
+      "audience": "6–9 ans et 10–15 ans et plus",
       "name": "Cardio Fit Ados",
       "activities": [
         "Boxe éducative / Initiation Kick-Boxing"

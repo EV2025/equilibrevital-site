@@ -37,6 +37,21 @@
 @media(max-width:820px){.documents-main{padding-top:86px}.documents-hero{text-align:left}.documents-hero p{margin-left:0}.documents-grid{grid-template-columns:1fr}.document-card{border-radius:26px}.document-body{text-align:left;align-items:flex-start}.document-actions{justify-content:flex-start}.documents-note{text-align:left}.document-media{aspect-ratio:3/4}}
 @media(max-width:520px){.documents-wrap{width:min(100%,calc(100vw - 24px))}.documents-main{padding-top:78px}.documents-hero h1{font-size:2.25rem}.document-card{border-radius:22px}.document-body{padding:16px}.document-actions{width:100%}.document-actions .btn{width:100%;justify-content:center}.document-media{aspect-ratio:4/5}}
 .poster-card .document-media{aspect-ratio:2/3;background:#eff0f6}.poster-card .document-media img{object-fit:contain}
+.documents-gallery{max-width:1060px;margin:42px auto 0;text-align:center}
+.documents-gallery summary{display:inline-flex;align-items:center;gap:12px;padding:15px 25px;border-radius:999px;background:linear-gradient(135deg,var(--brand-primary),var(--brand-secondary));color:#fff;font-weight:850;cursor:pointer;list-style:none;box-shadow:0 12px 28px rgba(139,92,246,.2)}
+.documents-gallery summary::-webkit-details-marker{display:none}
+.documents-gallery summary:focus-visible{outline:3px solid #3f226d;outline-offset:4px}
+.gallery-summary-icon{font-size:1.2rem;line-height:1}.gallery-summary-arrow{font-size:1.2rem;transition:transform .2s}
+.documents-gallery[open] .gallery-summary-arrow{transform:rotate(180deg)}
+.documents-gallery-content{margin-top:26px;padding:clamp(18px,3vw,32px);border:1px solid rgba(216,196,242,.7);border-radius:28px;background:#fff}
+.documents-gallery-content h2{margin:0;color:var(--brand-text);font-size:clamp(1.6rem,3vw,2.2rem)}
+.documents-gallery-content>p{margin:8px auto 22px;color:var(--brand-body)}
+.documents-gallery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.documents-gallery-grid figure{min-width:0;margin:0;border:1px solid rgba(216,196,242,.7);border-radius:18px;overflow:hidden;background:#f6f3fa}
+.documents-gallery-grid a{display:block}.documents-gallery-grid img{display:block;width:100%;height:auto;aspect-ratio:2/3;object-fit:contain}
+.documents-gallery-grid a:focus-visible{outline:3px solid #7c3aed;outline-offset:-4px}
+.documents-gallery-grid figcaption{padding:12px;color:var(--brand-text);font-weight:760}
+@media(max-width:700px){.documents-gallery-grid{grid-template-columns:1fr}.documents-gallery-grid figure{max-width:460px;width:100%;margin-inline:auto}}
 </style>
 <meta content="Logo Équilibre Vital" property="og:image:alt"/>
 <meta content="summary" name="twitter:card"/>
@@ -161,6 +176,19 @@
     </section>
 
     <p class="documents-note">Ces supports peuvent être utilisés pour présenter les activités, préparer une inscription ou accompagner une demande d’attestation auprès d’une mutuelle.</p>
+
+    <details class="documents-gallery" id="galerie">
+      <summary><span class="gallery-summary-icon" aria-hidden="true">▦</span> Voir la galerie <span class="gallery-summary-arrow" aria-hidden="true">↓</span></summary>
+      <div class="documents-gallery-content">
+        <h2>La vie d’Équilibre Vital en images</h2>
+        <p>Trois regards sur les activités, les rencontres et les actions de terrain.</p>
+        <div class="documents-gallery-grid">
+          <figure><a href="./images/galerie/equilibre-vital-jeunesse.webp" target="_blank" rel="noopener" aria-label="Voir l’image Jeunesse et sport en grand"><img src="./images/galerie/equilibre-vital-jeunesse.webp" alt="Photomontage des activités sportives pour les jeunes et des groupes Équilibre Vital" width="1024" height="1536" loading="lazy"></a><figcaption>Jeunesse &amp; sport</figcaption></figure>
+          <figure><a href="./images/galerie/equilibre-vital-communaute.webp" target="_blank" rel="noopener" aria-label="Voir l’image Rencontres et communauté en grand"><img src="./images/galerie/equilibre-vital-communaute.webp" alt="Photomontage de rencontres, ateliers et activités collectives Équilibre Vital" width="1024" height="1536" loading="lazy"></a><figcaption>Rencontres &amp; communauté</figcaption></figure>
+          <figure><a href="./images/galerie/equilibre-vital-terrain.webp" target="_blank" rel="noopener" aria-label="Voir l’image Actions de terrain en grand"><img src="./images/galerie/equilibre-vital-terrain.webp" alt="Photomontage des actions de terrain, du sport et des échanges Équilibre Vital" width="1024" height="1536" loading="lazy"></a><figcaption>Actions de terrain</figcaption></figure>
+        </div>
+      </div>
+    </details>
   </div>
 </main>
 <script defer src="./assets/js/media-fallback.js"></script>

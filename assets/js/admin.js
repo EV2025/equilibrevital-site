@@ -470,6 +470,21 @@ function findDuplicateReservations(reservations){
 
 function renderSummary(){
   if (!rows.length) { summaryEl.innerHTML = ''; return; }
+  if (currentCollection === 'payments') {
+    const count = part => rows.filter(r => part.test(normalized(r.paymentStatus || r.status || ''))).length;
+    const pending = count(/attente|non paye/);
+    const received = count(/virement recu/);
+    const paid = count(/^paye$/);
+    const relaunch = count(/relancer/);
+    summaryEl.innerHTML = `<div class="admin-summary">
+      <div class="metric"><strong>${rows.length}</strong><span>Total</span></div>
+      <div class="metric"><strong>${pending}</strong><span>En attente</span></div>
+      <div class="metric"><strong>${received}</strong><span>Virement reçu</span></div>
+      <div class="metric"><strong>${paid}</strong><span>Payés</span></div>
+      <div class="metric"><strong>${relaunch}</strong><span>À relancer</span></div>
+    </div><p class="secondary-muted">Les virements sont vérifiés manuellement avant de marquer un paiement comme reçu ou payé.</p>`;
+    return;
+  }
   const total = rows.length;
   const nouveau = rows.filter(r => /nou|reçu|recu/i.test(String(r.status || '').toLowerCase())).length;
   const traite = rows.filter(r => /trait|confirm|pay/i.test(String(r.status || r.paymentStatus || ''))).length;
@@ -600,6 +615,10 @@ function renderRows(){
     recordsEl.innerHTML = renderAdminTable(filteredRows);
     return;
   }
+  if (currentCollection === 'payments') {
+    recordsEl.innerHTML = renderPaymentsTable(filteredRows);
+    return;
+  }
 
   recordsEl.innerHTML = filteredRows.map(r => renderRecordCard(r)).join('');
 }
@@ -616,6 +635,40 @@ function renderRecordCard(r){
     `<details class="technical-details"><summary>Détails techniques</summary><dl>${technicalEntries.map(([k,v]) => `<dt>${esc(labelForField(k))}</dt><dd>${esc(formatValue(k, v))}</dd>`).join('')}<dt>ID du document</dt><dd>${esc(r.id)}</dd></dl></details>` :
     `<details class="technical-details"><summary>Détails techniques</summary><dl><dt>ID du document</dt><dd>${esc(r.id)}</dd></dl></details>`;
   return `<article class="record"><h3>${esc(title)}</h3><dl>${visibleHtml}</dl>${technicalHtml}${actionsFor(r)}</article>`;
+}
+
+function renderPaymentsTable(paymentRows){
+  const headers = ['Référence','Personne','Montant','État du virement','Date','Suivi'];
+  const body = paymentRows.map(r => {
+    const reference = r.paymentReference || r.communication || r.reservationCode || r.id;
+    const amount = r.amount || (Number.isFinite(Number(r.amountCents)) ? (Number(r.amountCents) / 100).toFixed(2) : '—');
+    const currency = r.currency || 'EUR';
+    const status = r.paymentStatus || r.status || 'en attente de virement';
+    const actions = [
+      ['virement reçu','Virement reçu'],
+      ['payé','Marquer payé'],
+      ['à relancer','À relancer']
+    ].filter(([value]) => value !== status)
+      .map(([value, label]) => `<button type="button" data-action="status" data-id="${esc(r.id)}" data-value="${esc(value)}">${esc(label)}</button>`).join('');
+    return `<tr>
+      <td data-label="Référence"><code>${esc(reference)}</code></td>
+      <td data-label="Personne"><strong>${esc(r.nom || '—')}</strong>${emailWithCopy(r.email)}</td>
+      <td data-label="Montant"><strong>${esc(amount)} ${esc(currency)}</strong></td>
+      <td data-label="État du virement"><span class="status-pill">${esc(labelForValue(status))}</span>${String(r.source || '').includes('annoncé') ? '<small class="admin-payment-declared-v116">Déclaré par le participant · à vérifier</small>' : ''}</td>
+      <td data-label="Date">${esc(fmtDate(r.createdAt) || '—')}</td>
+      <td data-label="Suivi"><div class="admin-payment-actions-v116">${actions}</div>
+        <details class="admin-payment-details-v116"><summary>Informations complémentaires</summary>
+          <dl>
+            <div><dt>Réservation</dt><dd>${esc(r.reservationCode || r.reservationId || '—')}</dd></div>
+            <div><dt>Libellé</dt><dd>${esc(r.label || '—')}</dd></div>
+            <div><dt>Communication</dt><dd><code>${esc(r.communication || reference)}</code></dd></div>
+            <div><dt>Compte bénéficiaire</dt><dd><code>${esc(r.iban || '—')}</code></dd></div>
+          </dl>
+        </details>
+      </td>
+    </tr>`;
+  }).join('');
+  return `<div class="admin-table-wrap"><table class="admin-table admin-payments-table-v116"><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
 
 function renderAdminTable(tableRows){

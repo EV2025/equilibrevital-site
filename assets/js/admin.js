@@ -26,6 +26,7 @@ const adminActionStatus = document.getElementById('admin-action-status');
 let auth, db;
 let currentCollection = 'stats';
 let rows = [];
+let programmeChoices = [];
 let modules = {};
 let unsub = null;
 let isVerifiedAdmin = false;
@@ -191,7 +192,8 @@ const fieldLabels = {
   doneDate: 'Date réalisée',
   plannedDate: 'Date prévue',
   currentStep: 'Étape actuelle',
-  session: 'Session'
+  session: 'Session',
+  transferHistory: 'Historique des changements de groupe'
 };
 
 const valueLabels = {
@@ -350,6 +352,7 @@ async function init(){
       dashboardPanel.hidden = false;
       setAdminStatus('Session administrateur active.');
       loadCollection();
+      loadProgrammeChoices();
     }catch(err){
       console.error('Admin access denied:', err);
       isVerifiedAdmin = false;
@@ -473,6 +476,24 @@ function rowDateISO(v){
     return d.toISOString().slice(0,10);
   }catch{return '';}
 }
+async function loadProgrammeChoices(){
+  try{
+    const response = await fetch('../assets/data/programmes-v84.json?v=20260918-110', {credentials:'same-origin'});
+    if (!response.ok) throw new Error('Catalogue indisponible');
+    const data = await response.json();
+    programmeChoices = (data.programmes || [])
+      .filter(programme => programme.registrationOpen !== false && programme.reservationLabel)
+      .map(programme => ({
+        label: programme.reservationLabel,
+        modules: programme.modulesLabel || programme.name || programme.reservationLabel
+      }));
+    if (currentCollection === 'reservations') renderRows();
+  }catch(error){
+    console.warn('Groupes disponibles:', error);
+    setAdminStatus('Catalogue des groupes indisponible. Réessayez en rechargeant la page.', true);
+  }
+}
+
 function reservationActivity(r){
   const value = r.creneau || r.activity || r.serviceName || r.service || r.modules;
   return Array.isArray(value) ? value.join(', ') : String(value ?? '').trim();
@@ -597,6 +618,24 @@ function renderFullRecordDetails(r){
   </details>`;
 }
 
+function renderTransferControl(r){
+  if (!programmeChoices.length) return '<p class="secondary-muted">Chargement des groupes disponibles…</p>';
+  const current = reservationActivity(r);
+  const options = programmeChoices.filter(choice => choice.label !== current);
+  if (!options.length) return '<p class="secondary-muted">Aucun autre groupe ouvert actuellement.</p>';
+  return `<div class="admin-transfer-v111">
+    <strong>Changer de groupe</strong>
+    <p>Groupe actuel : ${esc(current || 'Non renseigné')}</p>
+    <label>Nouveau groupe
+      <select data-transfer-group aria-label="Nouveau groupe pour ${esc(titleForRow(r))}">
+        <option value="">Choisir un groupe</option>
+        ${options.map(choice => `<option value="${esc(choice.label)}">${esc(choice.label)}</option>`).join('')}
+      </select>
+    </label>
+    <button type="button" data-action="transfer-group" data-id="${esc(r.id)}">Confirmer le transfert</button>
+  </div>`;
+}
+
 function renderManagementPanel(r, isReservation){
   const steps = ['CAND','ARF','BSS','PDS','APA','CPE','SRS'];
   const statuses = ['reçu','inscrit','en cours','terminé','abandonné','en attente','confirmée','annulée'];
@@ -611,6 +650,7 @@ function renderManagementPanel(r, isReservation){
       <label>Date prévue<input data-field="plannedDate" type="date" value="${esc(r.plannedDate || '')}"></label>
       <label>Date réalisée<input data-field="doneDate" type="date" value="${esc(r.doneDate || '')}"></label>
       ${isReservation ? `<label>Statut paiement<select data-field="paymentStatus">${paymentStatuses.map(st=>`<option ${String(r.paymentStatus||'en attente de virement')===st?'selected':''}>${st}</option>`).join('')}</select></label>` : ''}
+      ${isReservation ? `<div class="full">${renderTransferControl(r)}</div>` : ''}
       ${isReservation ? `<div class="full payment-admin-summary-v1"><strong>Virement</strong><br>Montant : ${esc(r.paymentAmount || r.amount || r.priceAmount || '—')} ${esc(r.paymentCurrency || r.currency || r.priceCurrency || 'EUR')}<br>Référence : <code>${esc(r.paymentReference || r.communication || r.reservationCode || r.trackingCode || '—')}</code><br>IBAN : <code>${esc(r.bankIban || r.iban || '—')}</code></div>` : ''}
       <label class="full">Note interne<textarea data-field="internalNote" rows="2" placeholder="Note visible uniquement par l’équipe">${esc(r.internalNote || '')}</textarea></label>
       <label class="full">Message au participant<textarea data-field="teamMessage" rows="2" placeholder="Message à préparer pour le participant">${esc(r.teamMessage || '')}</textarea></label>
@@ -641,6 +681,35 @@ async function handleRecordAction(e){
       console.error('Refund proof:', error);
       setAdminStatus('Impossible d’ouvrir le justificatif. Vérifiez les règles Firebase Storage.', true);
     }finally{ btn.disabled = false; }
+    return;
+  }
+  if (action === 'transfer-group') {
+    if (currentCollection !== 'reservations') return;
+    const row = rows.find(item => item.id === id);
+    const selected = btn.closest('.admin-transfer-v111')?.querySelector('[data-transfer-group]')?.value || '';
+    const destination = programmeChoices.find(choice => choice.label === selected);
+    if (!row || !destination) {
+      setAdminStatus('Choisissez un groupe ouvert pour effectuer le transfert.', true);
+      return;
+    }
+    const previous = reservationActivity(row);
+    if (previous === destination.label) return;
+    const participant = titleForRow(row) || row.reservationCode || id;
+    if (!window.confirm(`Transférer ${participant} de « ${previous || 'Non renseigné'} » vers « ${destination.label} » ?`)) return;
+    const patch = {
+      creneau: destination.label,
+      modules: destination.modules,
+      updatedAt: modules.serverTimestamp(),
+      transferHistory: modules.arrayUnion({
+        from: previous,
+        to: destination.label,
+        changedAt: new Date().toISOString(),
+        changedBy: auth.currentUser?.uid || ''
+      })
+    };
+    if (row.activity) patch.activity = destination.label;
+    await modules.updateDoc(modules.doc(db, 'reservations', id), patch);
+    setAdminStatus(`Transfert enregistré pour ${participant}. Vérifiez la place disponible dans le nouveau groupe.`);
     return;
   }
   if (action === 'save-followup') {

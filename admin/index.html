@@ -55,6 +55,7 @@ body.admin-page{background:#f8f4fc}
 .management-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .management-grid .full{grid-column:1/-1}
 .management-grid input,.management-grid select,.management-grid textarea{width:100%}
+.admin-transfer-details-v113{margin-top:8px;min-width:250px}.admin-transfer-details-v113>summary{cursor:pointer;color:#5b21b6;font-weight:900}.admin-transfer-details-v113 .admin-transfer-v111{margin-top:9px}
 .admin-transfer-v111{display:grid;gap:10px;padding:13px;border:1px solid rgba(124,58,237,.26);border-radius:14px;background:#f9f4ff}.admin-transfer-v111 p{margin:0;overflow-wrap:anywhere}.admin-transfer-v111 label{display:grid;gap:5px}.admin-transfer-v111 select,.admin-transfer-v111 button{width:100%;min-height:44px}.admin-transfer-v111 button{justify-self:start;max-width:260px}
 .records .record{overflow:hidden}.records .record dd{overflow-wrap:anywhere}
 @media(max-width:1100px){.admin-tools{grid-template-columns:repeat(2,minmax(0,1fr));position:static}.admin-filter-reset-v80{width:100%}}
@@ -70,6 +71,7 @@ body.admin-page{background:#f8f4fc}
   .admin-table tr{display:block;padding:8px;border:1px solid rgba(124,58,237,.18);border-radius:18px;background:#fff;box-shadow:0 10px 25px rgba(67,33,83,.07)}
   .admin-table td{display:grid;grid-template-columns:minmax(105px,.42fr) minmax(0,1fr);gap:10px;padding:9px;border-bottom:1px solid #f0e8f7}
   .admin-table td::before{content:attr(data-label);color:#6a5575;font-size:.75rem;font-weight:900;text-transform:uppercase}
+  .admin-table td[data-label="Activité"]{display:block}.admin-table td[data-label="Activité"]::before{display:block;margin-bottom:4px}
   .admin-table td:last-child{display:block;border-bottom:0}.admin-table td:last-child::before{display:block;margin-bottom:7px}
   .record-tools-v81,.management-panel{min-width:0}.full-record-v81 dl{grid-template-columns:1fr}.management-grid{grid-template-columns:1fr}.management-grid .full{grid-column:auto}
 }
@@ -117,6 +119,6 @@ body.admin-page{background:#f8f4fc}
 <div class="records" id="records"></div>
 </section>
 </main>
-<script defer src="../assets/js/auth-comfort.js?v=20260829-82"></script><script defer src="../assets/js/admin.js?v=20260918-112" type="module"></script>
+<script defer src="../assets/js/auth-comfort.js?v=20260829-82"></script><script defer src="../assets/js/admin.js?v=20260918-113" type="module"></script>
 <script defer="" src="../assets/js/media-fallback.js"></script></body>
 </html>

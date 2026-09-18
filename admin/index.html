@@ -35,7 +35,7 @@ body.admin-page{background:#f8f4fc}
 .admin-advanced-v80{margin:8px 0 18px;border:1px solid rgba(124,58,237,.16);border-radius:16px;background:#fff}
 .admin-advanced-v80>summary{cursor:pointer;padding:13px 15px;color:#5b21b6;font-weight:900}
 .admin-advanced-v80 .toolbar{padding:0 15px 15px}
-.admin-tools{display:grid;grid-template-columns:minmax(220px,2fr) repeat(3,minmax(150px,1fr)) auto;gap:10px;align-items:end;padding:16px;border:1px solid rgba(124,58,237,.18);border-radius:20px;background:#fff;position:sticky;top:76px;z-index:20;box-shadow:0 10px 28px rgba(67,33,83,.08)}
+.admin-tools{display:grid;grid-template-columns:minmax(220px,2fr) repeat(4,minmax(150px,1fr)) auto;gap:10px;align-items:end;padding:16px;border:1px solid rgba(124,58,237,.18);border-radius:20px;background:#fff;position:sticky;top:76px;z-index:20;box-shadow:0 10px 28px rgba(67,33,83,.08)}
 .admin-tools label{min-width:0}.admin-tools input,.admin-tools select{width:100%;min-height:44px}
 .admin-filter-reset-v80{min-height:44px;white-space:nowrap}
 .admin-list-meta-v80{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;margin:14px 0}
@@ -105,6 +105,7 @@ body.admin-page{background:#f8f4fc}
 <div aria-label="Filtres du tableau de bord" class="admin-tools">
 <label>Recherche<input id="admin-search" placeholder="Nom, e-mail, téléphone, référence…" type="search"/></label>
 <label>Statut<select id="admin-status"><option value="">Tous</option><option>nouveau</option><option>reçu</option><option>en attente</option><option>inscrit</option><option>en cours</option><option>approuvé</option><option>refusé</option><option>remboursé</option><option>terminé</option><option>abandonné</option><option>confirmée</option><option>annulée</option></select></label>
+<label hidden id="admin-activity-label">Activité<select id="admin-activity"><option value="">Toutes les activités</option></select></label>
 <label>Session<input id="admin-session" placeholder="Septembre 2026" type="search"/></label>
 <label>Date<input id="admin-date" type="date"/></label>
 <button class="btn secondary admin-filter-reset-v80" id="admin-reset-filters" type="button">Effacer les filtres</button>
@@ -115,6 +116,6 @@ body.admin-page{background:#f8f4fc}
 <div class="records" id="records"></div>
 </section>
 </main>
-<script defer src="../assets/js/auth-comfort.js?v=20260829-82"></script><script defer src="../assets/js/admin.js?v=20260913-105" type="module"></script>
+<script defer src="../assets/js/auth-comfort.js?v=20260829-82"></script><script defer src="../assets/js/admin.js?v=20260918-106" type="module"></script>
 <script defer="" src="../assets/js/media-fallback.js"></script></body>
 </html>

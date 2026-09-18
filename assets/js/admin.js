@@ -581,7 +581,7 @@ function renderAdminTable(tableRows){
       <td data-label="Nom">${esc(name)}</td>
       <td data-label="E-mail">${email !== '—' ? `<a href="mailto:${esc(email)}">${esc(email)}</a>` : '—'}</td>
       <td data-label="Téléphone">${esc(phone)}</td>
-      ${isReservations ? `<td data-label="Activité">${esc(reservationActivity(r) || '—')}</td>` : ''}
+      ${isReservations ? `<td data-label="Activité">${esc(reservationActivity(r) || '—')}<details class="admin-transfer-details-v113"><summary>Changer de groupe</summary>${renderTransferControl(r)}</details></td>` : ''}
       <td data-label="Session">${esc(session)}</td>
       ${isReservations ? `<td data-label="Montant">${esc(paymentAmountLabel)}</td><td data-label="Référence paiement"><code>${esc(paymentReference)}</code></td>` : ''}
       <td data-label="Statut"><span class="status-pill">${esc(labelForValue(status))}</span></td>
@@ -640,7 +640,7 @@ function renderManagementPanel(r, isReservation){
   const steps = ['CAND','ARF','BSS','PDS','APA','CPE','SRS'];
   const statuses = ['reçu','inscrit','en cours','terminé','abandonné','en attente','confirmée','annulée'];
   const paymentStatuses = ['en attente de virement','virement reçu','payé','non payé','à relancer'];
-  return `<div class="record-tools-v81">${isReservation ? renderTransferControl(r) : ''}${renderFullRecordDetails(r)}<details class="management-panel"><summary>Gérer le suivi</summary>
+  return `<div class="record-tools-v81">${renderFullRecordDetails(r)}<details class="management-panel"><summary>Gérer le suivi</summary>
     <div class="quick-status-v80">
       <select aria-label="Choisir le statut" data-status-choice>${statuses.map(st => `<option value="${esc(st)}" ${String(r.status || '') === st ? 'selected' : ''}>${esc(labelForValue(st))}</option>`).join('')}</select>
       <button data-action="status-choice" data-id="${esc(r.id)}">Appliquer</button>

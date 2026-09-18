@@ -26,6 +26,7 @@ const adminActionStatus = document.getElementById('admin-action-status');
 let auth, db;
 let currentCollection = 'stats';
 let rows = [];
+let duplicateReservationIds = new Set();
 let programmeChoices = [];
 let modules = {};
 let unsub = null;
@@ -438,6 +439,7 @@ async function loadCollection(){
 
   unsub = modules.onSnapshot(q, snap => {
     rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    duplicateReservationIds = currentCollection === 'reservations' ? findDuplicateReservations(rows) : new Set();
     updateActivityOptions();
     renderRows();
     renderSummary();
@@ -450,12 +452,28 @@ async function loadCollection(){
   });
 }
 
+function findDuplicateReservations(reservations){
+  const groups = new Map();
+  for (const row of reservations){
+    if (/annul|abandon/i.test(String(row.status || ''))) continue;
+    const name = normalized(row.nom || row.fullName || '').replace(/[^a-z0-9]+/g, ' ').trim();
+    const activity = normalized(reservationActivity(row)).replace(/[^a-z0-9]+/g, ' ').trim();
+    if (!name || !activity) continue;
+    const date = rowDateISO(row.createdAt);
+    const year = date ? Number(date.slice(0, 4)) - (Number(date.slice(5, 7)) < 9 ? 1 : 0) : '';
+    const key = [year, name, activity].join('|');
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(row.id);
+  }
+  return new Set([...groups.values()].filter(ids => ids.length > 1).flat());
+}
+
 function renderSummary(){
   if (!rows.length) { summaryEl.innerHTML = ''; return; }
   const total = rows.length;
   const nouveau = rows.filter(r => /nou|reçu|recu/i.test(String(r.status || '').toLowerCase())).length;
   const traite = rows.filter(r => /trait|confirm|pay/i.test(String(r.status || r.paymentStatus || ''))).length;
-  summaryEl.innerHTML = `<div class="admin-summary"><div class="metric"><strong>${total}</strong><span>Total</span></div><div class="metric"><strong>${nouveau}</strong><span>Nouveaux / reçus</span></div><div class="metric"><strong>${traite}</strong><span>Traités / confirmés</span></div></div>`;
+  summaryEl.innerHTML = `<div class="admin-summary"><div class="metric"><strong>${total}</strong><span>Total</span></div><div class="metric"><strong>${nouveau}</strong><span>Nouveaux / reçus</span></div><div class="metric"><strong>${traite}</strong><span>Traités / confirmés</span></div>${currentCollection === 'reservations' ? `<div class="metric"><strong>${duplicateReservationIds.size}</strong><span>Doublons à vérifier</span></div>` : ''}</div>`;
 }
 
 function actionsFor(r){
@@ -620,7 +638,7 @@ function renderAdminTable(tableRows){
     const created = fmtDate(r.createdAt) || '—';
     return `<tr>
       <td data-label="${isReservations ? 'ID réservation' : 'ID client'}"><code>${esc(idLabel)}</code></td>
-      <td data-label="Nom">${esc(name)}</td>
+      <td data-label="Nom">${esc(name)}${isReservations && duplicateReservationIds.has(r.id) ? '<span class="admin-duplicate-v115">Doublon possible</span>' : ''}</td>
       <td data-label="E-mail">${emailWithCopy(email === '—' ? '' : email)}</td>
       <td data-label="Téléphone">${esc(phone)}</td>
       ${isReservations ? `<td data-label="Activité">${esc(reservationActivity(r) || '—')}<details class="admin-transfer-details-v113"><summary>Changer de groupe</summary>${renderTransferControl(r)}</details></td>` : ''}

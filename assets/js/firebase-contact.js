@@ -813,7 +813,31 @@ function mailtoFallback(data){
 }
 
 function submissionKey(payload){
-  return ['pssrSubmission', payload.email || '', payload.creneau || '', payload.modules || '', payload.message || ''].join('|').toLowerCase();
+  return ['pssrSubmission', payload.nom || '', payload.email || '', payload.creneau || '', payload.modules || '', payload.message || ''].join('|').toLowerCase();
+}
+
+function normalizeReservationPart(value){
+  return String(value || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+}
+
+async function localReservationKey(form, payload){
+  if (!crypto?.subtle) return '';
+  const chosen = form.elements.creneau?.selectedOptions?.[0];
+  const activity = chosen?.dataset.programmeId || payload.creneau || payload.modules || '';
+  const now = new Date();
+  const academicStart = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
+  const identity = ['local-reservation-v1', academicStart, normalizeReservationPart(payload.nom), normalizeReservationPart(activity)].join('|');
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(identity));
+  return 'pssr-reservation-' + Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+function hasLocalReservation(key){
+  try { return Boolean(key && localStorage.getItem(key)); } catch (_) { return false; }
+}
+
+function rememberLocalReservation(key){
+  try { if (key) localStorage.setItem(key, String(Date.now())); } catch (_) { }
 }
 
 function wasRecentlySubmitted(payload){
@@ -853,7 +877,12 @@ async function attachForms(){
       const isReservation = collectionName === 'reservations';
 
       if (wasRecentlySubmitted(payload)) {
-        showMessage(form, 'Une demande identique vient déjà d’être envoyée. Attendez quelques minutes ou contactez l’équipe PSSR si nécessaire.', false);
+        showMessage(form, 'Une demande identique vient déjà d’être envoyée. Vérifiez votre réservation ou contactez l’équipe PSSR si nécessaire.', false);
+        return;
+      }
+      const localKey = isReservation ? await localReservationKey(form, payload).catch(() => '') : '';
+      if (hasLocalReservation(localKey)) {
+        showMessage(form, 'Ce nom complet a déjà été utilisé pour réserver cette activité depuis cet appareil. Si vous souhaitez modifier l’inscription ou inscrire une autre personne portant le même nom, contactez l’équipe Équilibre Vital.', false);
         return;
       }
 
@@ -885,6 +914,7 @@ async function attachForms(){
         if (isReservation && auth?.currentUser) firestorePayload.uid = auth.currentUser.uid;
         const docRef = await addDoc(collection(db, collectionName), firestorePayload);
         rememberSubmission(payload);
+        if (isReservation) rememberLocalReservation(localKey);
         form.dataset.submittedOk = 'true';
         form.reset();
         form.querySelectorAll('.is-filled-v59,.is-invalid-v59').forEach(el => el.classList.remove('is-filled-v59','is-invalid-v59'));

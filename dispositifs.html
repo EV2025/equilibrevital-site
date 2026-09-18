@@ -328,6 +328,22 @@ input:focus,textarea:focus{outline:none;border-color:#bba7f5;box-shadow:0 0 0 2p
 <meta content="./wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png" property="og:image"/>
 
 <style>.deep-grid-v21.ateliers-intro-v21{grid-template-columns:minmax(0,1fr);max-width:760px;margin-inline:auto}</style>
+<style id="arf-offer-styles">
+.arf-offer{max-width:1160px;margin:48px auto 84px;padding:0 clamp(16px,4vw,40px)}
+.arf-offer-gallery{display:grid;grid-template-columns:1.55fr 1fr;grid-template-rows:repeat(2,minmax(150px,210px));gap:10px;overflow:hidden;border-radius:24px;box-shadow:0 18px 40px rgba(71,24,77,.13)}
+.arf-offer-gallery img{width:100%;height:100%;display:block;object-fit:cover;min-width:0}
+.arf-offer-gallery .arf-offer-main{grid-row:1 / 3}
+.arf-offer-body{max-width:800px;margin:42px auto 0;text-align:center;color:#31213a}
+.arf-offer-kicker{color:#972365;font-size:.9rem;font-weight:750;text-transform:uppercase;letter-spacing:.09em}
+.arf-offer-body h2{font-size:clamp(2rem,4.5vw,3.3rem);line-height:1.12;color:#331a48;margin:14px 0 16px}
+.arf-offer-body h2 span{color:#a42372;white-space:nowrap}
+.arf-offer-lead{font-size:clamp(1.15rem,2.4vw,1.45rem);font-weight:700;color:#65366c}
+.arf-offer-body>p:not(.arf-offer-kicker):not(.arf-offer-help){max-width:700px;margin:18px auto;line-height:1.7}
+.arf-offer-button{display:inline-flex;align-items:center;justify-content:center;gap:12px;margin-top:20px;padding:16px 25px;border-radius:100px;background:#a92574;color:#fff!important;text-decoration:none!important;font-weight:750;box-shadow:0 10px 24px rgba(143,28,96,.23)}
+.arf-offer-button:hover{background:#821959}.arf-offer-button:focus-visible{outline:3px solid #572177;outline-offset:4px}
+.arf-offer-help{color:#665a69;font-size:.92rem;margin:12px auto 0}
+@media(max-width:640px){.arf-offer{margin:30px auto 62px}.arf-offer-gallery{grid-template-columns:1fr 1fr;grid-template-rows:230px 120px;border-radius:16px;gap:7px}.arf-offer-gallery .arf-offer-main{grid-column:1 / 3;grid-row:1}.arf-offer-body{margin-top:30px;text-align:left}.arf-offer-body h2{font-size:clamp(2rem,9vw,2.8rem)}.arf-offer-button{width:100%;box-sizing:border-box;text-align:center}.arf-offer-help{text-align:center}}
+</style>
 </head>
 <body class="pssr-page dispositifs-page v30-circle-global ev39-page" id="accueil">
 <main class="page-main page-dispositifs-v21" data-original-id="contenu" id="main">
@@ -382,6 +398,22 @@ input:focus,textarea:focus{outline:none;border-color:#bba7f5;box-shadow:0 0 0 2p
 </div>
 </section>
 
+<section class="arf-offer" aria-labelledby="arf-offer-title" id="atelier-arf">
+  <div class="arf-offer-gallery" aria-label="Photos de groupes réunis autour d'une activité sportive">
+    <img class="arf-offer-main" src="./images/arf-groupe-principal.jpg" alt="Groupe d'adultes réunis dans une salle de sport" width="1000" height="619" loading="lazy">
+    <img src="./images/arf-groupe-mouvement.jpg" alt="Participants réunis autour d'un ring" width="1000" height="620" loading="lazy">
+    <img src="./images/arf-groupe-echanges.jpg" alt="Groupe d'adultes dans un espace de pratique sportive" width="1000" height="620" loading="lazy">
+  </div>
+  <div class="arf-offer-body">
+    <p class="arf-offer-kicker">Un atelier à vivre en groupe</p>
+    <h2 id="arf-offer-title">Atelier de remise en forme <span>(ARF)</span></h2>
+    <p class="arf-offer-lead">Et si reprendre une activité physique commençait par une expérience collective simple et motivante ?</p>
+    <p>Pour les personnes éloignées de l'activité physique, notamment en parcours d'insertion socioprofessionnelle : un temps pour comprendre, essayer à son rythme, puis échanger sur son expérience.</p>
+    <p>Selon l'atelier, des spécialistes de la nutrition ou de la santé et des personnes inspirantes peuvent partager leur parcours pour donner envie de continuer.</p>
+    <a class="arf-offer-button" href="./formulaire-institutions-sociales.html?atelier=arf">Réserver un atelier ARF pour mon groupe <span aria-hidden="true">→</span></a>
+    <p class="arf-offer-help">Indiquez simplement votre structure, votre public et le nombre de participant·es.</p>
+  </div>
+</section>
 </main>
 
 <script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script></body>

@@ -15,6 +15,8 @@ const collectionTitle = document.getElementById('collection-title');
 const summaryEl = document.getElementById('admin-summary');
 const adminSearch = document.getElementById('admin-search');
 const adminStatus = document.getElementById('admin-status');
+const adminActivity = document.getElementById('admin-activity');
+const adminActivityLabel = document.getElementById('admin-activity-label');
 const adminSession = document.getElementById('admin-session');
 const adminDate = document.getElementById('admin-date');
 const adminResetFilters = document.getElementById('admin-reset-filters');
@@ -35,6 +37,7 @@ function saveAdminView(){
       collection: currentCollection,
       search: adminSearch?.value || '',
       status: adminStatus?.value || '',
+      activity: adminActivity?.value || '',
       session: adminSession?.value || '',
       date: adminDate?.value || ''
     }));
@@ -47,6 +50,7 @@ function restoreAdminView(){
     if (labels[state.collection]) currentCollection = state.collection;
     if (adminSearch) adminSearch.value = state.search || '';
     if (adminStatus) adminStatus.value = state.status || '';
+    if (adminActivity) adminActivity.dataset.savedValue = state.activity || '';
     if (adminSession) adminSession.value = state.session || '';
     if (adminDate) adminDate.value = state.date || '';
     document.querySelectorAll('.tab').forEach(button => button.classList.toggle('active', button.dataset.tab === currentCollection));
@@ -310,12 +314,12 @@ async function init(){
       actionButton.disabled = false;
     }
   });
-  [adminSearch, adminStatus, adminSession, adminDate].forEach(el => el?.addEventListener('input', () => {
+  [adminSearch, adminStatus, adminActivity, adminSession, adminDate].forEach(el => el?.addEventListener('input', () => {
     saveAdminView();
     renderRows();
   }));
   adminResetFilters?.addEventListener('click', () => {
-    [adminSearch, adminStatus, adminSession, adminDate].forEach(el => { if (el) el.value = ''; });
+    [adminSearch, adminStatus, adminActivity, adminSession, adminDate].forEach(el => { if (el) el.value = ''; });
     saveAdminView();
     renderRows();
     setAdminStatus('Filtres effacés.');
@@ -389,6 +393,7 @@ async function loadCollection(){
 
   unsub = modules.onSnapshot(q, snap => {
     rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    updateActivityOptions();
     renderRows();
     renderSummary();
     setAdminStatus(`Synchronisé en temps réel · ${new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'})}`);
@@ -468,14 +473,34 @@ function rowDateISO(v){
     return d.toISOString().slice(0,10);
   }catch{return '';}
 }
+function reservationActivity(r){
+  const value = r.creneau || r.activity || r.serviceName || r.service || r.modules;
+  return Array.isArray(value) ? value.join(', ') : String(value ?? '').trim();
+}
+
+function updateActivityOptions(){
+  if (!adminActivity || !adminActivityLabel) return;
+  adminActivityLabel.hidden = currentCollection !== 'reservations';
+  if (currentCollection !== 'reservations') return;
+  const selected = adminActivity.dataset.savedValue ?? adminActivity.value;
+  const activities = [...new Set(rows.map(reservationActivity).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, 'fr'));
+  adminActivity.replaceChildren(new Option('Toutes les activités', ''),
+    ...activities.map(activity => new Option(activity, activity)));
+  adminActivity.value = activities.includes(selected) ? selected : '';
+  delete adminActivity.dataset.savedValue;
+}
+
 function applyAdminFilters(inputRows){
   const q = normalized(adminSearch?.value || '');
   const st = normalized(adminStatus?.value || '');
+  const activity = currentCollection === 'reservations' ? normalized(adminActivity?.value || '') : '';
   const session = normalized(adminSession?.value || '');
   const date = adminDate?.value || '';
   return inputRows.filter(r => {
     if (q && !rowSearchText(r).includes(q)) return false;
     if (st && !normalized(r.status || r.paymentStatus || '').includes(st)) return false;
+    if (activity && normalized(reservationActivity(r)) !== activity) return false;
     if (session && !normalized(r.session || r.sessionName || '').includes(session)) return false;
     if (date && rowDateISO(r.createdAt || r.date) !== date) return false;
     return true;
@@ -515,7 +540,7 @@ function renderRecordCard(r){
 function renderAdminTable(tableRows){
   const isReservations = currentCollection === 'reservations';
   const headers = isReservations
-    ? ['ID réservation','Nom','E-mail','Téléphone','Session','Montant','Référence paiement','Statut','Paiement','Création','Gestion']
+    ? ['ID réservation','Nom','E-mail','Téléphone','Activité','Session','Montant','Référence paiement','Statut','Paiement','Création','Gestion']
     : ['ID client','Nom','E-mail','Téléphone','Session','Statut','Création','Gestion'];
   const body = tableRows.map(r => {
     const idLabel = r.reservationCode || r.messageCode || r.memberCode || r.trackingCode || r.id;
@@ -535,6 +560,7 @@ function renderAdminTable(tableRows){
       <td data-label="Nom">${esc(name)}</td>
       <td data-label="E-mail">${email !== '—' ? `<a href="mailto:${esc(email)}">${esc(email)}</a>` : '—'}</td>
       <td data-label="Téléphone">${esc(phone)}</td>
+      ${isReservations ? `<td data-label="Activité">${esc(reservationActivity(r) || '—')}</td>` : ''}
       <td data-label="Session">${esc(session)}</td>
       ${isReservations ? `<td data-label="Montant">${esc(paymentAmountLabel)}</td><td data-label="Référence paiement"><code>${esc(paymentReference)}</code></td>` : ''}
       <td data-label="Statut"><span class="status-pill">${esc(labelForValue(status))}</span></td>

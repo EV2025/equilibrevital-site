@@ -640,7 +640,7 @@ function renderManagementPanel(r, isReservation){
   const steps = ['CAND','ARF','BSS','PDS','APA','CPE','SRS'];
   const statuses = ['reçu','inscrit','en cours','terminé','abandonné','en attente','confirmée','annulée'];
   const paymentStatuses = ['en attente de virement','virement reçu','payé','non payé','à relancer'];
-  return `<div class="record-tools-v81">${renderFullRecordDetails(r)}<details class="management-panel"><summary>Gérer le suivi</summary>
+  return `<div class="record-tools-v81">${isReservation ? renderTransferControl(r) : ''}${renderFullRecordDetails(r)}<details class="management-panel"><summary>Gérer le suivi</summary>
     <div class="quick-status-v80">
       <select aria-label="Choisir le statut" data-status-choice>${statuses.map(st => `<option value="${esc(st)}" ${String(r.status || '') === st ? 'selected' : ''}>${esc(labelForValue(st))}</option>`).join('')}</select>
       <button data-action="status-choice" data-id="${esc(r.id)}">Appliquer</button>
@@ -650,7 +650,6 @@ function renderManagementPanel(r, isReservation){
       <label>Date prévue<input data-field="plannedDate" type="date" value="${esc(r.plannedDate || '')}"></label>
       <label>Date réalisée<input data-field="doneDate" type="date" value="${esc(r.doneDate || '')}"></label>
       ${isReservation ? `<label>Statut paiement<select data-field="paymentStatus">${paymentStatuses.map(st=>`<option ${String(r.paymentStatus||'en attente de virement')===st?'selected':''}>${st}</option>`).join('')}</select></label>` : ''}
-      ${isReservation ? `<div class="full">${renderTransferControl(r)}</div>` : ''}
       ${isReservation ? `<div class="full payment-admin-summary-v1"><strong>Virement</strong><br>Montant : ${esc(r.paymentAmount || r.amount || r.priceAmount || '—')} ${esc(r.paymentCurrency || r.currency || r.priceCurrency || 'EUR')}<br>Référence : <code>${esc(r.paymentReference || r.communication || r.reservationCode || r.trackingCode || '—')}</code><br>IBAN : <code>${esc(r.bankIban || r.iban || '—')}</code></div>` : ''}
       <label class="full">Note interne<textarea data-field="internalNote" rows="2" placeholder="Note visible uniquement par l’équipe">${esc(r.internalNote || '')}</textarea></label>
       <label class="full">Message au participant<textarea data-field="teamMessage" rows="2" placeholder="Message à préparer pour le participant">${esc(r.teamMessage || '')}</textarea></label>

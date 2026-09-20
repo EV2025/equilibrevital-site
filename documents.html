@@ -52,6 +52,7 @@
 .documents-gallery-grid a:focus-visible{outline:3px solid #7c3aed;outline-offset:-4px}
 .documents-gallery-grid figcaption{padding:12px;color:var(--brand-text);font-weight:760}
 @media(max-width:700px){.documents-gallery-grid{grid-template-columns:1fr}.documents-gallery-grid figure{max-width:460px;width:100%;margin-inline:auto}}
+.brochure-card{grid-column:span 2}.brochure-card .document-media{aspect-ratio:3/2;background:#eef3f8}.brochure-card .document-media img{object-fit:contain}.brochure-card .document-media a{display:block;width:100%;height:100%}@media(max-width:900px){.brochure-card{grid-column:span 2}}@media(max-width:700px){.brochure-card{grid-column:auto}}
 </style>
 <meta content="Logo Équilibre Vital" property="og:image:alt"/>
 <meta content="summary" name="twitter:card"/>
@@ -66,6 +67,21 @@
     </header>
 
     <section class="documents-grid" aria-label="Documents Équilibre Vital à télécharger">
+      <article class="document-card brochure-card">
+        <div class="document-media">
+          <a href="./images/documents/depliant-equilibre-vital.png" target="_blank" rel="noopener" aria-label="Voir le dépliant Équilibre Vital en grand">
+            <img src="./images/documents/depliant-equilibre-vital.webp" alt="Dépliant Équilibre Vital présentant la mission, les activités et les informations pratiques" width="1536" height="1024" loading="lazy" decoding="async">
+          </a>
+        </div>
+        <div class="document-body">
+          <h2>Dépliant Équilibre Vital</h2>
+          <p>Découvrez notre mission, nos activités sportives, les publics accueillis et toutes les informations pratiques.</p>
+          <div class="document-actions">
+            <a class="btn" href="./images/documents/depliant-equilibre-vital.png" download>Télécharger le dépliant</a>
+            <a class="btn secondary" href="./images/documents/depliant-equilibre-vital.png" target="_blank" rel="noopener">Voir en grand</a>
+          </div>
+        </div>
+      </article>
       <article class="document-card poster-card">
         <div class="document-media"><img src="./images/documents/programme-activites-equilibre-vital.jpg" alt="Affiche du programme des activités Équilibre Vital : mardi, vendredi et samedi" width="1024" height="1536" loading="lazy" decoding="async"></div>
         <div class="document-body">

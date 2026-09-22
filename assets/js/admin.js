@@ -8,6 +8,7 @@ const loginMsg = document.getElementById('login-msg');
 const logoutBtn = document.getElementById('logout');
 const recordsEl = document.getElementById('records');
 const exportBtn = document.getElementById('export-csv');
+const attendanceExportBtn = document.getElementById('export-attendance');
 const seedBtn = document.getElementById('seed-pages');
 const seedSlotsBtn = document.getElementById('seed-slots');
 const seedServicesBtn = document.getElementById('seed-services');
@@ -369,6 +370,7 @@ async function init(){
     renderRows();
     setAdminStatus('Filtres effacés.');
   });
+  attendanceExportBtn?.addEventListener('click', exportAttendanceSheet);
   seedBtn?.addEventListener('click', seedPages);
   seedSlotsBtn?.addEventListener('click', seedSlots);
   seedServicesBtn?.addEventListener('click', seedServices);
@@ -421,6 +423,7 @@ async function loadCollection(){
   if (!isVerifiedAdmin) return;
   if (unsub) unsub();
   collectionTitle.textContent = labels[currentCollection] || currentCollection;
+  if (attendanceExportBtn) attendanceExportBtn.hidden = currentCollection !== 'reservations';
   recordsEl.innerHTML = '<p>Chargement…</p>';
   summaryEl.innerHTML = '';
 
@@ -908,6 +911,115 @@ function csvCell(value){
   return `"${text.replace(/"/g, '""')}"`;
 }
 
+function reservationParticipantName(row){
+  const splitName = [row.firstName, row.lastName]
+    .map(value => String(value || '').trim())
+    .filter(Boolean)
+    .join(' ');
+  return splitName || String(row.nom || row.fullName || row.displayName || '').trim();
+}
+
+function attendanceNameKey(row){
+  return normalized(reservationParticipantName(row))
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function attendancePriority(row){
+  const status = normalized(row.status || '');
+  if (/confirme|inscrit|en cours/.test(status)) return 3;
+  if (/recu|nouveau|attente/.test(status)) return 2;
+  return 1;
+}
+
+function deduplicateAttendanceRows(inputRows){
+  const unique = new Map();
+  let duplicates = 0;
+  let excluded = 0;
+
+  for (const row of inputRows){
+    if (/annul|abandon/.test(normalized(row.status || ''))){
+      excluded++;
+      continue;
+    }
+    const nameKey = attendanceNameKey(row);
+    const activityKey = normalized(reservationActivity(row)).replace(/[^a-z0-9]+/g, ' ').trim();
+    const key = nameKey ? `${nameKey}|${activityKey}` : `reservation-unique-${row.id}`;
+    const previous = unique.get(key);
+    if (!previous){
+      unique.set(key, row);
+      continue;
+    }
+    duplicates++;
+    if (attendancePriority(row) > attendancePriority(previous)) unique.set(key, row);
+  }
+
+  return {
+    rows: [...unique.values()].sort((a, b) =>
+      reservationParticipantName(a).localeCompare(reservationParticipantName(b), 'fr', {sensitivity:'base'})
+    ),
+    duplicates,
+    excluded
+  };
+}
+
+function filenamePart(value){
+  return normalized(value || 'toutes-activites')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'toutes-activites';
+}
+
+function exportAttendanceSheet(){
+  if (currentCollection !== 'reservations'){
+    setAdminStatus('Ouvrez les réservations pour créer une fiche de présence.', true);
+    return;
+  }
+
+  const filteredRows = applyAdminFilters(rows);
+  const attendance = deduplicateAttendanceRows(filteredRows);
+  if (!attendance.rows.length){
+    setAdminStatus('Aucune inscription active à placer sur la fiche avec les filtres actuels.', true);
+    return;
+  }
+
+  const selectedActivity = adminActivity?.value || 'Toutes les activités';
+  const selectedSession = adminSession?.value || '';
+  const header = ['N°', 'Nom et prénom', 'Activité', 'Téléphone', 'E-mail', 'Statut inscription', 'Présent(e)', 'Absent(e)', 'Signature / remarque'];
+  const lines = [
+    [csvCell('Fiche de présence Équilibre Vital')],
+    [csvCell('Activité'), csvCell(selectedActivity)],
+    [csvCell('Session'), csvCell(selectedSession)],
+    [csvCell('Date de la séance'), csvCell('')],
+    [],
+    header.map(csvCell),
+    ...attendance.rows.map((row, index) => [
+      index + 1,
+      reservationParticipantName(row) || 'Nom non renseigné',
+      reservationActivity(row),
+      row.tel || row.phone || row.telephone || '',
+      row.email || '',
+      labelForValue(row.status || 'en attente'),
+      '',
+      '',
+      ''
+    ].map(csvCell))
+  ];
+  const csv = lines.map(line => line.join(';')).join('\r\n');
+  const blob = new Blob(['\uFEFF', csv], {type:'text/csv;charset=utf-8'});
+  const link = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0, 10);
+  link.href = URL.createObjectURL(blob);
+  link.download = `fiche-presence-${filenamePart(selectedActivity)}-${stamp}.csv`;
+  link.click();
+  setAdminStatus(
+    attendance.rows.length + ' participant' + (attendance.rows.length > 1 ? 's uniques exportés' : ' unique exporté') +
+    (attendance.duplicates ? ` · ${attendance.duplicates} doublon${attendance.duplicates > 1 ? 's' : ''} retiré${attendance.duplicates > 1 ? 's' : ''}` : '') +
+    (attendance.excluded ? ` · ${attendance.excluded} inscription${attendance.excluded > 1 ? 's' : ''} annulée${attendance.excluded > 1 ? 's' : ''} exclue${attendance.excluded > 1 ? 's' : ''}` : '') +
+    '.'
+  );
+  setTimeout(() => URL.revokeObjectURL(link.href), 1500);
+}
+
 exportBtn.addEventListener('click', () => {
   const exportRows = applyAdminFilters(rows);
   if (!exportRows.length){
@@ -1011,6 +1123,7 @@ function switchTab(tab){
   if (!labels[tab]) return;
   currentCollection = tab;
   if (adminActivityLabel) adminActivityLabel.hidden = tab !== 'reservations';
+  if (attendanceExportBtn) attendanceExportBtn.hidden = tab !== 'reservations';
   saveAdminView();
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   loadCollection();

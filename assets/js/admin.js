@@ -95,7 +95,10 @@ function fmtDate(v){
 
 
 const fieldLabels = {
-  nom: 'Nom',
+  nom: 'Enfant / participant',
+  participantName: 'Enfant / participant',
+  childName: 'Nom de l’enfant',
+  parentName: 'Parent / responsable',
   fullName: 'Nom complet',
   displayName: 'Nom affiché',
   firstName: 'Prénom',
@@ -459,7 +462,7 @@ function findDuplicateReservations(reservations){
   const groups = new Map();
   for (const row of reservations){
     if (/annul|abandon/i.test(String(row.status || ''))) continue;
-    const name = normalized(row.nom || row.fullName || '').replace(/[^a-z0-9]+/g, ' ').trim();
+    const name = normalized(reservationParticipantName(row)).replace(/[^a-z0-9]+/g, ' ').trim();
     const activity = normalized(reservationActivity(row)).replace(/[^a-z0-9]+/g, ' ').trim();
     if (!name || !activity) continue;
     const date = rowDateISO(row.createdAt);
@@ -681,7 +684,8 @@ function renderAdminTable(tableRows){
     : ['ID client','Nom','E-mail','Téléphone','Session','Statut','Création','Gestion'];
   const body = tableRows.map(r => {
     const idLabel = r.reservationCode || r.messageCode || r.memberCode || r.trackingCode || r.id;
-    const name = r.nom || r.fullName || r.displayName || '—';
+    const name = reservationParticipantName(r) || '—';
+    const parentName = r.parentName || r.parentGuardianName || '—';
     const email = r.email || '—';
     const phone = r.tel || r.phone || r.telephone || '—';
     const session = r.session || r.sessionName || '—';
@@ -694,7 +698,7 @@ function renderAdminTable(tableRows){
     const created = fmtDate(r.createdAt) || '—';
     return `<tr>
       <td data-label="${isReservations ? 'ID réservation' : 'ID client'}"><code>${esc(idLabel)}</code></td>
-      <td data-label="Nom">${esc(name)}${isReservations && duplicateReservationIds.has(r.id) ? '<span class="admin-duplicate-v115">Doublon possible</span>' : ''}</td>
+      <td data-label="Enfant / participant">${esc(name)}${isReservations && parentName !== '—' ? `<small style="display:block;margin-top:4px;color:#665f70">Parent : ${esc(parentName)}</small>` : ''}${isReservations && duplicateReservationIds.has(r.id) ? '<span class="admin-duplicate-v115">Doublon possible</span>' : ''}</td>
       <td data-label="E-mail">${emailWithCopy(email === '—' ? '' : email)}</td>
       <td data-label="Téléphone">${esc(phone)}</td>
       ${isReservations ? `<td data-label="Activité">${esc(reservationActivity(r) || '—')}<details class="admin-transfer-details-v113"><summary>Changer de groupe</summary>${renderTransferControl(r)}</details></td>` : ''}
@@ -916,7 +920,7 @@ function reservationParticipantName(row){
     .map(value => String(value || '').trim())
     .filter(Boolean)
     .join(' ');
-  return splitName || String(row.nom || row.fullName || row.displayName || '').trim();
+  return String(row.participantName || row.childName || splitName || row.nom || row.fullName || row.displayName || '').trim();
 }
 
 function attendanceNameKey(row){
@@ -1060,14 +1064,16 @@ function createAttendancePdfPages(attendanceRows, logo, metadata){
   const footerHeight = 62;
   const rowsPerPage = Math.floor((height - top - headerHeight - footerHeight) / rowHeight);
   const columns = [
-    {key:'number', label:'N°', width:58, align:'center'},
-    {key:'name', label:'Nom et prénom', width:260},
-    {key:'activity', label:'Activité / groupe', width:300},
-    {key:'phone', label:'Téléphone', width:170},
-    {key:'email', label:'E-mail', width:270},
-    {key:'present', label:'Présent(e)', width:115, align:'center'},
-    {key:'absent', label:'Absent(e)', width:115, align:'center'},
-    {key:'remark', label:'Signature / remarque', width:312}
+    {key:'number', label:'N°', width:48, align:'center'},
+    {key:'name', label:'Enfant / participant', width:220},
+    {key:'parent', label:'Parent / responsable', width:190},
+    {key:'activity', label:'Activité / groupe', width:230},
+    {key:'phone', label:'Téléphone', width:140},
+    {key:'email', label:'E-mail', width:190},
+    {key:'present', label:'Présent(e)', width:90, align:'center'},
+    {key:'absent', label:'Absent(e)', width:90, align:'center'},
+    {key:'exit', label:'Sortie / heure', width:130, align:'center'},
+    {key:'remark', label:'Signature / remarque', width:282}
   ];
   const totalPages = Math.ceil(attendanceRows.length / rowsPerPage);
   const pages = [];
@@ -1149,6 +1155,7 @@ function createAttendancePdfPages(attendanceRows, logo, metadata){
       const values = {
         number: pageIndex * rowsPerPage + rowIndex + 1,
         name: reservationParticipantName(row) || 'Nom non renseigné',
+        parent: row.parentName || row.parentGuardianName || '',
         activity: reservationActivity(row),
         phone: row.tel || row.phone || row.telephone || '',
         email: row.email || ''
@@ -1165,6 +1172,11 @@ function createAttendancePdfPages(attendanceRows, logo, metadata){
           ctx.strokeStyle = '#526077';
           ctx.lineWidth = 2;
           ctx.strokeRect(x + (column.width - size) / 2, y + (rowHeight - size) / 2, size, size);
+        } else if (column.key === 'exit') {
+          ctx.fillStyle = '#526077';
+          ctx.font = '16px Arial, sans-serif';
+          const exitPlaceholder = '____ : ____';
+          ctx.fillText(exitPlaceholder, x + (column.width - ctx.measureText(exitPlaceholder).width) / 2, y + 33);
         } else if (column.key !== 'remark') {
           ctx.fillStyle = '#1f2937';
           ctx.font = column.key === 'name' ? '700 17px Arial, sans-serif' : '16px Arial, sans-serif';

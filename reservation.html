@@ -113,9 +113,10 @@
 </fieldset>
 <fieldset>
 <legend>2. Vos coordonnées</legend>
-<label>Prénom et nom de la personne à inscrire<input autocomplete="name" name="nom" placeholder="Prénom Nom" required=""/></label>
-<p class="field-help-v80 full">Pour un enfant, indiquez son prénom et son nom. Deux enfants peuvent porter le même nom de famille.</p>
-<label>Email<input autocomplete="email" name="email" placeholder="exemple@domaine.be" required="" type="email"/></label>
+<label>Prénom et nom de l’enfant ou du participant<input autocomplete="off" name="nom" placeholder="Ex. Lina Dupont" required=""/></label>
+<label>Prénom et nom du parent ou responsable <span class="field-help-v80">si le participant est mineur</span><input autocomplete="name" name="parentName" placeholder="Ex. Sarah Dupont"/></label>
+<p class="field-help-v80 full"><strong>Important :</strong> indiquez bien le nom de l’enfant dans le premier champ. Le nom du parent est enregistré séparément.</p>
+<label>Email du contact<input autocomplete="email" name="email" placeholder="exemple@domaine.be" required="" type="email"/></label>
 <label>Téléphone <span class="field-help-v80">facultatif</span><input autocomplete="tel" inputmode="tel" name="tel" placeholder="0492 691 070" type="tel"/></label>
 </fieldset>
 <details class="optional-fields-v80">

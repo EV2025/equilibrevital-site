@@ -969,7 +969,230 @@ function filenamePart(value){
     .replace(/^-+|-+$/g, '') || 'toutes-activites';
 }
 
-function exportAttendanceSheet(){
+function loadAttendanceLogo(){
+  return new Promise(resolve => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => resolve(null);
+    image.src = '../wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png';
+  });
+}
+
+function fitCanvasText(ctx, value, maxWidth){
+  const text = String(value ?? '').trim();
+  if (!text || ctx.measureText(text).width <= maxWidth) return text;
+  let fitted = text;
+  while (fitted.length > 1 && ctx.measureText(fitted + '…').width > maxWidth) fitted = fitted.slice(0, -1);
+  return fitted + '…';
+}
+
+function jpegBytes(dataUrl){
+  const binary = atob(dataUrl.split(',')[1]);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
+  return bytes;
+}
+
+function buildImagePdf(pageImages, canvasWidth, canvasHeight){
+  const encoder = new TextEncoder();
+  const chunks = [];
+  const offsets = [];
+  let length = 0;
+  const append = value => {
+    const bytes = typeof value === 'string' ? encoder.encode(value) : value;
+    chunks.push(bytes);
+    length += bytes.length;
+  };
+  const object = (number, parts) => {
+    offsets[number] = length;
+    append(`${number} 0 obj\n`);
+    for (const part of parts) append(part);
+    append('\nendobj\n');
+  };
+
+  const pageWidth = 841.89;
+  const pageHeight = 595.28;
+  const objectCount = 2 + pageImages.length * 3;
+  append('%PDF-1.4\n');
+
+  object(1, ['<< /Type /Catalog /Pages 2 0 R >>']);
+  const pageReferences = pageImages.map((_, index) => `${3 + index * 3} 0 R`).join(' ');
+  object(2, [`<< /Type /Pages /Kids [${pageReferences}] /Count ${pageImages.length} >>`]);
+
+  pageImages.forEach((imageBytes, index) => {
+    const pageObject = 3 + index * 3;
+    const imageObject = pageObject + 1;
+    const contentObject = pageObject + 2;
+    const content = `q ${pageWidth} 0 0 ${pageHeight} 0 0 cm /Im0 Do Q`;
+
+    object(pageObject, [
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] `,
+      `/Resources << /XObject << /Im0 ${imageObject} 0 R >> >> /Contents ${contentObject} 0 R >>`
+    ]);
+    object(imageObject, [
+      `<< /Type /XObject /Subtype /Image /Width ${canvasWidth} /Height ${canvasHeight} `,
+      `/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imageBytes.length} >>\nstream\n`,
+      imageBytes,
+      '\nendstream'
+    ]);
+    object(contentObject, [
+      `<< /Length ${encoder.encode(content).length} >>\nstream\n${content}\nendstream`
+    ]);
+  });
+
+  const xrefOffset = length;
+  append(`xref\n0 ${objectCount + 1}\n`);
+  append('0000000000 65535 f \n');
+  for (let number = 1; number <= objectCount; number++){
+    append(String(offsets[number]).padStart(10, '0') + ' 00000 n \n');
+  }
+  append(`trailer\n<< /Size ${objectCount + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`);
+  return new Blob(chunks, {type:'application/pdf'});
+}
+
+function createAttendancePdfPages(attendanceRows, logo, metadata){
+  const width = 1754;
+  const height = 1240;
+  const margin = 72;
+  const top = 292;
+  const headerHeight = 64;
+  const rowHeight = 52;
+  const footerHeight = 62;
+  const rowsPerPage = Math.floor((height - top - headerHeight - footerHeight) / rowHeight);
+  const columns = [
+    {key:'number', label:'N°', width:58, align:'center'},
+    {key:'name', label:'Nom et prénom', width:260},
+    {key:'activity', label:'Activité / groupe', width:300},
+    {key:'phone', label:'Téléphone', width:170},
+    {key:'email', label:'E-mail', width:270},
+    {key:'present', label:'Présent(e)', width:115, align:'center'},
+    {key:'absent', label:'Absent(e)', width:115, align:'center'},
+    {key:'remark', label:'Signature / remarque', width:312}
+  ];
+  const totalPages = Math.ceil(attendanceRows.length / rowsPerPage);
+  const pages = [];
+
+  for (let pageIndex = 0; pageIndex < totalPages; pageIndex++){
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = '#071c49';
+    ctx.fillRect(0, 0, width, 22);
+    ctx.fillStyle = '#00aeb5';
+    ctx.fillRect(0, 22, width, 9);
+
+    if (logo) {
+      const ratio = Math.min(130 / logo.width, 130 / logo.height);
+      const logoWidth = logo.width * ratio;
+      const logoHeight = logo.height * ratio;
+      ctx.drawImage(logo, margin, 55, logoWidth, logoHeight);
+    }
+
+    ctx.fillStyle = '#071c49';
+    ctx.font = '700 42px Arial, sans-serif';
+    ctx.fillText('FICHE DE PRÉSENCE', 270, 92);
+    ctx.fillStyle = '#e7007f';
+    ctx.font = '700 25px Arial, sans-serif';
+    ctx.fillText('ÉQUILIBRE VITAL ASBL', 270, 132);
+    ctx.fillStyle = '#526077';
+    ctx.font = '20px Arial, sans-serif';
+    ctx.fillText('Liste générée depuis le tableau de bord administratif', 270, 168);
+
+    const boxY = 205;
+    const boxGap = 18;
+    const boxWidth = (width - margin * 2 - boxGap * 2) / 3;
+    const boxes = [
+      ['ACTIVITÉ', metadata.activity || 'Toutes les activités'],
+      ['SESSION', metadata.session || 'Non précisée'],
+      ['DATE DE LA SÉANCE', '____ / ____ / ______']
+    ];
+    boxes.forEach((box, index) => {
+      const x = margin + index * (boxWidth + boxGap);
+      ctx.fillStyle = index === 0 ? '#eaf9fa' : '#f4f1fb';
+      ctx.fillRect(x, boxY, boxWidth, 66);
+      ctx.strokeStyle = index === 0 ? '#00aeb5' : '#d8d0ea';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, boxY, boxWidth, 66);
+      ctx.fillStyle = '#526077';
+      ctx.font = '700 14px Arial, sans-serif';
+      ctx.fillText(box[0], x + 16, boxY + 21);
+      ctx.fillStyle = '#1f1730';
+      ctx.font = '700 20px Arial, sans-serif';
+      ctx.fillText(fitCanvasText(ctx, box[1], boxWidth - 32), x + 16, boxY + 49);
+    });
+
+    let x = margin;
+    ctx.fillStyle = '#071c49';
+    ctx.fillRect(margin, top, width - margin * 2, headerHeight);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '700 17px Arial, sans-serif';
+    columns.forEach(column => {
+      const textWidth = ctx.measureText(column.label).width;
+      const textX = column.align === 'center' ? x + (column.width - textWidth) / 2 : x + 12;
+      ctx.fillText(column.label, textX, top + 40);
+      x += column.width;
+    });
+
+    const pageRows = attendanceRows.slice(pageIndex * rowsPerPage, (pageIndex + 1) * rowsPerPage);
+    pageRows.forEach((row, rowIndex) => {
+      const y = top + headerHeight + rowIndex * rowHeight;
+      ctx.fillStyle = rowIndex % 2 ? '#f8f9fc' : '#ffffff';
+      ctx.fillRect(margin, y, width - margin * 2, rowHeight);
+      ctx.strokeStyle = '#d9dee8';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(margin, y, width - margin * 2, rowHeight);
+
+      const values = {
+        number: pageIndex * rowsPerPage + rowIndex + 1,
+        name: reservationParticipantName(row) || 'Nom non renseigné',
+        activity: reservationActivity(row),
+        phone: row.tel || row.phone || row.telephone || '',
+        email: row.email || ''
+      };
+      x = margin;
+      columns.forEach(column => {
+        ctx.strokeStyle = '#d9dee8';
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x, y + rowHeight);
+        ctx.stroke();
+        if (column.key === 'present' || column.key === 'absent'){
+          const size = 23;
+          ctx.strokeStyle = '#526077';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x + (column.width - size) / 2, y + (rowHeight - size) / 2, size, size);
+        } else if (column.key !== 'remark') {
+          ctx.fillStyle = '#1f2937';
+          ctx.font = column.key === 'name' ? '700 17px Arial, sans-serif' : '16px Arial, sans-serif';
+          const value = fitCanvasText(ctx, values[column.key], column.width - 24);
+          const measured = ctx.measureText(value).width;
+          const textX = column.align === 'center' ? x + (column.width - measured) / 2 : x + 12;
+          ctx.fillText(value, textX, y + 33);
+        }
+        x += column.width;
+      });
+    });
+
+    const footerY = height - 34;
+    ctx.fillStyle = '#526077';
+    ctx.font = '15px Arial, sans-serif';
+    ctx.fillText('www.equilibrevital.be', margin, footerY);
+    const summary = `${attendanceRows.length} participant${attendanceRows.length > 1 ? 's' : ''} unique${attendanceRows.length > 1 ? 's' : ''}`;
+    const summaryWidth = ctx.measureText(summary).width;
+    ctx.fillText(summary, (width - summaryWidth) / 2, footerY);
+    const pageLabel = `Page ${pageIndex + 1} / ${totalPages}`;
+    ctx.fillText(pageLabel, width - margin - ctx.measureText(pageLabel).width, footerY);
+
+    pages.push(jpegBytes(canvas.toDataURL('image/jpeg', 0.94)));
+  }
+  return {pages, width, height};
+}
+
+async function exportAttendanceSheet(){
   if (currentCollection !== 'reservations'){
     setAdminStatus('Ouvrez les réservations pour créer une fiche de présence.', true);
     return;
@@ -984,40 +1207,41 @@ function exportAttendanceSheet(){
 
   const selectedActivity = adminActivity?.value || 'Toutes les activités';
   const selectedSession = adminSession?.value || '';
-  const header = ['N°', 'Nom et prénom', 'Activité', 'Téléphone', 'E-mail', 'Statut inscription', 'Présent(e)', 'Absent(e)', 'Signature / remarque'];
-  const lines = [
-    [csvCell('Fiche de présence Équilibre Vital')],
-    [csvCell('Activité'), csvCell(selectedActivity)],
-    [csvCell('Session'), csvCell(selectedSession)],
-    [csvCell('Date de la séance'), csvCell('')],
-    [],
-    header.map(csvCell),
-    ...attendance.rows.map((row, index) => [
-      index + 1,
-      reservationParticipantName(row) || 'Nom non renseigné',
-      reservationActivity(row),
-      row.tel || row.phone || row.telephone || '',
-      row.email || '',
-      labelForValue(row.status || 'en attente'),
-      '',
-      '',
-      ''
-    ].map(csvCell))
-  ];
-  const csv = lines.map(line => line.join(';')).join('\r\n');
-  const blob = new Blob(['\uFEFF', csv], {type:'text/csv;charset=utf-8'});
-  const link = document.createElement('a');
-  const stamp = new Date().toISOString().slice(0, 10);
-  link.href = URL.createObjectURL(blob);
-  link.download = `fiche-presence-${filenamePart(selectedActivity)}-${stamp}.csv`;
-  link.click();
-  setAdminStatus(
-    attendance.rows.length + ' participant' + (attendance.rows.length > 1 ? 's uniques exportés' : ' unique exporté') +
-    (attendance.duplicates ? ` · ${attendance.duplicates} doublon${attendance.duplicates > 1 ? 's' : ''} retiré${attendance.duplicates > 1 ? 's' : ''}` : '') +
-    (attendance.excluded ? ` · ${attendance.excluded} inscription${attendance.excluded > 1 ? 's' : ''} annulée${attendance.excluded > 1 ? 's' : ''} exclue${attendance.excluded > 1 ? 's' : ''}` : '') +
-    '.'
-  );
-  setTimeout(() => URL.revokeObjectURL(link.href), 1500);
+  const previousText = attendanceExportBtn?.textContent || 'Télécharger la fiche de présence';
+  if (attendanceExportBtn){
+    attendanceExportBtn.disabled = true;
+    attendanceExportBtn.textContent = 'Préparation du PDF…';
+  }
+  setAdminStatus('Création de la fiche de présence…');
+
+  try{
+    const logo = await loadAttendanceLogo();
+    const pdfPages = createAttendancePdfPages(attendance.rows, logo, {
+      activity: selectedActivity,
+      session: selectedSession
+    });
+    const pdf = buildImagePdf(pdfPages.pages, pdfPages.width, pdfPages.height);
+    const link = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 10);
+    link.href = URL.createObjectURL(pdf);
+    link.download = `fiche-presence-${filenamePart(selectedActivity)}-${stamp}.pdf`;
+    link.click();
+    setAdminStatus(
+      attendance.rows.length + ' participant' + (attendance.rows.length > 1 ? 's uniques exportés' : ' unique exporté') +
+      (attendance.duplicates ? ` · ${attendance.duplicates} doublon${attendance.duplicates > 1 ? 's' : ''} retiré${attendance.duplicates > 1 ? 's' : ''}` : '') +
+      (attendance.excluded ? ` · ${attendance.excluded} inscription${attendance.excluded > 1 ? 's' : ''} annulée${attendance.excluded > 1 ? 's' : ''} exclue${attendance.excluded > 1 ? 's' : ''}` : '') +
+      '.'
+    );
+    setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+  }catch(error){
+    console.error('Création de la fiche de présence:', error);
+    setAdminStatus('La fiche PDF n’a pas pu être créée. Réessayez après avoir actualisé la page.', true);
+  }finally{
+    if (attendanceExportBtn){
+      attendanceExportBtn.disabled = false;
+      attendanceExportBtn.textContent = previousText;
+    }
+  }
 }
 
 exportBtn.addEventListener('click', () => {

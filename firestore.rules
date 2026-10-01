@@ -114,7 +114,8 @@ service cloud.firestore {
 
     function validReservationCreate() {
       return request.resource.data.keys().hasOnly([
-          'nom', 'email', 'tel', 'message', 'objectif', 'creneau', 'modules',
+          'nom', 'parentName', 'email', 'tel', 'message', 'objectif', 'creneau', 'modules',
+          'programmeId', 'registrationMode',
           'reservationCode', 'trackingCode', 'status', 'paymentStatus', 'priceAmount',
           'priceCurrency', 'priceLabel', 'paymentMethod', 'paymentReference',
           'paymentAmount', 'paymentAmountCents', 'paymentCurrency', 'paymentLabel',
@@ -124,8 +125,12 @@ service cloud.firestore {
         && validPublicBase()
         && validTrackingCode(request.resource.data.reservationCode, 'RES')
         && request.resource.data.trackingCode == request.resource.data.reservationCode
-        && request.resource.data.status in ['reçu', 'en attente', 'nouveau']
+        && request.resource.data.status in ['reçu', 'en attente', 'nouveau', 'liste attente']
         && optionalString('tel', 60)
+        && optionalString('parentName', 120)
+        && optionalString('programmeId', 80)
+        && optionalString('registrationMode', 30)
+        && (!('registrationMode' in request.resource.data) || request.resource.data.registrationMode in ['registration', 'waitlist'])
         && optionalString('message', 3000)
         && optionalString('objectif', 1000)
         && optionalString('creneau', 300)

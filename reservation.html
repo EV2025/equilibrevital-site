@@ -75,6 +75,14 @@
 <link href="./assets/css/pwa-promo-v1.css?v=20260901-1" rel="stylesheet"/>
 <link href="./assets/css/form-comfort-v80.css" rel="stylesheet"/>
 <link href="./assets/css/interface-guard-v90.css?v=20260829-90" rel="stylesheet"/>
+
+<style>
+.programme-availability-v121{margin:12px 0;padding:9px 12px;border-radius:12px;background:#eaf9fa;color:#075d63;font-weight:800}
+.programme-availability-v121[data-state="waiting"],#reservation-availability[data-state="waiting"]{background:#fff3d9;color:#765019}
+.programme-availability-v121[data-state="closed"],#reservation-availability[data-state="closed"]{background:#fbeaec;color:#8c2732}
+.is-disabled-v121{pointer-events:none;opacity:.62}
+#reservation-availability{grid-column:1/-1;margin:4px 0 0;padding:11px 13px;border-radius:14px;background:#eaf9fa;color:#075d63;font-weight:800}
+</style>
 </head>
 <body class="pssr-page v30-circle-global ev39-page interface-page-v90">
 <main class="pssr-main" id="main">
@@ -109,6 +117,7 @@
 <option>Coaching motivationnel</option>
 </optgroup>
 </select></label>
+<p class="full" hidden id="reservation-availability" role="status"></p>
 <p class="payment-intro-v1 full"><strong>Montant :</strong> 165 € pour la cotisation PSSR. Le virement est effectué après l’envoi avec une référence unique.</p>
 </fieldset>
 <fieldset>
@@ -128,6 +137,8 @@
 </div>
 </details>
 <label class="full consent"><input name="rgpdConsent" required="" type="checkbox"/> <span>J’accepte que mes données soient utilisées pour traiter ma réservation. <a href="./confidentialite-rgpd.html" rel="noopener" target="_blank">Politique de confidentialité</a>.</span></label>
+<input name="programmeId" type="hidden" value=""/>
+<input name="registrationMode" type="hidden" value="registration"/>
 <input name="priceAmount" type="hidden" value="165"/>
 <input name="priceCurrency" type="hidden" value="EUR"/>
 <input name="priceLabel" type="hidden" value="Cotisation PSSR — année académique"/>
@@ -138,8 +149,8 @@
 </form>
 </section>
 </main>
-<script data-programmes-src="./assets/data/programmes-v84.json?v=20260916-109" defer src="./assets/js/programmes-v84.js?v=20260916-109"></script>
-<script defer="" src="./assets/js/firebase-contact.js?v=20260918-115" type="module"></script>
+<script data-programmes-src="./assets/data/programmes-v84.json?v=20261001-121" defer src="./assets/js/programmes-v84.js?v=20261001-121"></script><script defer src="./assets/js/programme-availability-v121.js?v=20261001-121" type="module"></script>
+<script defer="" src="./assets/js/firebase-contact.js?v=20261001-121" type="module"></script>
 <script defer="" src="./assets/js/media-fallback.js"></script>
 <script defer="True" src="./assets/js/v39-complet-coherence-roles.js"></script><script defer="" src="./assets/js/v41-footer-burger.js"></script><script defer src="./assets/js/form-comfort-v80.js"></script>
 </body>

@@ -9,6 +9,7 @@ const logoutBtn = document.getElementById('logout');
 const recordsEl = document.getElementById('records');
 const exportBtn = document.getElementById('export-csv');
 const attendanceExportBtn = document.getElementById('export-attendance');
+const publishAvailabilityBtn = document.getElementById('publish-availability');
 const seedBtn = document.getElementById('seed-pages');
 const seedSlotsBtn = document.getElementById('seed-slots');
 const seedServicesBtn = document.getElementById('seed-services');
@@ -31,6 +32,7 @@ let currentCollection = 'stats';
 let rows = [];
 let duplicateReservationIds = new Set();
 let programmeChoices = [];
+let availabilityPublishTimer = null;
 let modules = {};
 let unsub = null;
 let isVerifiedAdmin = false;
@@ -394,6 +396,7 @@ async function init(){
     setAdminStatus('Filtres effacés.');
   });
   attendanceExportBtn?.addEventListener('click', exportAttendanceSheet);
+  publishAvailabilityBtn?.addEventListener('click', () => publishProgrammeAvailability({silent:false}));
   seedBtn?.addEventListener('click', seedPages);
   seedSlotsBtn?.addEventListener('click', seedSlots);
   seedServicesBtn?.addEventListener('click', seedServices);
@@ -448,6 +451,7 @@ async function loadCollection(){
   collectionTitle.textContent = labels[currentCollection] || currentCollection;
   if (adminRequestTypeLabel) adminRequestTypeLabel.hidden = currentCollection !== 'messages';
   if (attendanceExportBtn) attendanceExportBtn.hidden = currentCollection !== 'reservations';
+  if (publishAvailabilityBtn) publishAvailabilityBtn.hidden = currentCollection !== 'reservations';
   recordsEl.innerHTML = '<p>Chargement…</p>';
   summaryEl.innerHTML = '';
 
@@ -470,6 +474,7 @@ async function loadCollection(){
     updateActivityOptions();
     renderRows();
     renderSummary();
+    scheduleAvailabilityPublish();
     setAdminStatus(`Synchronisé en temps réel · ${new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'})}`);
   }, err => {
     console.error('Admin realtime sync:', err);
@@ -529,7 +534,8 @@ function renderSummary(){
   const total = rows.length;
   const nouveau = rows.filter(r => /nou|reçu|recu/i.test(String(r.status || '').toLowerCase())).length;
   const traite = rows.filter(r => /trait|confirm|pay/i.test(String(r.status || r.paymentStatus || ''))).length;
-  summaryEl.innerHTML = `<div class="admin-summary"><div class="metric"><strong>${total}</strong><span>Total</span></div><div class="metric"><strong>${nouveau}</strong><span>Nouveaux / reçus</span></div><div class="metric"><strong>${traite}</strong><span>Traités / confirmés</span></div>${currentCollection === 'reservations' ? `<div class="metric"><strong>${duplicateReservationIds.size}</strong><span>Doublons à vérifier</span></div>` : ''}</div>`;
+  const waiting = currentCollection === 'reservations' ? rows.filter(r => /liste attente/i.test(String(r.status || ''))).length : 0;
+  summaryEl.innerHTML = `<div class="admin-summary"><div class="metric"><strong>${total}</strong><span>Total</span></div><div class="metric"><strong>${nouveau}</strong><span>Nouveaux / reçus</span></div><div class="metric"><strong>${traite}</strong><span>Traités / confirmés</span></div>${currentCollection === 'reservations' ? `<div class="metric"><strong>${waiting}</strong><span>Liste d’attente</span></div><div class="metric"><strong>${duplicateReservationIds.size}</strong><span>Doublons à vérifier</span></div>` : ''}</div>`;
 }
 
 function actionsFor(r){
@@ -594,20 +600,97 @@ function rowDateISO(v){
 }
 async function loadProgrammeChoices(){
   try{
-    const response = await fetch('../assets/data/programmes-v84.json?v=20260918-110', {credentials:'same-origin'});
+    const response = await fetch('../assets/data/programmes-v84.json?v=20261001-121', {credentials:'same-origin'});
     if (!response.ok) throw new Error('Catalogue indisponible');
     const data = await response.json();
     programmeChoices = (data.programmes || [])
       .filter(programme => programme.registrationOpen !== false && programme.reservationLabel)
       .map(programme => ({
+        id: programme.id,
         label: programme.reservationLabel,
-        modules: programme.modulesLabel || programme.name || programme.reservationLabel
+        modules: programme.modulesLabel || programme.name || programme.reservationLabel,
+        capacity: Number(programme.capacity || 0),
+        waitlistLimit: Number(programme.waitlistLimit || programme.capacity || 0)
       }));
-    if (currentCollection === 'reservations') renderRows();
+    if (currentCollection === 'reservations') {
+      renderRows();
+      scheduleAvailabilityPublish();
+    }
   }catch(error){
     console.warn('Groupes disponibles:', error);
     setAdminStatus('Catalogue des groupes indisponible. Réessayez en rechargeant la page.', true);
   }
+}
+
+
+function availabilityStatusPriority(row){
+  const status = normalized(row.status || '');
+  if (/annul|abandon/.test(status)) return 0;
+  if (/liste attente/.test(status)) return 1;
+  return 2;
+}
+
+function programmeRows(choice){
+  const byParticipant = new Map();
+  for (const row of rows){
+    const activity = normalized(reservationActivity(row));
+    const matches = row.programmeId === choice.id
+      || (activity && (
+        activity === normalized(choice.label)
+        || activity.includes(normalized(choice.label))
+        || normalized(choice.label).includes(activity)
+      ));
+    if (!matches || availabilityStatusPriority(row) === 0) continue;
+    const participantKey = attendanceNameKey(row) || `reservation-${row.id}`;
+    const previous = byParticipant.get(participantKey);
+    if (!previous || availabilityStatusPriority(row) > availabilityStatusPriority(previous)) {
+      byParticipant.set(participantKey, row);
+    }
+  }
+  return [...byParticipant.values()];
+}
+
+async function publishProgrammeAvailability({silent = true} = {}){
+  if (!isVerifiedAdmin || currentCollection !== 'reservations' || !programmeChoices.length) return;
+  if (publishAvailabilityBtn && !silent){
+    publishAvailabilityBtn.disabled = true;
+    publishAvailabilityBtn.textContent = 'Actualisation…';
+  }
+  try{
+    const programmes = {};
+    for (const choice of programmeChoices){
+      const programmeReservations = programmeRows(choice);
+      const waiting = programmeReservations.filter(row => /liste attente/.test(normalized(row.status || ''))).length;
+      const registered = programmeReservations.length - waiting;
+      programmes[choice.id] = {
+        label: choice.label,
+        capacity: choice.capacity,
+        waitlistLimit: choice.waitlistLimit || choice.capacity,
+        registered,
+        waiting
+      };
+    }
+    await modules.setDoc(modules.doc(db, 'settings', 'programmeAvailability'), {
+      programmes,
+      updatedAt: modules.serverTimestamp(),
+      updatedBy: auth.currentUser?.uid || ''
+    });
+    if (!silent) setAdminStatus('Compteurs publics actualisés à partir des inscriptions réelles.');
+  }catch(error){
+    console.error('Compteurs publics:', error);
+    if (!silent) setAdminStatus('Impossible d’actualiser les compteurs publics. Vérifiez les règles Firebase.', true);
+  }finally{
+    if (publishAvailabilityBtn && !silent){
+      publishAvailabilityBtn.disabled = false;
+      publishAvailabilityBtn.textContent = 'Actualiser les compteurs publics';
+    }
+  }
+}
+
+function scheduleAvailabilityPublish(){
+  if (currentCollection !== 'reservations' || !programmeChoices.length || !rows.length) return;
+  clearTimeout(availabilityPublishTimer);
+  availabilityPublishTimer = setTimeout(() => publishProgrammeAvailability({silent:true}), 900);
 }
 
 function reservationActivity(r){
@@ -1401,6 +1484,7 @@ function switchTab(tab){
   if (adminActivityLabel) adminActivityLabel.hidden = tab !== 'reservations';
   if (adminRequestTypeLabel) adminRequestTypeLabel.hidden = tab !== 'messages';
   if (attendanceExportBtn) attendanceExportBtn.hidden = tab !== 'reservations';
+  if (publishAvailabilityBtn) publishAvailabilityBtn.hidden = tab !== 'reservations';
   saveAdminView();
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   loadCollection();

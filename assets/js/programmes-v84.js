@@ -17,7 +17,7 @@
     const registrationClosed = programme.registrationOpen === false;
     const actions = registrationClosed
       ? `<p class="programme-unavailable-v104" role="status"><strong>${esc(programme.registrationNotice || 'Indisponible pour le moment.')}</strong></p>`
-      : `<div class="programme-actions-v84"><button aria-controls="${detailsId}" aria-expanded="false" class="btn secondary" data-programme-toggle="${detailsId}" type="button">Découvrir</button><a class="btn" href="./reservation.html?programme=${encodeURIComponent(programme.id)}">S’inscrire</a></div>`;
+      : `<div class="programme-actions-v84"><button aria-controls="${detailsId}" aria-expanded="false" class="btn secondary" data-programme-toggle="${detailsId}" type="button">Découvrir</button><a class="btn" data-programme-action="${esc(programme.id)}" href="./reservation.html?programme=${encodeURIComponent(programme.id)}">S’inscrire</a></div>`;
     return `<article class="programme-card-v84 programme-${esc(programme.universe)}-v84${registrationClosed ? ' programme-suspended-v108' : ''}" id="${esc(programme.id)}">
       <div class="programme-card-top-v84">
         <div class="programme-schedule-v94">
@@ -28,6 +28,7 @@
       </div>
       <h3>${esc(programme.name)}</h3>
       ${programme.activities?.length ? `<p class="programme-activities-v94">${programme.activities.map(esc).join(' <span aria-hidden="true">•</span> ')}</p>` : ''}
+      ${programme.registrationOpen === false && !programme.waitlistEnabled ? '' : `<p class="programme-availability-v121" data-programme-availability="${esc(programme.id)}">Inscriptions ouvertes${programme.capacity ? ` · ${programme.capacity} places maximum` : ''}</p>`}
       ${actions}
       <section class="programme-details-v84" hidden id="${detailsId}">
         <p class="programme-hook-v84">${esc(programme.hook)}</p>
@@ -92,6 +93,8 @@
     option.textContent = `${programme.day} ${programme.time} — ${programme.name} — ${programme.audience}`;
     option.dataset.programmeId = programme.id;
     option.dataset.modules = programme.modulesLabel;
+    option.dataset.capacity = String(programme.capacity || '');
+    option.dataset.waitlistLimit = String(programme.waitlistLimit || programme.capacity || '');
     return option;
   }
 
@@ -147,6 +150,7 @@
       renderActivities(data);
       populateReservation(data);
       prefillReservation();
+      document.dispatchEvent(new CustomEvent('pssr:programmes-ready', {detail:data}));
     })
     .catch(error => {
       console.error('Programmes:', error);

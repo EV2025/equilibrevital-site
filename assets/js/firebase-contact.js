@@ -13,7 +13,7 @@ async function initFirebase(){
   const appMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js');
   const authMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js');
   const fsMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js');
-  const app = appMod.initializeApp(firebaseConfig);
+  const app = appMod.getApps().length ? appMod.getApp() : appMod.initializeApp(firebaseConfig);
   auth = authMod.getAuth(app);
   if (typeof auth.authStateReady === 'function') await auth.authStateReady();
   db = fsMod.getFirestore(app);
@@ -704,14 +704,19 @@ function showReceipt(form, payload, kind, reservationId = ''){
   const msg = findMessageElement(form);
   const code = payload.reservationCode || payload.messageCode || payload.trackingCode || '—';
   const isReservation = kind === 'reservations';
-  const title = isReservation ? 'Réservation reçue' : 'Demande reçue';
+  const isWaitlist = isReservation && payload.registrationMode === 'waitlist';
+  const title = isWaitlist ? 'Liste d’attente enregistrée' : isReservation ? 'Réservation reçue' : 'Demande reçue';
   const label = isReservation ? 'Numéro de réservation' : 'Numéro de suivi';
-  const next = isReservation
-    ? 'Votre place sera vérifiée par l’équipe. Pour finaliser le dossier, utilisez les informations de virement ci-dessous.'
-    : 'L’équipe PSSR reviendra vers vous dès que possible.';
-  const msgText = isReservation
-    ? `Votre demande de réservation a bien été enregistrée. Votre référence de paiement est ${code}.`
-    : `Votre demande a bien été enregistrée. Votre numéro de suivi est ${code}.`;
+  const next = isWaitlist
+    ? 'Votre position est conservée selon la date et l’heure de la demande. L’équipe vous contactera lorsqu’une place pourra être confirmée.'
+    : isReservation
+      ? 'Votre place sera vérifiée par l’équipe. Pour finaliser le dossier, utilisez les informations de virement ci-dessous.'
+      : 'L’équipe PSSR reviendra vers vous dès que possible.';
+  const msgText = isWaitlist
+    ? `Votre inscription sur la liste d’attente a bien été enregistrée sous la référence ${code}. Aucun paiement n’est demandé pour le moment.`
+    : isReservation
+      ? `Votre demande de réservation a bien été enregistrée. Votre référence de paiement est ${code}.`
+      : `Votre demande a bien été enregistrée. Votre numéro de suivi est ${code}.`;
 
   if (!msg){
     alert(`${msgText}\nConservez ce numéro.`);
@@ -728,16 +733,18 @@ function showReceipt(form, payload, kind, reservationId = ''){
       <p>${esc(msgText)}</p>
       <div class="receipt-code-v58"><span>${esc(label)}</span><strong>${esc(code)}</strong></div>
       <dl class="receipt-details-v58">
-        <div><dt>Statut</dt><dd>${isReservation ? 'Reçu — en attente de virement' : 'Reçu — en attente de traitement'}</dd></div>
+        <div><dt>Statut</dt><dd>${isWaitlist ? 'Inscrit sur la liste d’attente' : isReservation ? 'Reçu — en attente de virement' : 'Reçu — en attente de traitement'}</dd></div>
         <div><dt>Date</dt><dd>${esc(new Date().toLocaleString('fr-BE'))}</dd></div>
       </dl>
       <p class="receipt-note-v58">Conservez ce numéro pour toute question. ${esc(next)}</p>
       ${isReservation && !auth?.currentUser ? '<div class="payment-actions-v1"><a class="btn secondary" href="./inscription.html">Créer mon espace pour suivre cette réservation</a><a class="btn secondary" href="./member/dashboard.html">J’ai déjà un compte</a></div><p class="receipt-note-v58">Utilisez la même adresse e-mail. Après sa vérification, la réservation sera reliée automatiquement à votre espace.</p>' : ''}
-      ${isReservation ? paymentInstructionHtml(payload) : ''}
+      ${isReservation && !isWaitlist ? paymentInstructionHtml(payload) : ''}
     </article>`;
   initCopyButtons(msg);
-  initInvoiceButton(msg, payload);
-  initPaymentDeclaredButton(msg, payload, reservationId);
+  if (!isWaitlist) {
+    initInvoiceButton(msg, payload);
+    initPaymentDeclaredButton(msg, payload, reservationId);
+  }
   msg.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
@@ -891,9 +898,9 @@ async function attachForms(){
       if (isReservation) {
         payload.reservationCode = makeTrackingCode('RES');
         payload.trackingCode = payload.reservationCode;
-        payload.status = 'reçu';
+        payload.status = payload.registrationMode === 'waitlist' ? 'liste attente' : 'reçu';
         if (!payload.modules && payload.creneau) payload.modules = payload.creneau;
-        enrichPayloadWithPayment(form, payload);
+        if (payload.registrationMode !== 'waitlist') enrichPayloadWithPayment(form, payload);
       } else {
         payload.messageCode = makeTrackingCode('MSG');
         payload.trackingCode = payload.messageCode;

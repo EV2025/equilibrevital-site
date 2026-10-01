@@ -1,5 +1,5 @@
 {
-  "version": "2026-09-18-v110",
+  "version": "2026-10-01-v121",
   "currency": "EUR",
   "annualFee": 165,
   "programmes": [
@@ -53,7 +53,10 @@
       ],
       "perspective": "Lorsqu’une personne souhaite approfondir une discipline, l’équipe peut explorer avec elle une orientation vers une structure adaptée. Cette orientation dépend du projet, du niveau, des possibilités et du cadre disponible ; elle n’est jamais automatique.",
       "reservationLabel": "Cardio Fit Ados — Mardi 18h00–20h00",
-      "modulesLabel": "Cardio Fit Ados • Boxe éducative / Initiation Kick-Boxing"
+      "modulesLabel": "Cardio Fit Ados • Boxe éducative / Initiation Kick-Boxing",
+      "capacity": 20,
+      "waitlistLimit": 20,
+      "waitlistEnabled": true
     },
     {
       "id": "enfants-vendredi",
@@ -97,7 +100,8 @@
         "Autonomie progressive"
       ],
       "reservationLabel": "Kids Move Training Jeunes (multisport) — Vendredi 16h00–18h00",
-      "modulesLabel": "Kids Move Training Jeunes (multisport)"
+      "modulesLabel": "Kids Move Training Jeunes (multisport)",
+      "waitlistEnabled": false
     },
     {
       "id": "adultes-vendredi",
@@ -137,7 +141,10 @@
         "Bien-être"
       ],
       "reservationLabel": "Fitness & Boxing Loisir — Vendredi 19h00–21h00",
-      "modulesLabel": "Fitness & Boxing Loisir"
+      "modulesLabel": "Fitness & Boxing Loisir",
+      "capacity": 20,
+      "waitlistLimit": 20,
+      "waitlistEnabled": true
     },
     {
       "id": "femmes-samedi",
@@ -177,7 +184,10 @@
         "Bien-être"
       ],
       "reservationLabel": "Mobility & Recovery — Samedi 08h00–10h00",
-      "modulesLabel": "Mobility & Recovery"
+      "modulesLabel": "Mobility & Recovery",
+      "capacity": 12,
+      "waitlistLimit": 12,
+      "waitlistEnabled": true
     }
   ]
 }

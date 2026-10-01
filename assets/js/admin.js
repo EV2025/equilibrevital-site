@@ -16,6 +16,8 @@ const collectionTitle = document.getElementById('collection-title');
 const summaryEl = document.getElementById('admin-summary');
 const adminSearch = document.getElementById('admin-search');
 const adminStatus = document.getElementById('admin-status');
+const adminRequestType = document.getElementById('admin-request-type');
+const adminRequestTypeLabel = document.getElementById('admin-request-type-label');
 const adminActivity = document.getElementById('admin-activity');
 const adminActivityLabel = document.getElementById('admin-activity-label');
 const adminSession = document.getElementById('admin-session');
@@ -40,6 +42,7 @@ function saveAdminView(){
       collection: currentCollection,
       search: adminSearch?.value || '',
       status: adminStatus?.value || '',
+      requestType: adminRequestType?.value || '',
       activity: adminActivity?.value || '',
       session: adminSession?.value || '',
       date: adminDate?.value || ''
@@ -53,6 +56,7 @@ function restoreAdminView(){
     if (labels[state.collection]) currentCollection = state.collection;
     if (adminSearch) adminSearch.value = state.search || '';
     if (adminStatus) adminStatus.value = state.status || '';
+    if (adminRequestType) adminRequestType.value = state.requestType || '';
     if (adminActivity) adminActivity.dataset.savedValue = state.activity || '';
     if (adminSession) adminSession.value = state.session || '';
     if (adminDate) adminDate.value = state.date || '';
@@ -67,7 +71,7 @@ function setAdminStatus(message, error = false){
 }
 
 const labels = {
-  messages:'Messages reçus',
+  messages:'Demandes reçues',
   reservations:'Réservations reçues',
   pages:'Contenu des pages',
   users:'Clients / membres',
@@ -127,6 +131,19 @@ const fieldLabels = {
   numeroMutuelle: 'Numéro de mutuelle',
   numeroAffiliation: 'Numéro d’affiliation',
   questions: 'Questions / demandes',
+  personneContact: 'Personne de contact',
+  fonction: 'Fonction',
+  typeStructure: 'Type de structure',
+  commune: 'Commune',
+  territoire: 'Commune / territoire',
+  publicConcerne: 'Public concerné',
+  publicAccompagne: 'Public accompagné',
+  typeAction: 'Action souhaitée',
+  periodeSouhaitee: 'Période souhaitée',
+  nombreParticipants: 'Nombre de participants',
+  nombrePersonnes: 'Nombre de personnes',
+  besoinPrincipal: 'Besoin principal',
+  objectifPrincipal: 'Objectif principal',
   price: 'Prix',
   priceLabel: 'Tarif',
   day: 'Jour',
@@ -203,6 +220,9 @@ const fieldLabels = {
 
 const valueLabels = {
   contact: 'Demande de contact',
+  'demande-ecoles-atl': 'Écoles & ATL',
+  'demande-institution-sociale': 'Institution sociale',
+  'demande-partenariat-local': 'Partenariat local',
   reservation: 'Réservation',
   nouveau: 'Nouveau',
   nouvelle: 'Nouvelle',
@@ -363,12 +383,12 @@ async function init(){
       actionButton.disabled = false;
     }
   });
-  [adminSearch, adminStatus, adminActivity, adminSession, adminDate].forEach(el => el?.addEventListener('input', () => {
+  [adminSearch, adminStatus, adminRequestType, adminActivity, adminSession, adminDate].forEach(el => el?.addEventListener('input', () => {
     saveAdminView();
     renderRows();
   }));
   adminResetFilters?.addEventListener('click', () => {
-    [adminSearch, adminStatus, adminActivity, adminSession, adminDate].forEach(el => { if (el) el.value = ''; });
+    [adminSearch, adminStatus, adminRequestType, adminActivity, adminSession, adminDate].forEach(el => { if (el) el.value = ''; });
     saveAdminView();
     renderRows();
     setAdminStatus('Filtres effacés.');
@@ -426,6 +446,7 @@ async function loadCollection(){
   if (!isVerifiedAdmin) return;
   if (unsub) unsub();
   collectionTitle.textContent = labels[currentCollection] || currentCollection;
+  if (adminRequestTypeLabel) adminRequestTypeLabel.hidden = currentCollection !== 'messages';
   if (attendanceExportBtn) attendanceExportBtn.hidden = currentCollection !== 'reservations';
   recordsEl.innerHTML = '<p>Chargement…</p>';
   summaryEl.innerHTML = '';
@@ -476,6 +497,20 @@ function findDuplicateReservations(reservations){
 
 function renderSummary(){
   if (!rows.length) { summaryEl.innerHTML = ''; return; }
+  if (currentCollection === 'messages') {
+    const schools = rows.filter(row => row.type === 'demande-ecoles-atl').length;
+    const institutions = rows.filter(row => row.type === 'demande-institution-sociale').length;
+    const partnerships = rows.filter(row => row.type === 'demande-partenariat-local').length;
+    const other = rows.length - schools - institutions - partnerships;
+    summaryEl.innerHTML = `<div class="admin-summary">
+      <div class="metric"><strong>${rows.length}</strong><span>Total des demandes</span></div>
+      <div class="metric"><strong>${schools}</strong><span>Écoles &amp; ATL</span></div>
+      <div class="metric"><strong>${institutions}</strong><span>Institutions sociales</span></div>
+      <div class="metric"><strong>${partnerships}</strong><span>Partenariats locaux</span></div>
+      <div class="metric"><strong>${other}</strong><span>Autres messages</span></div>
+    </div>`;
+    return;
+  }
   if (currentCollection === 'payments') {
     const count = part => rows.filter(r => part.test(normalized(r.paymentStatus || r.status || ''))).length;
     const pending = count(/attente|non paye/);
@@ -596,12 +631,14 @@ function updateActivityOptions(){
 function applyAdminFilters(inputRows){
   const q = normalized(adminSearch?.value || '');
   const st = normalized(adminStatus?.value || '');
+  const requestType = currentCollection === 'messages' ? normalized(adminRequestType?.value || '') : '';
   const activity = currentCollection === 'reservations' ? normalized(adminActivity?.value || '') : '';
   const session = normalized(adminSession?.value || '');
   const date = adminDate?.value || '';
   return inputRows.filter(r => {
     if (q && !rowSearchText(r).includes(q)) return false;
     if (st && !normalized(r.status || r.paymentStatus || '').includes(st)) return false;
+    if (requestType && normalized(r.type || '') !== requestType) return false;
     if (activity && normalized(reservationActivity(r)) !== activity) return false;
     if (session && !normalized(r.session || r.sessionName || '').includes(session)) return false;
     if (date && rowDateISO(r.createdAt || r.date) !== date) return false;
@@ -631,16 +668,19 @@ function renderRows(){
 
 function renderRecordCard(r){
   const title = titleForRow(r);
+  const requestBadge = currentCollection === 'messages' && r.type
+    ? `<p class="eyebrow">${esc(labelForValue(r.type))}</p>`
+    : '';
   const entries = Object.entries(r).filter(([k]) => k !== 'id');
   const visibleEntries = entries.filter(([k]) => !technicalFields.has(k));
   const technicalEntries = entries.filter(([k]) => technicalFields.has(k));
   const visibleHtml = visibleEntries.map(([k,v]) =>
-    `<dt>${esc(labelForField(k))}</dt><dd>${k === 'email' ? emailWithCopy(v) : esc(formatValue(k, v))}</dd>`
+    `<dt>${esc(currentCollection === 'messages' && k === 'nom' ? 'Nom de la structure' : labelForField(k))}</dt><dd>${k === 'email' ? emailWithCopy(v) : esc(formatValue(k, v))}</dd>`
   ).join('');
   const technicalHtml = technicalEntries.length ?
     `<details class="technical-details"><summary>Détails techniques</summary><dl>${technicalEntries.map(([k,v]) => `<dt>${esc(labelForField(k))}</dt><dd>${esc(formatValue(k, v))}</dd>`).join('')}<dt>ID du document</dt><dd>${esc(r.id)}</dd></dl></details>` :
     `<details class="technical-details"><summary>Détails techniques</summary><dl><dt>ID du document</dt><dd>${esc(r.id)}</dd></dl></details>`;
-  return `<article class="record"><h3>${esc(title)}</h3><dl>${visibleHtml}</dl>${technicalHtml}${actionsFor(r)}</article>`;
+  return `<article class="record">${requestBadge}<h3>${esc(title)}</h3><dl>${visibleHtml}</dl>${technicalHtml}${actionsFor(r)}</article>`;
 }
 
 function renderPaymentsTable(paymentRows){
@@ -1264,7 +1304,7 @@ exportBtn.addEventListener('click', () => {
   }
   const keys = [...new Set(exportRows.flatMap(r => Object.keys(r)))];
   const csv = [
-    keys.map(k => csvCell(labelForField(k))).join(';'),
+    keys.map(k => csvCell(currentCollection === 'messages' && k === 'nom' ? 'Nom de la structure' : labelForField(k))).join(';'),
     ...exportRows.map(r => keys.map(k => csvCell(formatValue(k, r[k]))).join(';'))
   ].join('\r\n');
   const blob = new Blob(['\uFEFF', csv], {type:'text/csv;charset=utf-8'});
@@ -1359,6 +1399,7 @@ function switchTab(tab){
   if (!labels[tab]) return;
   currentCollection = tab;
   if (adminActivityLabel) adminActivityLabel.hidden = tab !== 'reservations';
+  if (adminRequestTypeLabel) adminRequestTypeLabel.hidden = tab !== 'messages';
   if (attendanceExportBtn) attendanceExportBtn.hidden = tab !== 'reservations';
   saveAdminView();
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));

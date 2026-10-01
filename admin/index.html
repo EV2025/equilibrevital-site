@@ -35,8 +35,8 @@ body.admin-page{background:#f8f4fc}
 .admin-advanced-v80{margin:8px 0 18px;border:1px solid rgba(124,58,237,.16);border-radius:16px;background:#fff}
 .admin-advanced-v80>summary{cursor:pointer;padding:13px 15px;color:#5b21b6;font-weight:900}
 .admin-advanced-v80 .toolbar{padding:0 15px 15px}
-.admin-tools{display:grid;grid-template-columns:minmax(220px,2fr) repeat(4,minmax(150px,1fr)) auto;gap:10px;align-items:end;padding:16px;border:1px solid rgba(124,58,237,.18);border-radius:20px;background:#fff;position:sticky;top:76px;z-index:20;box-shadow:0 10px 28px rgba(67,33,83,.08)}
-.admin-tools label{min-width:0}.admin-tools input,.admin-tools select{width:100%;min-height:44px}
+.admin-tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;padding:16px;border:1px solid rgba(124,58,237,.18);border-radius:20px;background:#fff;position:sticky;top:76px;z-index:20;box-shadow:0 10px 28px rgba(67,33,83,.08)}
+.admin-tools label{min-width:0}.admin-tools>label:first-child{grid-column:span 2}.admin-tools input,.admin-tools select{width:100%;min-height:44px}
 .admin-filter-reset-v80{min-height:44px;white-space:nowrap}
 .admin-list-meta-v80{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;margin:14px 0}
 .admin-result-count-v80{margin:0;color:#604b6c;font-weight:850}
@@ -78,7 +78,7 @@ body.admin-page{background:#f8f4fc}
   .admin-heading-v80{display:block}
   .ev39-admin-tab-groups{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:7px}
   .ev39-admin-tab-group{flex:0 0 220px;scroll-snap-align:start}
-  .admin-tools{grid-template-columns:1fr}
+  .admin-tools{grid-template-columns:1fr}.admin-tools>label:first-child{grid-column:auto}
   .admin-table-wrap{overflow:visible;border:0;background:transparent}
   .admin-table{display:block;min-width:0}.admin-table thead{display:none}.admin-table tbody{display:grid;gap:14px}
   .admin-table tr{display:block;padding:8px;border:1px solid rgba(124,58,237,.18);border-radius:18px;background:#fff;box-shadow:0 10px 25px rgba(67,33,83,.07)}
@@ -115,12 +115,13 @@ body.admin-page{background:#f8f4fc}
 <div class="admin-heading-v80"><div><p class="eyebrow">Administration PSSR</p>
 <h2>Tableau de bord administration</h2>
 <p class="payment-note">Retrouvez, filtrez et traitez les demandes depuis un espace de travail adapté à l’ordinateur, la tablette et au GSM.</p></div></div>
-<div aria-label="Navigation par catégories admin" class="ev39-admin-tab-groups"><section class="ev39-admin-tab-group"><h3>À traiter</h3><div class="tabs"><button class="tab active" type="button" data-tab="stats">Vue d’ensemble</button><button class="tab" type="button" data-tab="messages">Messages</button><button class="tab" type="button" data-tab="reservations">Réservations</button><button class="tab" type="button" data-tab="refundRequests">Remboursements</button><button class="tab" type="button" data-tab="consents">Demandes RGPD</button></div></section><section class="ev39-admin-tab-group"><h3>Suivi</h3><div class="tabs"><button class="tab" type="button" data-tab="users">Membres</button><button class="tab" type="button" data-tab="attendances">Présences</button><button class="tab" type="button" data-tab="payments">Virements · suivi manuel</button></div></section><section class="ev39-admin-tab-group"><h3>Communication interne</h3><div class="tabs"><button class="tab" type="button" data-tab="notifications">Notifications</button></div></section></div>
+<div aria-label="Navigation par catégories admin" class="ev39-admin-tab-groups"><section class="ev39-admin-tab-group"><h3>À traiter</h3><div class="tabs"><button class="tab active" type="button" data-tab="stats">Vue d’ensemble</button><button class="tab" type="button" data-tab="messages">Demandes reçues</button><button class="tab" type="button" data-tab="reservations">Réservations</button><button class="tab" type="button" data-tab="refundRequests">Remboursements</button><button class="tab" type="button" data-tab="consents">Demandes RGPD</button></div></section><section class="ev39-admin-tab-group"><h3>Suivi</h3><div class="tabs"><button class="tab" type="button" data-tab="users">Membres</button><button class="tab" type="button" data-tab="attendances">Présences</button><button class="tab" type="button" data-tab="payments">Virements · suivi manuel</button></div></section><section class="ev39-admin-tab-group"><h3>Communication interne</h3><div class="tabs"><button class="tab" type="button" data-tab="notifications">Notifications</button></div></section></div>
 <div class="admin-primary-actions-v80"><button class="btn" hidden id="export-attendance" title="Télécharge un PDF structuré avec le logo et retire les doublons prénom + nom" type="button">Télécharger la fiche de présence</button><button class="btn secondary" id="export-csv" type="button">Exporter les résultats pour Excel</button></div>
 <details class="admin-advanced-v80"><summary>Données et outils techniques</summary><p class="secondary-muted">Ces données ne modifient pas automatiquement les pages publiques du site.</p><div class="toolbar tabs"><button class="tab" type="button" data-tab="slots">Créneaux techniques</button><button class="tab" type="button" data-tab="services">Services techniques</button><button class="tab" type="button" data-tab="emailLogs">Préparations e-mail</button><button class="tab" type="button" data-tab="pages">Contenu importé</button></div><div class="toolbar"><button class="btn secondary" id="seed-pages" type="button">Importer le contenu WordPress</button><button class="btn secondary" id="seed-slots" type="button">Importer les créneaux officiels</button><button class="btn secondary" id="seed-services" type="button">Importer services &amp; tarifs</button></div></details>
 <div aria-label="Filtres du tableau de bord" class="admin-tools">
 <label>Recherche<input id="admin-search" placeholder="Nom, e-mail, téléphone, référence…" type="search"/></label>
 <label>Statut<select id="admin-status"><option value="">Tous</option><option>nouveau</option><option>reçu</option><option>en attente</option><option>inscrit</option><option>en cours</option><option>approuvé</option><option>refusé</option><option>remboursé</option><option>virement reçu</option><option>payé</option><option>non payé</option><option>à relancer</option><option>terminé</option><option>abandonné</option><option>confirmée</option><option>annulée</option></select></label>
+<label hidden id="admin-request-type-label">Origine de la demande<select id="admin-request-type"><option value="">Toutes les demandes</option><option value="demande-ecoles-atl">Écoles &amp; ATL</option><option value="demande-institution-sociale">Institutions sociales</option><option value="demande-partenariat-local">Partenariats locaux</option></select></label>
 <label hidden id="admin-activity-label">Activité<select id="admin-activity"><option value="">Toutes les activités</option></select></label>
 <label>Session<input id="admin-session" placeholder="Septembre 2026" type="search"/></label>
 <label>Date<input id="admin-date" type="date"/></label>
@@ -132,6 +133,6 @@ body.admin-page{background:#f8f4fc}
 <div class="records" id="records"></div>
 </section>
 </main>
-<script defer src="../assets/js/auth-comfort.js?v=20260829-82"></script><script defer src="../assets/js/admin.js?v=20260922-119" type="module"></script>
+<script defer src="../assets/js/auth-comfort.js?v=20260829-82"></script><script defer src="../assets/js/admin.js?v=20261001-120" type="module"></script>
 <script defer="" src="../assets/js/media-fallback.js"></script></body>
 </html>

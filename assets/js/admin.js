@@ -476,14 +476,59 @@ function adminLoadTimeout(milliseconds, message = 'Délai de connexion Firebase 
   return new Promise((_, reject) => setTimeout(() => reject(new Error(message)), milliseconds));
 }
 
+function decodeFirestoreValue(value){
+  if (!value || typeof value !== 'object') return null;
+  if ('nullValue' in value) return null;
+  if ('stringValue' in value) return value.stringValue;
+  if ('booleanValue' in value) return value.booleanValue;
+  if ('integerValue' in value) return Number(value.integerValue);
+  if ('doubleValue' in value) return Number(value.doubleValue);
+  if ('timestampValue' in value) return value.timestampValue;
+  if ('referenceValue' in value) return value.referenceValue;
+  if ('bytesValue' in value) return value.bytesValue;
+  if ('geoPointValue' in value) return value.geoPointValue;
+  if ('arrayValue' in value) return (value.arrayValue.values || []).map(decodeFirestoreValue);
+  if ('mapValue' in value) return decodeFirestoreFields(value.mapValue.fields || {});
+  return null;
+}
+
+function decodeFirestoreFields(fields){
+  return Object.fromEntries(Object.entries(fields || {}).map(([key, value]) => [key, decodeFirestoreValue(value)]));
+}
+
+async function loadCollectionViaRest(collectionName){
+  const user = auth?.currentUser;
+  if (!user) throw new Error('Session administrateur absente.');
+  const token = await user.getIdToken();
+  const projectId = firebaseConfig.projectId;
+  const endpoint = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents/${encodeURIComponent(collectionName)}?pageSize=1000`;
+  const response = await Promise.race([
+    fetch(endpoint, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }),
+    adminLoadTimeout(12000, 'La lecture directe de Firebase a expiré.')
+  ]);
+  if (!response.ok){
+    const details = await response.text().catch(() => '');
+    throw new Error(`Firebase REST ${response.status}: ${details.slice(0, 240)}`);
+  }
+  const payload = await response.json();
+  const documents = Array.isArray(payload.documents) ? payload.documents : [];
+  const docs = documents.map(document => ({
+    id: String(document.name || '').split('/').pop(),
+    data: () => decodeFirestoreFields(document.fields || {})
+  }));
+  docs.sort((left, right) => {
+    const a = Date.parse(left.data().createdAt || '') || 0;
+    const b = Date.parse(right.data().createdAt || '') || 0;
+    return b - a;
+  });
+  return { docs };
+}
+
 async function loadCollectionFallback(collectionName, sequence){
   if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
   recordsEl.innerHTML = '<p>Connexion Firebase lente… seconde tentative en cours.</p>';
   try{
-    const snap = await Promise.race([
-      modules.getDocs(modules.collection(db, collectionName)),
-      adminLoadTimeout(15000)
-    ]);
+    const snap = await loadCollectionViaRest(collectionName);
     if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
     applyCollectionSnapshot(snap, collectionName, false);
   }catch(error){
@@ -521,7 +566,7 @@ async function loadCollection(){
     q = modules.collection(db, collectionName);
   }
 
-  collectionLoadTimer = setTimeout(() => loadCollectionFallback(collectionName, sequence), 6000);
+  collectionLoadTimer = setTimeout(() => loadCollectionFallback(collectionName, sequence), 3500);
   unsub = modules.onSnapshot(q, snap => {
     if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
     if (collectionLoadTimer) clearTimeout(collectionLoadTimer);

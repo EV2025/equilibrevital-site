@@ -10,6 +10,10 @@
 <meta content="light" name="color-scheme"/>
 
 <link href="../assets/icons/icon-192.png" rel="apple-touch-icon"/>
+<link crossorigin="anonymous" href="https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js" rel="modulepreload"/>
+<link crossorigin="anonymous" href="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js" rel="modulepreload"/>
+<link crossorigin="anonymous" href="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js" rel="modulepreload"/>
+<link crossorigin="anonymous" href="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js" rel="modulepreload"/>
 <style>body{margin:0;font-family:Inter,Manrope,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:#fff8fc;color:#24112F}img{max-width:100%;height:auto}main{min-height:54vh}.ev36-header{position:sticky;top:0;z-index:5000}.ev36-skip-link{position:absolute;left:-999px;top:10px;background:#24112F;color:#fff;padding:10px 14px;border-radius:999px;z-index:9999}.ev36-skip-link:focus{left:12px}</style><noscript></noscript>
 
   <link href="../assets/css/common-v58.min.css" rel="stylesheet"/>
@@ -89,6 +93,7 @@ body.admin-page{background:#f8f4fc}
   .record-tools-v81,.management-panel{min-width:0}.full-record-v81 dl{grid-template-columns:1fr}.management-grid{grid-template-columns:1fr}.management-grid .full{grid-column:auto}
 }
 
+.admin-loading-v125{display:flex;align-items:center;gap:18px;min-height:150px}.admin-loading-v125[hidden]{display:none}.admin-loading-v125 h1{margin:.25rem 0}.admin-loading-v125 p:last-child{margin-bottom:0}.admin-loading-spinner-v125{width:42px;height:42px;flex:0 0 42px;border:5px solid #eadff2;border-top-color:#7c3aed;border-radius:50%;animation:admin-spin-v125 .8s linear infinite}@keyframes admin-spin-v125{to{transform:rotate(360deg)}}@media(max-width:600px){.admin-loading-v125{align-items:flex-start}.admin-loading-spinner-v125{width:34px;height:34px;flex-basis:34px}}
 </style>
 <link href="../assets/css/interface-guard-v90.css?v=20260829-90" rel="stylesheet"/>
 <link href="../assets/css/admin-app-v90.css?v=20260830-98" rel="stylesheet"/>
@@ -110,6 +115,10 @@ body.admin-page{background:#f8f4fc}
 <p class="msg" hidden="" id="login-msg"></p>
 </form>
 <p class="admin-back-link-v95"><a href="../member/dashboard.html">Retour à l’espace membre</a></p>
+</section>
+<section class="panel admin-loading-v125" hidden id="admin-loading-panel" aria-live="polite">
+<div class="admin-loading-spinner-v125" aria-hidden="true"></div>
+<div><p class="eyebrow">Accès sécurisé</p><h1>Ouverture du tableau de bord…</h1><p>Vérification de votre session administrateur et chargement des données.</p></div>
 </section>
 <section class="panel" hidden="" id="dashboard-panel">
 <div class="admin-heading-v80"><div><p class="eyebrow">Administration PSSR</p>
@@ -133,6 +142,6 @@ body.admin-page{background:#f8f4fc}
 <div class="records" id="records"></div>
 </section>
 </main>
-<script defer src="../assets/js/auth-comfort.js?v=20260829-82"></script><script defer src="../assets/js/admin.js?v=20261003-124" type="module"></script>
+<script defer src="../assets/js/auth-comfort.js?v=20260829-82"></script><script defer src="../assets/js/admin.js?v=20261003-125" type="module"></script>
 <script defer="" src="../assets/js/media-fallback.js"></script></body>
 </html>

@@ -735,7 +735,10 @@ function applyAdminFilters(inputRows){
   const date = adminDate?.value || '';
   return inputRows.filter(r => {
     if (q && !rowSearchText(r).includes(q)) return false;
-    if (st && !normalized(r.status || r.paymentStatus || '').includes(st)) return false;
+    const effectiveStatus = currentCollection === 'reservations' && isWaitlistReservation(r)
+      ? 'liste attente'
+      : normalized(r.status || r.paymentStatus || '');
+    if (st && !normalized(effectiveStatus).includes(st)) return false;
     if (requestType && normalized(r.type || '') !== requestType) return false;
     if (activity && normalized(reservationActivity(r)) !== activity) return false;
     if (session && !normalized(r.session || r.sessionName || '').includes(session)) return false;
@@ -827,7 +830,9 @@ function renderAdminTable(tableRows){
     const email = r.email || '—';
     const phone = r.tel || r.phone || r.telephone || '—';
     const session = r.session || r.sessionName || '—';
-    const status = r.status || (isReservations ? 'en attente' : 'inscrit');
+    const status = isReservations && isWaitlistReservation(r)
+      ? 'liste attente'
+      : (r.status || (isReservations ? 'en attente' : 'inscrit'));
     const paymentStatus = r.paymentStatus || '—';
     const paymentAmount = r.paymentAmount || r.amount || r.priceAmount || '';
     const paymentCurrency = r.paymentCurrency || r.currency || r.priceCurrency || 'EUR';

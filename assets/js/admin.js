@@ -3,6 +3,7 @@ import { firebaseConfig, firebaseEnabled } from './firebase-config.js';
 const warning = document.getElementById('config-warning');
 const loginPanel = document.getElementById('login-panel');
 const dashboardPanel = document.getElementById('dashboard-panel');
+const adminLoadingPanel = document.getElementById('admin-loading-panel');
 const loginForm = document.getElementById('login-form');
 const loginMsg = document.getElementById('login-msg');
 const logoutBtn = document.getElementById('logout');
@@ -324,10 +325,12 @@ async function init(){
     return;
   }
 
-  const appMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js');
-  const authMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js');
-  const fsMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js');
-  const storageMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js');
+  const [appMod, authMod, fsMod, storageMod] = await Promise.all([
+    import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),
+    import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),
+    import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),
+    import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js')
+  ]);
   const app = appMod.initializeApp(firebaseConfig);
   auth = authMod.getAuth(app);
   db = fsMod.getFirestore(app);
@@ -404,6 +407,7 @@ async function init(){
   modules.onAuthStateChanged(auth, async user => {
     if (!user){
       isVerifiedAdmin = false;
+      if (adminLoadingPanel) adminLoadingPanel.hidden = true;
       loginPanel.hidden = false;
       dashboardPanel.hidden = true;
       logoutBtn.hidden = true;
@@ -414,12 +418,14 @@ async function init(){
 
     loginPanel.hidden = true;
     dashboardPanel.hidden = true;
+    if (adminLoadingPanel) adminLoadingPanel.hidden = false;
     logoutBtn.hidden = false;
     try{
       const access = await modules.getDoc(modules.doc(db, 'admins', user.uid));
       if (!access.exists()) throw new Error('not-admin');
       isVerifiedAdmin = true;
       restoreAdminView();
+      if (adminLoadingPanel) adminLoadingPanel.hidden = true;
       dashboardPanel.hidden = false;
       setAdminStatus('Session administrateur active.');
       loadCollection();
@@ -427,6 +433,7 @@ async function init(){
     }catch(err){
       console.error('Admin access denied:', err);
       isVerifiedAdmin = false;
+      if (adminLoadingPanel) adminLoadingPanel.hidden = true;
       loginPanel.hidden = false;
       dashboardPanel.hidden = true;
       setMsg('Ce compte ne dispose pas d’un accès administrateur.');
@@ -1512,15 +1519,20 @@ function switchTab(tab){
 
 async function countCollection(name){
   try{
-    const snap = await modules.getDocs(modules.collection(db, name));
+    const ref = modules.collection(db, name);
+    if (typeof modules.getCountFromServer === 'function'){
+      const aggregate = await modules.getCountFromServer(ref);
+      return aggregate.data().count;
+    }
+    const snap = await modules.getDocs(ref);
     return snap.size;
   }catch { return '—'; }
 }
 
 async function renderStats(){
   const names = ['messages','reservations','refundRequests','users','attendances','consents','payments'];
-  const counts = {};
-  for (const name of names) counts[name] = await countCollection(name);
+  const values = await Promise.all(names.map(countCollection));
+  const counts = Object.fromEntries(names.map((name, index) => [name, values[index]]));
   summaryEl.innerHTML = '';
   recordsEl.innerHTML = `<div class="admin-summary">
     <div class="metric"><strong>${counts.messages}</strong><span>Messages</span></div>

@@ -34,6 +34,8 @@ let rows = [];
 let duplicateReservationIds = new Set();
 let programmeChoices = [];
 let availabilityPublishTimer = null;
+let collectionLoadTimer = null;
+let collectionLoadSequence = 0;
 let modules = {};
 let unsub = null;
 let isVerifiedAdmin = false;
@@ -333,7 +335,14 @@ async function init(){
   ]);
   const app = appMod.initializeApp(firebaseConfig);
   auth = authMod.getAuth(app);
-  db = fsMod.getFirestore(app);
+  try{
+    db = fsMod.initializeFirestore(app, {
+      experimentalForceLongPolling: true,
+      useFetchStreams: false
+    });
+  }catch(_){
+    db = fsMod.getFirestore(app);
+  }
   modules = { ...authMod, ...fsMod, ...storageMod, storage: storageMod.getStorage(app) };
 
   loginForm.addEventListener('submit', async e => {
@@ -452,42 +461,82 @@ function orderFieldFor(collectionName){
   return ['createdAt','desc'];
 }
 
+function applyCollectionSnapshot(snap, collectionName, realtime = true){
+  rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  duplicateReservationIds = collectionName === 'reservations' ? findDuplicateReservations(rows) : new Set();
+  updateActivityOptions();
+  renderRows();
+  renderSummary();
+  scheduleAvailabilityPublish();
+  const time = new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
+  setAdminStatus(`${realtime ? 'Synchronisé en temps réel' : 'Données chargées'} · ${time}`);
+}
+
+function adminLoadTimeout(milliseconds, message = 'Délai de connexion Firebase dépassé.'){
+  return new Promise((_, reject) => setTimeout(() => reject(new Error(message)), milliseconds));
+}
+
+async function loadCollectionFallback(collectionName, sequence){
+  if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
+  recordsEl.innerHTML = '<p>Connexion Firebase lente… seconde tentative en cours.</p>';
+  try{
+    const snap = await Promise.race([
+      modules.getDocs(modules.collection(db, collectionName)),
+      adminLoadTimeout(15000)
+    ]);
+    if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
+    applyCollectionSnapshot(snap, collectionName, false);
+  }catch(error){
+    if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
+    console.error('Admin fallback load:', error);
+    recordsEl.innerHTML = '<div class="msg"><strong>Les réservations ne peuvent pas être chargées pour le moment.</strong><br>La connexion à Firebase ne répond pas. Rechargez la page, puis utilisez le bouton ci-dessous si nécessaire.<br><button class="btn secondary" type="button" data-retry-admin-load>Réessayer le chargement</button></div>';
+    recordsEl.querySelector('[data-retry-admin-load]')?.addEventListener('click', () => loadCollection());
+    setAdminStatus('Connexion Firebase indisponible ou trop lente.', true);
+  }
+}
+
 async function loadCollection(){
   if (!isVerifiedAdmin) return;
+  const collectionName = currentCollection;
+  const sequence = ++collectionLoadSequence;
+  if (collectionLoadTimer) clearTimeout(collectionLoadTimer);
   if (unsub) unsub();
-  collectionTitle.textContent = labels[currentCollection] || currentCollection;
-  if (adminRequestTypeLabel) adminRequestTypeLabel.hidden = currentCollection !== 'messages';
-  if (attendanceExportBtn) attendanceExportBtn.hidden = currentCollection !== 'reservations';
-  if (publishAvailabilityBtn) publishAvailabilityBtn.hidden = currentCollection !== 'reservations';
-  recordsEl.innerHTML = '<p>Chargement…</p>';
+  collectionTitle.textContent = labels[collectionName] || collectionName;
+  if (adminRequestTypeLabel) adminRequestTypeLabel.hidden = collectionName !== 'messages';
+  if (attendanceExportBtn) attendanceExportBtn.hidden = collectionName !== 'reservations';
+  if (publishAvailabilityBtn) publishAvailabilityBtn.hidden = collectionName !== 'reservations';
+  recordsEl.innerHTML = '<p>Chargement des données Firebase…</p>';
   summaryEl.innerHTML = '';
 
-  if (currentCollection === 'stats') {
+  if (collectionName === 'stats') {
     await renderStats();
     return;
   }
 
-  const order = orderFieldFor(currentCollection);
+  const order = orderFieldFor(collectionName);
   let q;
   try {
-    q = order ? modules.query(modules.collection(db, currentCollection), modules.orderBy(order[0], order[1])) : modules.collection(db, currentCollection);
+    q = order ? modules.query(modules.collection(db, collectionName), modules.orderBy(order[0], order[1])) : modules.collection(db, collectionName);
   } catch {
-    q = modules.collection(db, currentCollection);
+    q = modules.collection(db, collectionName);
   }
 
+  collectionLoadTimer = setTimeout(() => loadCollectionFallback(collectionName, sequence), 6000);
   unsub = modules.onSnapshot(q, snap => {
-    rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    duplicateReservationIds = currentCollection === 'reservations' ? findDuplicateReservations(rows) : new Set();
-    updateActivityOptions();
-    renderRows();
-    renderSummary();
-    scheduleAvailabilityPublish();
-    setAdminStatus(`Synchronisé en temps réel · ${new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'})}`);
+    if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
+    if (collectionLoadTimer) clearTimeout(collectionLoadTimer);
+    applyCollectionSnapshot(snap, collectionName, true);
   }, err => {
+    if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
+    if (collectionLoadTimer) clearTimeout(collectionLoadTimer);
     console.error('Admin realtime sync:', err);
-    const denied = err?.code === 'permission-denied';
-    recordsEl.innerHTML = `<p class="msg">${denied ? 'Accès Firebase refusé. Les règles Firestore publiées doivent être mises à jour.' : 'Synchronisation interrompue. Rechargez la page ou vérifiez votre connexion.'}</p>`;
-    setAdminStatus(denied ? 'Synchronisation refusée par Firebase.' : 'Synchronisation interrompue.', true);
+    const denied = String(err?.code || '').includes('permission-denied');
+    if (denied){
+      recordsEl.innerHTML = '<p class="msg">Accès Firebase refusé. Les règles Firestore publiées doivent être mises à jour.</p>';
+      setAdminStatus('Synchronisation refusée par Firebase.', true);
+      return;
+    }
+    loadCollectionFallback(collectionName, sequence);
   });
 }
 

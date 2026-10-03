@@ -534,7 +534,7 @@ function renderSummary(){
   const total = rows.length;
   const nouveau = rows.filter(r => /nou|reçu|recu/i.test(String(r.status || '').toLowerCase())).length;
   const traite = rows.filter(r => /trait|confirm|pay/i.test(String(r.status || r.paymentStatus || ''))).length;
-  const waiting = currentCollection === 'reservations' ? rows.filter(r => /liste attente/i.test(String(r.status || ''))).length : 0;
+  const waiting = currentCollection === 'reservations' ? rows.filter(isWaitlistReservation).length : 0;
   summaryEl.innerHTML = `<div class="admin-summary"><div class="metric"><strong>${total}</strong><span>Total</span></div><div class="metric"><strong>${nouveau}</strong><span>Nouveaux / reçus</span></div><div class="metric"><strong>${traite}</strong><span>Traités / confirmés</span></div>${currentCollection === 'reservations' ? `<div class="metric"><strong>${waiting}</strong><span>Liste d’attente</span></div><div class="metric"><strong>${duplicateReservationIds.size}</strong><span>Doublons à vérifier</span></div>` : ''}</div>`;
 }
 
@@ -623,10 +623,25 @@ async function loadProgrammeChoices(){
 }
 
 
+function isWaitlistReservation(row){
+  const status = normalized(row?.status || '');
+  const mode = normalized(row?.registrationMode || '');
+  const note = normalized(row?.message || row?.objectif || '');
+  return /liste attente/.test(status) || mode === 'waitlist' || /\[liste d.attente\]/.test(note);
+}
+
+function reservationParentName(row){
+  const direct = cleanText(row?.parentName || row?.parentGuardianName || '');
+  if (direct) return direct;
+  const note = String(row?.message || '');
+  const match = note.match(/Parent\s*\/\s*responsable\s*:\s*([^\r\n]+)/i);
+  return match ? cleanText(match[1]) : '';
+}
+
 function availabilityStatusPriority(row){
   const status = normalized(row.status || '');
   if (/annul|abandon/.test(status)) return 0;
-  if (/liste attente/.test(status)) return 1;
+  if (isWaitlistReservation(row)) return 1;
   return 2;
 }
 
@@ -660,7 +675,7 @@ async function publishProgrammeAvailability({silent = true} = {}){
     const programmes = {};
     for (const choice of programmeChoices){
       const programmeReservations = programmeRows(choice);
-      const waiting = programmeReservations.filter(row => /liste attente/.test(normalized(row.status || ''))).length;
+      const waiting = programmeReservations.filter(isWaitlistReservation).length;
       const registered = programmeReservations.length - waiting;
       programmes[choice.id] = {
         label: choice.label,
@@ -808,7 +823,7 @@ function renderAdminTable(tableRows){
   const body = tableRows.map(r => {
     const idLabel = r.reservationCode || r.messageCode || r.memberCode || r.trackingCode || r.id;
     const name = reservationParticipantName(r) || '—';
-    const parentName = r.parentName || r.parentGuardianName || '—';
+    const parentName = reservationParentName(r) || '—';
     const email = r.email || '—';
     const phone = r.tel || r.phone || r.telephone || '—';
     const session = r.session || r.sessionName || '—';
@@ -1278,7 +1293,7 @@ function createAttendancePdfPages(attendanceRows, logo, metadata){
       const values = {
         number: pageIndex * rowsPerPage + rowIndex + 1,
         name: reservationParticipantName(row) || 'Nom non renseigné',
-        parent: row.parentName || row.parentGuardianName || '',
+        parent: reservationParentName(row),
         activity: reservationActivity(row),
         phone: row.tel || row.phone || row.telephone || '',
         email: row.email || ''

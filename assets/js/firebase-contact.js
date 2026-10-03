@@ -859,6 +859,36 @@ function rememberSubmission(payload){
   try{ localStorage.setItem(submissionKey(payload), String(Date.now())); }catch(_){ }
 }
 
+function isFirestorePermissionError(error){
+  const code = String(error?.code || '').toLowerCase();
+  const message = String(error?.message || '').toLowerCase();
+  return code.includes('permission-denied') || message.includes('permission');
+}
+
+function legacyReservationPayload(payload){
+  const compatible = { ...payload };
+  const notes = [];
+  if (compatible.registrationMode === 'waitlist') notes.push('[Liste d’attente]');
+  if (compatible.parentName) notes.push(`Parent / responsable : ${cleanString(compatible.parentName, 160)}`);
+  if (compatible.message) notes.push(cleanString(compatible.message, 2600));
+  compatible.message = cleanString(notes.join('\n'), 3000);
+  if (compatible.status === 'liste attente') compatible.status = 'en attente';
+  delete compatible.parentName;
+  delete compatible.programmeId;
+  delete compatible.registrationMode;
+  return compatible;
+}
+
+async function addReservationWithRulesCompatibility(collectionName, payload){
+  try{
+    return await addDoc(collection(db, collectionName), payload);
+  }catch(error){
+    if (collectionName !== 'reservations' || !isFirestorePermissionError(error)) throw error;
+    console.warn('Anciennes règles Firestore détectées : nouvel essai en mode compatible.');
+    return addDoc(collection(db, collectionName), legacyReservationPayload(payload));
+  }
+}
+
 async function attachForms(){
   const forms = Array.from(document.querySelectorAll('form[data-firebase-collection]'));
   forms.forEach(initLiveFormFeedback);
@@ -919,7 +949,7 @@ async function attachForms(){
         const firestorePayload = { ...payload };
         delete firestorePayload.payment;
         if (isReservation && auth?.currentUser) firestorePayload.uid = auth.currentUser.uid;
-        const docRef = await addDoc(collection(db, collectionName), firestorePayload);
+        const docRef = await addReservationWithRulesCompatibility(collectionName, firestorePayload);
         rememberSubmission(payload);
         if (isReservation) rememberLocalReservation(localKey);
         form.dataset.submittedOk = 'true';
@@ -928,7 +958,7 @@ async function attachForms(){
         showReceipt(form, payload, collectionName, docRef.id);
       }catch(err){
         console.error(err);
-        showMessage(form, 'Impossible d’enregistrer dans Firebase. Vérifiez la connexion, la configuration ou les règles Firestore.', false);
+        showMessage(form, 'La réservation n’a pas pu être enregistrée. Rechargez la page et réessayez. Si le problème persiste, contactez Équilibre Vital.', false);
       }finally{
         if (submitBtn) submitBtn.disabled = false;
       }

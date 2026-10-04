@@ -523,6 +523,51 @@ async function loadCollectionViaRest(collectionName){
   return { docs };
 }
 
+async function reservationRestRequest(reservationId, options = {}){
+  const user = auth?.currentUser;
+  if (!user) throw new Error('Session administrateur absente.');
+  const token = await user.getIdToken(true);
+  const projectId = firebaseConfig.projectId;
+  const endpoint = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents/reservations/${encodeURIComponent(reservationId)}${options.query || ''}`;
+  const response = await Promise.race([
+    fetch(endpoint, {
+      method: options.method || 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ...(options.body ? { 'Content-Type': 'application/json' } : {})
+      },
+      body: options.body ? JSON.stringify(options.body) : undefined,
+      cache: 'no-store'
+    }),
+    adminLoadTimeout(12000, 'Firebase met trop de temps à répondre.')
+  ]);
+  if (!response.ok && !(options.method === 'DELETE' && response.status === 404)){
+    const details = await response.text().catch(() => '');
+    throw new Error(`Firebase REST ${response.status}: ${details.slice(0, 240)}`);
+  }
+  return response;
+}
+
+async function deleteReservationViaRest(reservationId){
+  await reservationRestRequest(reservationId, { method: 'DELETE' });
+}
+
+async function updateReservationStatusViaRest(reservationId, status){
+  const updatedAt = new Date().toISOString();
+  const query = '?updateMask.fieldPaths=status&updateMask.fieldPaths=updatedAt';
+  await reservationRestRequest(reservationId, {
+    method: 'PATCH',
+    query,
+    body: {
+      fields: {
+        status: { stringValue: String(status || '') },
+        updatedAt: { timestampValue: updatedAt }
+      }
+    }
+  });
+  return updatedAt;
+}
+
 async function loadCollectionFallback(collectionName, sequence){
   if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
   recordsEl.innerHTML = '<p>Connexion Firebase lente… seconde tentative en cours.</p>';
@@ -666,7 +711,7 @@ function actionsFor(r){
     b.push(['traité','Marquer traité'], ['reçu','Remettre reçu']);
   }
   if (currentCollection === 'reservations') {
-    b.push(['confirmée','Confirmer'], ['liste attente','Liste d’attente'], ['annulée','Annuler']);
+    b.push(['confirmée','Confirmer'], ['liste attente','Liste d’attente'], ['annulée','Annuler'], ['test','Marquer comme test']);
   }
   if (currentCollection === 'payments') {
     b.push(['payé','Marquer payé'], ['à relancer','À relancer']);
@@ -1151,6 +1196,16 @@ async function handleRecordAction(e){
       try{ await modules.deleteObject(modules.ref(modules.storage, row.medicalProofPath)); }
       catch(error){ if (error?.code !== 'storage/object-not-found') throw error; }
     }
+    if (currentCollection === 'reservations') {
+      await deleteReservationViaRest(id);
+      rows = rows.filter(item => item.id !== id);
+      duplicateReservationIds = findDuplicateReservations(rows);
+      updateActivityOptions();
+      renderRows();
+      renderSummary();
+      setAdminStatus('Réservation supprimée. Le tableau a été mis à jour.');
+      return;
+    }
     await modules.deleteDoc(modules.doc(db, currentCollection, id));
     setAdminStatus('Élément supprimé. Le tableau a été synchronisé.');
     return;
@@ -1160,6 +1215,15 @@ async function handleRecordAction(e){
       ? btn.closest('.management-panel')?.querySelector('[data-status-choice]')?.value
       : btn.dataset.value;
     if (!value) return;
+    if (currentCollection === 'reservations') {
+      const updatedAt = await updateReservationStatusViaRest(id, value);
+      const rowIndex = rows.findIndex(item => item.id === id);
+      if (rowIndex >= 0) rows[rowIndex] = { ...rows[rowIndex], status: value, updatedAt };
+      renderRows();
+      renderSummary();
+      setAdminStatus(value === 'test' ? 'Réservation marquée comme test.' : 'Statut mis à jour.');
+      return;
+    }
     const patch = { updatedAt: modules.serverTimestamp() };
     if (currentCollection === 'payments') patch.paymentStatus = value;
     else if (currentCollection === 'services' || currentCollection === 'slots') patch.active = value === 'actif';
@@ -1202,7 +1266,7 @@ function deduplicateAttendanceRows(inputRows){
   let excluded = 0;
 
   for (const row of inputRows){
-    if (/annul|abandon/.test(normalized(row.status || ''))){
+    if (/annul|abandon|test/.test(normalized(row.status || ''))){
       excluded++;
       continue;
     }

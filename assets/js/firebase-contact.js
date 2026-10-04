@@ -879,13 +879,43 @@ function legacyReservationPayload(payload){
   return compatible;
 }
 
+async function reservationDocumentId(payload){
+  if (!crypto?.subtle) return '';
+  const now = new Date();
+  const academicStart = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
+  const activity = payload.programmeId || payload.creneau || payload.modules || '';
+  const identity = ['reservation-v2', academicStart, normalizeReservationPart(payload.nom), normalizeReservationPart(activity)].join('|');
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(identity));
+  const hash = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+  return 'reservation-' + hash.slice(0, 48);
+}
+
+function duplicateReservationError(){
+  const error = new Error('duplicate-reservation');
+  error.code = 'duplicate-reservation';
+  return error;
+}
+
 async function addReservationWithRulesCompatibility(collectionName, payload){
+  if (collectionName !== 'reservations') return addDoc(collection(db, collectionName), payload);
+
+  const reservationId = await reservationDocumentId(payload);
+  if (!reservationId) return addDoc(collection(db, collectionName), payload);
+  const reservationRef = doc(db, collectionName, reservationId);
+
   try{
-    return await addDoc(collection(db, collectionName), payload);
+    await setDoc(reservationRef, payload);
+    return reservationRef;
   }catch(error){
-    if (collectionName !== 'reservations' || !isFirestorePermissionError(error)) throw error;
-    console.warn('Anciennes règles Firestore détectées : nouvel essai en mode compatible.');
-    return addDoc(collection(db, collectionName), legacyReservationPayload(payload));
+    if (!isFirestorePermissionError(error)) throw error;
+    console.warn('Anciennes règles Firestore ou réservation existante : nouvel essai en mode compatible.');
+    try{
+      await setDoc(reservationRef, legacyReservationPayload(payload));
+      return reservationRef;
+    }catch(compatibleError){
+      if (isFirestorePermissionError(compatibleError)) throw duplicateReservationError();
+      throw compatibleError;
+    }
   }
 }
 
@@ -958,7 +988,11 @@ async function attachForms(){
         showReceipt(form, payload, collectionName, docRef.id);
       }catch(err){
         console.error(err);
-        showMessage(form, 'La réservation n’a pas pu être enregistrée. Rechargez la page et réessayez. Si le problème persiste, contactez Équilibre Vital.', false);
+        if (err?.code === 'duplicate-reservation') {
+          showMessage(form, 'Ce prénom et ce nom sont déjà enregistrés pour cette activité. Pour corriger l’inscription ou changer de groupe, contactez Équilibre Vital.', false);
+        } else {
+          showMessage(form, 'La réservation n’a pas pu être enregistrée. Rechargez la page et réessayez. Si le problème persiste, contactez Équilibre Vital.', false);
+        }
       }finally{
         if (submitBtn) submitBtn.disabled = false;
       }

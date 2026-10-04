@@ -748,11 +748,11 @@ function isWaitlistReservation(row){
 }
 
 function reservationParentName(row){
-  const direct = cleanText(row?.parentName || row?.parentGuardianName || '');
+  const direct = String(row?.parentName || row?.parentGuardianName || '').trim();
   if (direct) return direct;
   const note = String(row?.message || '');
   const match = note.match(/Parent\s*\/\s*responsable\s*:\s*([^\r\n]+)/i);
-  return match ? cleanText(match[1]) : '';
+  return match ? String(match[1] || '').trim() : '';
 }
 
 function availabilityStatusPriority(row){

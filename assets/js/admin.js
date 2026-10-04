@@ -498,7 +498,7 @@ function decodeFirestoreFields(fields){
 async function loadCollectionViaRest(collectionName){
   const user = auth?.currentUser;
   if (!user) throw new Error('Session administrateur absente.');
-  const token = await user.getIdToken();
+  const token = await user.getIdToken(true);
   const projectId = firebaseConfig.projectId;
   const endpoint = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents/${encodeURIComponent(collectionName)}?pageSize=1000`;
   const response = await Promise.race([
@@ -554,6 +554,25 @@ async function loadCollection(){
 
   if (collectionName === 'stats') {
     await renderStats();
+    return;
+  }
+
+  if (collectionName === 'reservations') {
+    recordsEl.innerHTML = '<p>Chargement direct et sécurisé des réservations…</p>';
+    try{
+      const snap = await loadCollectionViaRest(collectionName);
+      if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
+      applyCollectionSnapshot(snap, collectionName, false);
+    }catch(error){
+      if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
+      console.error('Chargement direct des réservations:', error);
+      const rawMessage = String(error?.message || 'Erreur Firebase inconnue');
+      const safeMessage = esc(rawMessage.slice(0, 420));
+      const denied = /403|permission|autorisation/i.test(rawMessage);
+      recordsEl.innerHTML = `<div class="msg"><strong>${denied ? 'Firebase refuse l’accès aux réservations.' : 'Firebase ne répond pas correctement.'}</strong><br><small>Diagnostic : ${safeMessage}</small><br><button class="btn secondary" type="button" data-retry-admin-load>Réessayer</button></div>`;
+      recordsEl.querySelector('[data-retry-admin-load]')?.addEventListener('click', () => loadCollection());
+      setAdminStatus(denied ? 'Accès aux réservations refusé par les règles Firebase.' : 'Échec du chargement direct Firebase.', true);
+    }
     return;
   }
 
@@ -712,7 +731,8 @@ async function loadProgrammeChoices(){
         capacity: Number(programme.capacity || 0),
         waitlistLimit: Number(programme.waitlistLimit || programme.capacity || 0)
       }));
-    if (currentCollection === 'reservations') renderRows();
+    // Le catalogue est mémorisé, mais ne relance jamais le rendu avant
+    // l’arrivée effective des réservations.
   }catch(error){
     console.warn('Groupes disponibles:', error);
     setAdminStatus('Catalogue des groupes indisponible. Réessayez en rechargeant la page.', true);

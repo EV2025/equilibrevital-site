@@ -467,7 +467,6 @@ function applyCollectionSnapshot(snap, collectionName, realtime = true){
   updateActivityOptions();
   renderRows();
   renderSummary();
-  scheduleAvailabilityPublish();
   const time = new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
   setAdminStatus(`${realtime ? 'Synchronisé en temps réel' : 'Données chargées'} · ${time}`);
 }
@@ -713,10 +712,7 @@ async function loadProgrammeChoices(){
         capacity: Number(programme.capacity || 0),
         waitlistLimit: Number(programme.waitlistLimit || programme.capacity || 0)
       }));
-    if (currentCollection === 'reservations') {
-      renderRows();
-      scheduleAvailabilityPublish();
-    }
+    if (currentCollection === 'reservations') renderRows();
   }catch(error){
     console.warn('Groupes disponibles:', error);
     setAdminStatus('Catalogue des groupes indisponible. Réessayez en rechargeant la page.', true);
@@ -804,9 +800,9 @@ async function publishProgrammeAvailability({silent = true} = {}){
 }
 
 function scheduleAvailabilityPublish(){
-  if (currentCollection !== 'reservations' || !programmeChoices.length || !rows.length) return;
-  clearTimeout(availabilityPublishTimer);
-  availabilityPublishTimer = setTimeout(() => publishProgrammeAvailability({silent:true}), 900);
+  // La mise à jour automatique est volontairement désactivée.
+  // Elle reste disponible uniquement via le bouton administrateur afin de ne
+  // jamais bloquer la lecture des réservations.
 }
 
 function reservationActivity(r){

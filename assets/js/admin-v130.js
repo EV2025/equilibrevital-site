@@ -1,0 +1,1663 @@
+import { firebaseConfig, firebaseEnabled } from './firebase-config.js';
+
+const warning = document.getElementById('config-warning');
+const loginPanel = document.getElementById('login-panel');
+const dashboardPanel = document.getElementById('dashboard-panel');
+const adminLoadingPanel = document.getElementById('admin-loading-panel');
+const loginForm = document.getElementById('login-form');
+const loginMsg = document.getElementById('login-msg');
+const logoutBtn = document.getElementById('logout');
+const recordsEl = document.getElementById('records');
+const exportBtn = document.getElementById('export-csv');
+const attendanceExportBtn = document.getElementById('export-attendance');
+const publishAvailabilityBtn = document.getElementById('publish-availability');
+const seedBtn = document.getElementById('seed-pages');
+const seedSlotsBtn = document.getElementById('seed-slots');
+const seedServicesBtn = document.getElementById('seed-services');
+const collectionTitle = document.getElementById('collection-title');
+const summaryEl = document.getElementById('admin-summary');
+const adminSearch = document.getElementById('admin-search');
+const adminStatus = document.getElementById('admin-status');
+const adminRequestType = document.getElementById('admin-request-type');
+const adminRequestTypeLabel = document.getElementById('admin-request-type-label');
+const adminActivity = document.getElementById('admin-activity');
+const adminActivityLabel = document.getElementById('admin-activity-label');
+const adminSession = document.getElementById('admin-session');
+const adminDate = document.getElementById('admin-date');
+const adminResetFilters = document.getElementById('admin-reset-filters');
+const adminResultCount = document.getElementById('admin-result-count');
+const adminActionStatus = document.getElementById('admin-action-status');
+
+let auth, db;
+let currentCollection = 'stats';
+let rows = [];
+let duplicateReservationIds = new Set();
+let programmeChoices = [];
+let availabilityPublishTimer = null;
+let collectionLoadTimer = null;
+let collectionLoadSequence = 0;
+let modules = {};
+let unsub = null;
+let isVerifiedAdmin = false;
+const adminViewKey = 'pssrAdminViewV80';
+
+function saveAdminView(){
+  try{
+    sessionStorage.setItem(adminViewKey, JSON.stringify({
+      collection: currentCollection,
+      search: adminSearch?.value || '',
+      status: adminStatus?.value || '',
+      requestType: adminRequestType?.value || '',
+      activity: adminActivity?.value || '',
+      session: adminSession?.value || '',
+      date: adminDate?.value || ''
+    }));
+  }catch(_){ }
+}
+
+function restoreAdminView(){
+  try{
+    const state = JSON.parse(sessionStorage.getItem(adminViewKey) || '{}');
+    if (labels[state.collection]) currentCollection = state.collection;
+    if (adminSearch) adminSearch.value = state.search || '';
+    if (adminStatus) adminStatus.value = state.status || '';
+    if (adminRequestType) adminRequestType.value = state.requestType || '';
+    if (adminActivity) adminActivity.dataset.savedValue = state.activity || '';
+    if (adminSession) adminSession.value = state.session || '';
+    if (adminDate) adminDate.value = state.date || '';
+    document.querySelectorAll('.tab').forEach(button => button.classList.toggle('active', button.dataset.tab === currentCollection));
+  }catch(_){ }
+}
+
+function setAdminStatus(message, error = false){
+  if (!adminActionStatus) return;
+  adminActionStatus.textContent = message;
+  adminActionStatus.style.color = error ? '#9b2f2f' : '#356b42';
+}
+
+const labels = {
+  messages:'Demandes reçues',
+  reservations:'Réservations reçues',
+  pages:'Contenu des pages',
+  users:'Clients / membres',
+  services:'Services & tarifs',
+  slots:'Calendrier / créneaux',
+  payments:'Paiements — suivi manuel',
+  notifications:'Notifications internes',
+  attendances:'Présences',
+  emailLogs:'Préparations e-mail — non envoyées',
+  stats:'Statistiques',
+  consents:'Demandes RGPD',
+  refundRequests:'Demandes de remboursement'
+};
+
+function setMsg(text, ok = false){
+  loginMsg.hidden = false;
+  loginMsg.textContent = text;
+  loginMsg.style.color = ok ? '#356b42' : '#9b2f2f';
+}
+
+function fmtDate(v){
+  try { return v?.toDate ? v.toDate().toLocaleString('fr-BE') : (v || ''); }
+  catch { return ''; }
+}
+
+
+const fieldLabels = {
+  nom: 'Enfant / participant',
+  participantName: 'Enfant / participant',
+  childName: 'Nom de l’enfant',
+  parentName: 'Parent / responsable',
+  fullName: 'Nom complet',
+  displayName: 'Nom affiché',
+  firstName: 'Prénom',
+  lastName: 'Nom de famille',
+  email: 'E-mail',
+  tel: 'Téléphone',
+  phone: 'Téléphone',
+  subject: 'Sujet',
+  message: 'Message',
+  notes: 'Notes',
+  type: 'Type de demande',
+  status: 'Statut',
+  createdAt: 'Date de création',
+  updatedAt: 'Dernière mise à jour',
+  source: 'Page d’origine',
+  userAgent: 'Navigateur / appareil',
+  service: 'Service demandé',
+  serviceName: 'Service',
+  activity: 'Activité',
+  creneau: 'Activité ou créneau',
+  objectif: 'Objectif principal',
+  objectifs: 'Objectifs',
+  modules: 'Modules sélectionnés',
+  mutuelle: 'Mutuelle',
+  mutualite: 'Mutualité',
+  numeroMutuelle: 'Numéro de mutuelle',
+  numeroAffiliation: 'Numéro d’affiliation',
+  questions: 'Questions / demandes',
+  personneContact: 'Personne de contact',
+  fonction: 'Fonction',
+  typeStructure: 'Type de structure',
+  commune: 'Commune',
+  territoire: 'Commune / territoire',
+  publicConcerne: 'Public concerné',
+  publicAccompagne: 'Public accompagné',
+  typeAction: 'Action souhaitée',
+  periodeSouhaitee: 'Période souhaitée',
+  nombreParticipants: 'Nombre de participants',
+  nombrePersonnes: 'Nombre de personnes',
+  besoinPrincipal: 'Besoin principal',
+  objectifPrincipal: 'Objectif principal',
+  price: 'Prix',
+  priceLabel: 'Tarif',
+  day: 'Jour',
+  time: 'Horaire',
+  startTime: 'Heure de début',
+  endTime: 'Heure de fin',
+  public: 'Public',
+  capacity: 'Capacité',
+  active: 'Actif',
+  order: 'Ordre d’affichage',
+  slug: 'Identifiant de page',
+  title: 'Titre',
+  content: 'Contenu',
+  published: 'Publié',
+  reservationCode: 'Numéro de réservation',
+  messageCode: 'Numéro de suivi',
+  trackingCode: 'Référence de suivi',
+  consentCode: 'Référence document',
+  refundCode: 'Référence remboursement',
+  course: 'Cours concerné',
+  reason: 'Motif',
+  remarks: 'Remarques',
+  proofPath: 'Justificatif privé',
+  proofName: 'Nom du justificatif',
+  medicalProofPath: 'Attestation médicale privée',
+  medicalProofName: 'Nom de l’attestation médicale',
+  refundRate: 'Taux indicatif',
+  estimatedRefund: 'Remboursement estimé',
+  declarationAccepted: 'Déclaration sur l’honneur',
+  memberCode: 'Code membre',
+  uid: 'ID utilisateur',
+  role: 'Rôle',
+  level: 'Niveau PSSR',
+  paymentStatus: 'Statut paiement',
+
+  paymentReference: 'Référence paiement',
+  paymentMethod: 'Méthode de paiement',
+  paymentAmount: 'Montant paiement',
+  paymentAmountCents: 'Montant en cents',
+  paymentCurrency: 'Devise paiement',
+  paymentLabel: 'Libellé paiement',
+  bankBeneficiary: 'Bénéficiaire',
+  bankIban: 'IBAN',
+  bankBic: 'BIC',
+  qrFormat: 'Format QR',
+  epcPayload: 'Contenu QR SEPA/EPC',
+  communication: 'Communication',
+  beneficiary: 'Bénéficiaire',
+  iban: 'IBAN',
+  bic: 'BIC',
+  amountCents: 'Montant en cents',
+  amount: 'Montant',
+  method: 'Méthode',
+  consentRgpd: 'Consentement RGPD',
+  rgpdConsent: 'Consentement RGPD',
+  newsletterConsent: 'Consentement newsletter',
+  importedFrom: 'Source d’import',
+  slotId: 'ID du créneau',
+  reservationId: 'ID réservation',
+  attendanceStatus: 'Statut présence',
+  date: 'Date',
+  preferredDate: 'Date souhaitée',
+  preferredTime: 'Heure souhaitée',
+  documentUrl: 'Lien document',
+  documentTitle: 'Titre document',
+  teamMessage: 'Message équipe',
+  internalNote: 'Note interne',
+  doneDate: 'Date réalisée',
+  plannedDate: 'Date prévue',
+  currentStep: 'Étape actuelle',
+  session: 'Session',
+  transferHistory: 'Historique des changements de groupe'
+};
+
+const valueLabels = {
+  contact: 'Demande de contact',
+  'demande-ecoles-atl': 'Écoles & ATL',
+  'demande-institution-sociale': 'Institution sociale',
+  'demande-partenariat-local': 'Partenariat local',
+  reservation: 'Réservation',
+  nouveau: 'Nouveau',
+  nouvelle: 'Nouvelle',
+  reçu: 'Reçu',
+  'dossier reçu': 'Dossier reçu',
+  traité: 'Traité',
+  traitee: 'Traitée',
+  confirmée: 'Confirmée',
+  confirmee: 'Confirmée',
+  'liste attente': 'Liste d’attente',
+  annulée: 'Annulée',
+  annulee: 'Annulée',
+  payé: 'Payé',
+  paye: 'Payé',
+  'à relancer': 'À relancer',
+  'en attente de virement': 'En attente de virement',
+  'virement reçu': 'Virement reçu',
+  'non payé': 'Non payé',
+  actif: 'Actif',
+  inactif: 'Inactif',
+  member: 'Membre',
+  coach: 'Coach',
+  admin: 'Administrateur'
+};
+
+const technicalFields = new Set([
+  'userAgent',
+  'source',
+  'uid',
+  'slotId',
+  'reservationId',
+  'importedFrom',
+  'ownerUid',
+  'createdBy',
+  'updatedBy',
+  'epcPayload',
+  'proofPath',
+  'medicalProofPath'
+]);
+
+function labelForField(key){
+  return fieldLabels[key] || key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
+}
+
+function labelForValue(value){
+  if (typeof value === 'boolean') return value ? 'Oui' : 'Non';
+  if (typeof value === 'string') return valueLabels[value] || value;
+  return value;
+}
+
+function formatValue(key, value){
+  if (key === 'createdAt' || key === 'updatedAt' || key === 'date') return fmtDate(value);
+  const labelled = labelForValue(value);
+  if (Array.isArray(labelled)) return labelled.map(v => String(labelForValue(v))).join(', ');
+  if (labelled && typeof labelled === 'object') {
+    try { return JSON.stringify(labelled, null, 2); }
+    catch { return String(labelled); }
+  }
+  return labelled ?? '';
+}
+
+async function copyEmailAddress(email){
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(email);
+      return;
+    } catch (_) { /* Essayer la copie compatible avec les navigateurs plus anciens. */ }
+  }
+  const field = document.createElement('textarea');
+  field.value = email;
+  field.setAttribute('readonly', '');
+  field.style.position = 'fixed';
+  field.style.opacity = '0';
+  document.body.appendChild(field);
+  field.select();
+  try {
+    if (!document.execCommand('copy')) throw new Error('Clipboard unavailable');
+  } finally {
+    field.remove();
+  }
+}
+
+function emailWithCopy(value){
+  const email = String(value || '').trim();
+  if (!email) return '—';
+  return `<span class="admin-email-copy-v114"><a href="mailto:${esc(email)}">${esc(email)}</a><button type="button" data-copy-email="${esc(email)}" aria-label="Copier l’adresse e-mail">Copier</button></span>`;
+}
+
+function esc(v){
+  return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'}[c]));
+}
+
+async function init(){
+  if (!firebaseEnabled){
+    warning.hidden = false;
+    loginPanel.hidden = true;
+    return;
+  }
+
+  const [appMod, authMod, fsMod, storageMod] = await Promise.all([
+    import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),
+    import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),
+    import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),
+    import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js')
+  ]);
+  const app = appMod.initializeApp(firebaseConfig);
+  auth = authMod.getAuth(app);
+  try{
+    db = fsMod.initializeFirestore(app, {
+      experimentalForceLongPolling: true,
+      useFetchStreams: false
+    });
+  }catch(_){
+    db = fsMod.getFirestore(app);
+  }
+  modules = { ...authMod, ...fsMod, ...storageMod, storage: storageMod.getStorage(app) };
+
+  loginForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const fd = new FormData(loginForm);
+    const submit = loginForm.querySelector('button[type="submit"]');
+    submit.disabled = true;
+    submit.textContent = 'Connexion…';
+    try {
+      await modules.signInWithEmailAndPassword(auth, fd.get('email'), fd.get('password'));
+      setMsg('Vérification de l’accès administrateur…', true);
+    } catch(err) {
+      console.error(err);
+      setMsg('Connexion refusée. Vérifiez votre e-mail et votre mot de passe.');
+    } finally {
+      submit.disabled = false;
+      submit.textContent = 'Connexion';
+    }
+  });
+
+  logoutBtn.addEventListener('click', () => modules.signOut(auth));
+
+  document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+
+  recordsEl.addEventListener('click', async event => {
+    const copyButton = event.target.closest('[data-copy-email]');
+    if (copyButton) {
+      const email = copyButton.dataset.copyEmail;
+      if (!email) return;
+      try {
+        await copyEmailAddress(email);
+        copyButton.textContent = 'Copié !';
+        setAdminStatus('Adresse e-mail copiée.');
+        setTimeout(() => { if (copyButton.isConnected) copyButton.textContent = 'Copier'; }, 2000);
+      } catch (error) {
+        console.error('Copie e-mail:', error);
+        setAdminStatus('Copie impossible. Sélectionnez l’adresse e-mail pour la copier.', true);
+      }
+      return;
+    }
+    const actionButton = event.target.closest('[data-action]');
+    if (!actionButton) return;
+    actionButton.disabled = true;
+    setAdminStatus('Action en cours…');
+    try{
+      await handleRecordAction(event);
+    }catch(err){
+      console.error('Admin action failed:', err);
+      const denied = err?.code === 'permission-denied';
+      setAdminStatus(denied ? 'Action refusée par les règles Firebase. Publiez les règles Firestore à jour.' : 'Action impossible. Vérifiez votre connexion et réessayez.', true);
+    }finally{
+      actionButton.disabled = false;
+    }
+  });
+  [adminSearch, adminStatus, adminRequestType, adminActivity, adminSession, adminDate].forEach(el => el?.addEventListener('input', () => {
+    saveAdminView();
+    renderRows();
+  }));
+  adminResetFilters?.addEventListener('click', () => {
+    [adminSearch, adminStatus, adminRequestType, adminActivity, adminSession, adminDate].forEach(el => { if (el) el.value = ''; });
+    saveAdminView();
+    renderRows();
+    setAdminStatus('Filtres effacés.');
+  });
+  attendanceExportBtn?.addEventListener('click', exportAttendanceSheet);
+  publishAvailabilityBtn?.addEventListener('click', () => publishProgrammeAvailability({silent:false}));
+  seedBtn?.addEventListener('click', seedPages);
+  seedSlotsBtn?.addEventListener('click', seedSlots);
+  seedServicesBtn?.addEventListener('click', seedServices);
+
+  modules.onAuthStateChanged(auth, async user => {
+    if (!user){
+      isVerifiedAdmin = false;
+      if (adminLoadingPanel) adminLoadingPanel.hidden = true;
+      loginPanel.hidden = false;
+      dashboardPanel.hidden = true;
+      logoutBtn.hidden = true;
+      rows = [];
+      if (unsub) unsub();
+      return;
+    }
+
+    loginPanel.hidden = true;
+    dashboardPanel.hidden = true;
+    if (adminLoadingPanel) adminLoadingPanel.hidden = false;
+    logoutBtn.hidden = false;
+    try{
+      const access = await modules.getDoc(modules.doc(db, 'admins', user.uid));
+      if (!access.exists()) throw new Error('not-admin');
+      isVerifiedAdmin = true;
+      restoreAdminView();
+      if (adminLoadingPanel) adminLoadingPanel.hidden = true;
+      dashboardPanel.hidden = false;
+      setAdminStatus('Session administrateur active.');
+      loadCollection();
+      loadProgrammeChoices();
+    }catch(err){
+      console.error('Admin access denied:', err);
+      isVerifiedAdmin = false;
+      if (adminLoadingPanel) adminLoadingPanel.hidden = true;
+      loginPanel.hidden = false;
+      dashboardPanel.hidden = true;
+      setMsg('Ce compte ne dispose pas d’un accès administrateur.');
+      await modules.signOut(auth);
+    }
+  });
+}
+
+function titleForRow(r){
+  return r.nom || r.fullName || r.displayName || r.activity || r.serviceName || r.title || r.email || r.reservationCode || r.slug || r.id;
+}
+
+function orderFieldFor(collectionName){
+  if (collectionName === 'slots' || collectionName === 'services') return ['order','asc'];
+  if (collectionName === 'stats') return null;
+  return ['createdAt','desc'];
+}
+
+function applyCollectionSnapshot(snap, collectionName, realtime = true){
+  rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  duplicateReservationIds = collectionName === 'reservations' ? findDuplicateReservations(rows) : new Set();
+  updateActivityOptions();
+  renderRows();
+  renderSummary();
+  const time = new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
+  setAdminStatus(`${realtime ? 'Synchronisé en temps réel' : 'Données chargées'} · ${time}`);
+}
+
+function adminLoadTimeout(milliseconds, message = 'Délai de connexion Firebase dépassé.'){
+  return new Promise((_, reject) => setTimeout(() => reject(new Error(message)), milliseconds));
+}
+
+function decodeFirestoreValue(value){
+  if (!value || typeof value !== 'object') return null;
+  if ('nullValue' in value) return null;
+  if ('stringValue' in value) return value.stringValue;
+  if ('booleanValue' in value) return value.booleanValue;
+  if ('integerValue' in value) return Number(value.integerValue);
+  if ('doubleValue' in value) return Number(value.doubleValue);
+  if ('timestampValue' in value) return value.timestampValue;
+  if ('referenceValue' in value) return value.referenceValue;
+  if ('bytesValue' in value) return value.bytesValue;
+  if ('geoPointValue' in value) return value.geoPointValue;
+  if ('arrayValue' in value) return (value.arrayValue.values || []).map(decodeFirestoreValue);
+  if ('mapValue' in value) return decodeFirestoreFields(value.mapValue.fields || {});
+  return null;
+}
+
+function decodeFirestoreFields(fields){
+  return Object.fromEntries(Object.entries(fields || {}).map(([key, value]) => [key, decodeFirestoreValue(value)]));
+}
+
+async function loadCollectionViaRest(collectionName){
+  const user = auth?.currentUser;
+  if (!user) throw new Error('Session administrateur absente.');
+  const token = await user.getIdToken(true);
+  const projectId = firebaseConfig.projectId;
+  const endpoint = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents/${encodeURIComponent(collectionName)}?pageSize=1000`;
+  const response = await Promise.race([
+    fetch(endpoint, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }),
+    adminLoadTimeout(12000, 'La lecture directe de Firebase a expiré.')
+  ]);
+  if (!response.ok){
+    const details = await response.text().catch(() => '');
+    throw new Error(`Firebase REST ${response.status}: ${details.slice(0, 240)}`);
+  }
+  const payload = await response.json();
+  const documents = Array.isArray(payload.documents) ? payload.documents : [];
+  const docs = documents.map(document => ({
+    id: String(document.name || '').split('/').pop(),
+    data: () => decodeFirestoreFields(document.fields || {})
+  }));
+  docs.sort((left, right) => {
+    const a = Date.parse(left.data().createdAt || '') || 0;
+    const b = Date.parse(right.data().createdAt || '') || 0;
+    return b - a;
+  });
+  return { docs };
+}
+
+async function loadCollectionFallback(collectionName, sequence){
+  if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
+  recordsEl.innerHTML = '<p>Connexion Firebase lente… seconde tentative en cours.</p>';
+  try{
+    const snap = await loadCollectionViaRest(collectionName);
+    if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
+    applyCollectionSnapshot(snap, collectionName, false);
+  }catch(error){
+    if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
+    console.error('Admin fallback load:', error);
+    recordsEl.innerHTML = '<div class="msg"><strong>Les réservations ne peuvent pas être chargées pour le moment.</strong><br>La connexion à Firebase ne répond pas. Rechargez la page, puis utilisez le bouton ci-dessous si nécessaire.<br><button class="btn secondary" type="button" data-retry-admin-load>Réessayer le chargement</button></div>';
+    recordsEl.querySelector('[data-retry-admin-load]')?.addEventListener('click', () => loadCollection());
+    setAdminStatus('Connexion Firebase indisponible ou trop lente.', true);
+  }
+}
+
+async function loadCollection(){
+  if (!isVerifiedAdmin) return;
+  const collectionName = currentCollection;
+  const sequence = ++collectionLoadSequence;
+  if (collectionLoadTimer) clearTimeout(collectionLoadTimer);
+  if (unsub) unsub();
+  collectionTitle.textContent = labels[collectionName] || collectionName;
+  if (adminRequestTypeLabel) adminRequestTypeLabel.hidden = collectionName !== 'messages';
+  if (attendanceExportBtn) attendanceExportBtn.hidden = collectionName !== 'reservations';
+  if (publishAvailabilityBtn) publishAvailabilityBtn.hidden = collectionName !== 'reservations';
+  recordsEl.innerHTML = '<p>Chargement des données Firebase…</p>';
+  summaryEl.innerHTML = '';
+
+  if (collectionName === 'stats') {
+    await renderStats();
+    return;
+  }
+
+  if (collectionName === 'reservations') {
+    recordsEl.innerHTML = '<p>Chargement direct et sécurisé des réservations…</p>';
+    try{
+      const snap = await loadCollectionViaRest(collectionName);
+      if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
+      applyCollectionSnapshot(snap, collectionName, false);
+    }catch(error){
+      if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
+      console.error('Chargement direct des réservations:', error);
+      const rawMessage = String(error?.message || 'Erreur Firebase inconnue');
+      const safeMessage = esc(rawMessage.slice(0, 420));
+      const denied = /403|permission|autorisation/i.test(rawMessage);
+      recordsEl.innerHTML = `<div class="msg"><strong>${denied ? 'Firebase refuse l’accès aux réservations.' : 'Firebase ne répond pas correctement.'}</strong><br><small>Diagnostic : ${safeMessage}</small><br><button class="btn secondary" type="button" data-retry-admin-load>Réessayer</button></div>`;
+      recordsEl.querySelector('[data-retry-admin-load]')?.addEventListener('click', () => loadCollection());
+      setAdminStatus(denied ? 'Accès aux réservations refusé par les règles Firebase.' : 'Échec du chargement direct Firebase.', true);
+    }
+    return;
+  }
+
+  const order = orderFieldFor(collectionName);
+  let q;
+  try {
+    q = order ? modules.query(modules.collection(db, collectionName), modules.orderBy(order[0], order[1])) : modules.collection(db, collectionName);
+  } catch {
+    q = modules.collection(db, collectionName);
+  }
+
+  collectionLoadTimer = setTimeout(() => loadCollectionFallback(collectionName, sequence), 3500);
+  unsub = modules.onSnapshot(q, snap => {
+    if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
+    if (collectionLoadTimer) clearTimeout(collectionLoadTimer);
+    applyCollectionSnapshot(snap, collectionName, true);
+  }, err => {
+    if (sequence !== collectionLoadSequence || currentCollection !== collectionName) return;
+    if (collectionLoadTimer) clearTimeout(collectionLoadTimer);
+    console.error('Admin realtime sync:', err);
+    const denied = String(err?.code || '').includes('permission-denied');
+    if (denied){
+      recordsEl.innerHTML = '<p class="msg">Accès Firebase refusé. Les règles Firestore publiées doivent être mises à jour.</p>';
+      setAdminStatus('Synchronisation refusée par Firebase.', true);
+      return;
+    }
+    loadCollectionFallback(collectionName, sequence);
+  });
+}
+
+function findDuplicateReservations(reservations){
+  const groups = new Map();
+  for (const row of reservations){
+    if (/annul|abandon/i.test(String(row.status || ''))) continue;
+    const name = normalized(reservationParticipantName(row)).replace(/[^a-z0-9]+/g, ' ').trim();
+    const activity = normalized(reservationActivity(row)).replace(/[^a-z0-9]+/g, ' ').trim();
+    if (!name || !activity) continue;
+    const date = rowDateISO(row.createdAt);
+    const year = date ? Number(date.slice(0, 4)) - (Number(date.slice(5, 7)) < 9 ? 1 : 0) : '';
+    const key = [year, name, activity].join('|');
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(row.id);
+  }
+  return new Set([...groups.values()].filter(ids => ids.length > 1).flat());
+}
+
+function renderSummary(){
+  if (!rows.length) { summaryEl.innerHTML = ''; return; }
+  if (currentCollection === 'messages') {
+    const schools = rows.filter(row => row.type === 'demande-ecoles-atl').length;
+    const institutions = rows.filter(row => row.type === 'demande-institution-sociale').length;
+    const partnerships = rows.filter(row => row.type === 'demande-partenariat-local').length;
+    const other = rows.length - schools - institutions - partnerships;
+    summaryEl.innerHTML = `<div class="admin-summary">
+      <div class="metric"><strong>${rows.length}</strong><span>Total des demandes</span></div>
+      <div class="metric"><strong>${schools}</strong><span>Écoles &amp; ATL</span></div>
+      <div class="metric"><strong>${institutions}</strong><span>Institutions sociales</span></div>
+      <div class="metric"><strong>${partnerships}</strong><span>Partenariats locaux</span></div>
+      <div class="metric"><strong>${other}</strong><span>Autres messages</span></div>
+    </div>`;
+    return;
+  }
+  if (currentCollection === 'payments') {
+    const count = part => rows.filter(r => part.test(normalized(r.paymentStatus || r.status || ''))).length;
+    const pending = count(/attente|non paye/);
+    const received = count(/virement recu/);
+    const paid = count(/^paye$/);
+    const relaunch = count(/relancer/);
+    summaryEl.innerHTML = `<div class="admin-summary">
+      <div class="metric"><strong>${rows.length}</strong><span>Total</span></div>
+      <div class="metric"><strong>${pending}</strong><span>En attente</span></div>
+      <div class="metric"><strong>${received}</strong><span>Virement reçu</span></div>
+      <div class="metric"><strong>${paid}</strong><span>Payés</span></div>
+      <div class="metric"><strong>${relaunch}</strong><span>À relancer</span></div>
+    </div><p class="secondary-muted">Les virements sont vérifiés manuellement avant de marquer un paiement comme reçu ou payé.</p>`;
+    return;
+  }
+  const total = rows.length;
+  const nouveau = rows.filter(r => /nou|reçu|recu/i.test(String(r.status || '').toLowerCase())).length;
+  const traite = rows.filter(r => /trait|confirm|pay/i.test(String(r.status || r.paymentStatus || ''))).length;
+  const waiting = currentCollection === 'reservations' ? rows.filter(isWaitlistReservation).length : 0;
+  summaryEl.innerHTML = `<div class="admin-summary"><div class="metric"><strong>${total}</strong><span>Total</span></div><div class="metric"><strong>${nouveau}</strong><span>Nouveaux / reçus</span></div><div class="metric"><strong>${traite}</strong><span>Traités / confirmés</span></div>${currentCollection === 'reservations' ? `<div class="metric"><strong>${waiting}</strong><span>Liste d’attente</span></div><div class="metric"><strong>${duplicateReservationIds.size}</strong><span>Doublons à vérifier</span></div>` : ''}</div>`;
+}
+
+function actionsFor(r){
+  const statusCollections = ['messages','reservations','refundRequests','payments','notifications','services','slots'];
+  const deletableCollections = ['messages','reservations','refundRequests','users','attendances','payments','notifications','emailLogs','consents','pages','services','slots'];
+  if (!statusCollections.includes(currentCollection) && !deletableCollections.includes(currentCollection)) return '';
+  const b = [];
+  if (currentCollection === 'messages') {
+    b.push(['traité','Marquer traité'], ['reçu','Remettre reçu']);
+  }
+  if (currentCollection === 'reservations') {
+    b.push(['confirmée','Confirmer'], ['liste attente','Liste d’attente'], ['annulée','Annuler']);
+  }
+  if (currentCollection === 'payments') {
+    b.push(['payé','Marquer payé'], ['à relancer','À relancer']);
+  }
+  if (currentCollection === 'refundRequests') {
+    b.push(['en cours','Mettre en cours'], ['approuvé','Approuver'], ['refusé','Refuser'], ['remboursé','Marquer remboursé']);
+  }
+  if (currentCollection === 'notifications') {
+    b.push(['lu','Marquer lu'], ['à traiter','À traiter']);
+  }
+  if (currentCollection === 'services' || currentCollection === 'slots') {
+    b.push([r.active === false ? 'actif' : 'inactif', r.active === false ? 'Activer' : 'Désactiver']);
+  }
+  const updateButtons = b.map(([value,label]) => `<button type="button" data-action="status" data-id="${esc(r.id)}" data-value="${esc(value)}">${esc(label)}</button>`).join('');
+  const deleteLabels = {
+    messages:'Supprimer la demande',
+    reservations:'Supprimer la réservation',
+    users:'Supprimer la fiche membre',
+    attendances:'Supprimer la présence',
+    payments:'Supprimer le suivi paiement',
+    refundRequests:'Supprimer la demande de remboursement',
+    notifications:'Supprimer la notification',
+    emailLogs:'Supprimer le journal',
+    consents:'Supprimer la demande RGPD',
+    pages:'Supprimer le contenu',
+    services:'Supprimer le service',
+    slots:'Supprimer le créneau'
+  };
+  const proofButton = currentCollection === 'refundRequests' && r.proofPath
+    ? `<button type="button" data-action="view-proof" data-id="${esc(r.id)}">Voir le justificatif</button>`
+    : '';
+  const medicalProofButton = currentCollection === 'refundRequests' && r.medicalProofPath
+    ? `<button type="button" data-action="view-medical-proof" data-id="${esc(r.id)}">Voir l’attestation médicale</button>`
+    : '';
+  const deleteButton = deletableCollections.includes(currentCollection)
+    ? `<button type="button" class="danger" data-action="delete" data-id="${esc(r.id)}">${esc(deleteLabels[currentCollection] || 'Supprimer')}</button>`
+    : '';
+  return `<div class="status-actions">${proofButton}${medicalProofButton}${updateButtons}${deleteButton}</div>`;
+}
+
+
+function normalized(v){ return String(v ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function rowSearchText(r){ return normalized(Object.values(r).map(v => Array.isArray(v) ? v.join(' ') : (v && typeof v === 'object' && !v.toDate ? JSON.stringify(v) : String(formatValue('', v)))).join(' ')); }
+function rowDateISO(v){
+  try{
+    const d = v?.toDate ? v.toDate() : (v ? new Date(v) : null);
+    if (!d || Number.isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0,10);
+  }catch{return '';}
+}
+async function loadProgrammeChoices(){
+  try{
+    const response = await fetch('../assets/data/programmes-v84.json?v=20261001-121', {credentials:'same-origin'});
+    if (!response.ok) throw new Error('Catalogue indisponible');
+    const data = await response.json();
+    programmeChoices = (data.programmes || [])
+      .filter(programme => programme.registrationOpen !== false && programme.reservationLabel)
+      .map(programme => ({
+        id: programme.id,
+        label: programme.reservationLabel,
+        modules: programme.modulesLabel || programme.name || programme.reservationLabel,
+        capacity: Number(programme.capacity || 0),
+        waitlistLimit: Number(programme.waitlistLimit || programme.capacity || 0)
+      }));
+    // Le catalogue est mémorisé, mais ne relance jamais le rendu avant
+    // l’arrivée effective des réservations.
+  }catch(error){
+    console.warn('Groupes disponibles:', error);
+    setAdminStatus('Catalogue des groupes indisponible. Réessayez en rechargeant la page.', true);
+  }
+}
+
+
+function isWaitlistReservation(row){
+  const status = normalized(row?.status || '');
+  const mode = normalized(row?.registrationMode || '');
+  const note = normalized(row?.message || row?.objectif || '');
+  return /liste attente/.test(status) || mode === 'waitlist' || /\[liste d.attente\]/.test(note);
+}
+
+function reservationParentName(row){
+  const direct = String(row?.parentName || row?.parentGuardianName || '').trim();
+  if (direct) return direct;
+  const note = String(row?.message || '');
+  const match = note.match(/Parent\s*\/\s*responsable\s*:\s*([^\r\n]+)/i);
+  return match ? String(match[1] || '').trim() : '';
+}
+
+function availabilityStatusPriority(row){
+  const status = normalized(row.status || '');
+  if (/annul|abandon/.test(status)) return 0;
+  if (isWaitlistReservation(row)) return 1;
+  return 2;
+}
+
+function programmeRows(choice){
+  const byParticipant = new Map();
+  for (const row of rows){
+    const activity = normalized(reservationActivity(row));
+    const matches = row.programmeId === choice.id
+      || (activity && (
+        activity === normalized(choice.label)
+        || activity.includes(normalized(choice.label))
+        || normalized(choice.label).includes(activity)
+      ));
+    if (!matches || availabilityStatusPriority(row) === 0) continue;
+    const participantKey = attendanceNameKey(row) || `reservation-${row.id}`;
+    const previous = byParticipant.get(participantKey);
+    if (!previous || availabilityStatusPriority(row) > availabilityStatusPriority(previous)) {
+      byParticipant.set(participantKey, row);
+    }
+  }
+  return [...byParticipant.values()];
+}
+
+async function publishProgrammeAvailability({silent = true} = {}){
+  if (!isVerifiedAdmin || currentCollection !== 'reservations' || !programmeChoices.length) return;
+  if (publishAvailabilityBtn && !silent){
+    publishAvailabilityBtn.disabled = true;
+    publishAvailabilityBtn.textContent = 'Actualisation…';
+  }
+  try{
+    const programmes = {};
+    for (const choice of programmeChoices){
+      const programmeReservations = programmeRows(choice);
+      const waiting = programmeReservations.filter(isWaitlistReservation).length;
+      const registered = programmeReservations.length - waiting;
+      programmes[choice.id] = {
+        label: choice.label,
+        capacity: choice.capacity,
+        waitlistLimit: choice.waitlistLimit || choice.capacity,
+        registered,
+        waiting
+      };
+    }
+    await modules.setDoc(modules.doc(db, 'settings', 'programmeAvailability'), {
+      programmes,
+      updatedAt: modules.serverTimestamp(),
+      updatedBy: auth.currentUser?.uid || ''
+    });
+    if (!silent) setAdminStatus('Compteurs publics actualisés à partir des inscriptions réelles.');
+  }catch(error){
+    console.error('Compteurs publics:', error);
+    if (!silent) setAdminStatus('Impossible d’actualiser les compteurs publics. Vérifiez les règles Firebase.', true);
+  }finally{
+    if (publishAvailabilityBtn && !silent){
+      publishAvailabilityBtn.disabled = false;
+      publishAvailabilityBtn.textContent = 'Actualiser les compteurs publics';
+    }
+  }
+}
+
+function scheduleAvailabilityPublish(){
+  // La mise à jour automatique est volontairement désactivée.
+  // Elle reste disponible uniquement via le bouton administrateur afin de ne
+  // jamais bloquer la lecture des réservations.
+}
+
+function reservationActivity(r){
+  const value = r.creneau || r.activity || r.serviceName || r.service || r.modules;
+  return Array.isArray(value) ? value.join(', ') : String(value ?? '').trim();
+}
+
+function updateActivityOptions(){
+  if (!adminActivity || !adminActivityLabel) return;
+  adminActivityLabel.hidden = currentCollection !== 'reservations';
+  if (currentCollection !== 'reservations') return;
+  const selected = adminActivity.dataset.savedValue ?? adminActivity.value;
+  const activities = [...new Set(rows.map(reservationActivity).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, 'fr'));
+  adminActivity.replaceChildren(new Option('Toutes les activités', ''),
+    ...activities.map(activity => new Option(activity, activity)));
+  adminActivity.value = activities.includes(selected) ? selected : '';
+  delete adminActivity.dataset.savedValue;
+}
+
+function applyAdminFilters(inputRows){
+  const q = normalized(adminSearch?.value || '');
+  const st = normalized(adminStatus?.value || '');
+  const requestType = currentCollection === 'messages' ? normalized(adminRequestType?.value || '') : '';
+  const activity = currentCollection === 'reservations' ? normalized(adminActivity?.value || '') : '';
+  const session = normalized(adminSession?.value || '');
+  const date = adminDate?.value || '';
+  return inputRows.filter(r => {
+    if (q && !rowSearchText(r).includes(q)) return false;
+    const effectiveStatus = currentCollection === 'reservations' && isWaitlistReservation(r)
+      ? 'liste attente'
+      : normalized(r.status || r.paymentStatus || '');
+    if (st && !normalized(effectiveStatus).includes(st)) return false;
+    if (requestType && normalized(r.type || '') !== requestType) return false;
+    if (activity && normalized(reservationActivity(r)) !== activity) return false;
+    if (session && !normalized(r.session || r.sessionName || '').includes(session)) return false;
+    if (date && rowDateISO(r.createdAt || r.date) !== date) return false;
+    return true;
+  });
+}
+
+function renderRows(){
+  const filteredRows = applyAdminFilters(rows);
+  if (adminResultCount) adminResultCount.textContent = filteredRows.length + ' résultat' + (filteredRows.length > 1 ? 's' : '') + ' sur ' + rows.length;
+  if (!filteredRows.length){
+    recordsEl.innerHTML = rows.length ? '<p>Aucun résultat avec ces filtres.</p>' : '<p>Aucune donnée pour cette collection.</p>';
+    return;
+  }
+
+  if (currentCollection === 'reservations' || currentCollection === 'users') {
+    recordsEl.innerHTML = renderAdminTable(filteredRows);
+    return;
+  }
+  if (currentCollection === 'payments') {
+    recordsEl.innerHTML = renderPaymentsTable(filteredRows);
+    return;
+  }
+
+  recordsEl.innerHTML = filteredRows.map(r => renderRecordCard(r)).join('');
+}
+
+function renderRecordCard(r){
+  const title = titleForRow(r);
+  const requestBadge = currentCollection === 'messages' && r.type
+    ? `<p class="eyebrow">${esc(labelForValue(r.type))}</p>`
+    : '';
+  const entries = Object.entries(r).filter(([k]) => k !== 'id');
+  const visibleEntries = entries.filter(([k]) => !technicalFields.has(k));
+  const technicalEntries = entries.filter(([k]) => technicalFields.has(k));
+  const visibleHtml = visibleEntries.map(([k,v]) =>
+    `<dt>${esc(currentCollection === 'messages' && k === 'nom' ? 'Nom de la structure' : labelForField(k))}</dt><dd>${k === 'email' ? emailWithCopy(v) : esc(formatValue(k, v))}</dd>`
+  ).join('');
+  const technicalHtml = technicalEntries.length ?
+    `<details class="technical-details"><summary>Détails techniques</summary><dl>${technicalEntries.map(([k,v]) => `<dt>${esc(labelForField(k))}</dt><dd>${esc(formatValue(k, v))}</dd>`).join('')}<dt>ID du document</dt><dd>${esc(r.id)}</dd></dl></details>` :
+    `<details class="technical-details"><summary>Détails techniques</summary><dl><dt>ID du document</dt><dd>${esc(r.id)}</dd></dl></details>`;
+  return `<article class="record">${requestBadge}<h3>${esc(title)}</h3><dl>${visibleHtml}</dl>${technicalHtml}${actionsFor(r)}</article>`;
+}
+
+function renderPaymentsTable(paymentRows){
+  const headers = ['Référence','Personne','Montant','État du virement','Date','Suivi'];
+  const body = paymentRows.map(r => {
+    const reference = r.paymentReference || r.communication || r.reservationCode || r.id;
+    const amount = r.amount || (Number.isFinite(Number(r.amountCents)) ? (Number(r.amountCents) / 100).toFixed(2) : '—');
+    const currency = r.currency || 'EUR';
+    const status = r.paymentStatus || r.status || 'en attente de virement';
+    const actions = [
+      ['virement reçu','Virement reçu'],
+      ['payé','Marquer payé'],
+      ['à relancer','À relancer']
+    ].filter(([value]) => value !== status)
+      .map(([value, label]) => `<button type="button" data-action="status" data-id="${esc(r.id)}" data-value="${esc(value)}">${esc(label)}</button>`).join('');
+    return `<tr>
+      <td data-label="Référence"><code>${esc(reference)}</code></td>
+      <td data-label="Personne"><strong>${esc(r.nom || '—')}</strong>${emailWithCopy(r.email)}</td>
+      <td data-label="Montant"><strong>${esc(amount)} ${esc(currency)}</strong></td>
+      <td data-label="État du virement"><span class="status-pill">${esc(labelForValue(status))}</span>${String(r.source || '').includes('annoncé') ? '<small class="admin-payment-declared-v116">Déclaré par le participant · à vérifier</small>' : ''}</td>
+      <td data-label="Date">${esc(fmtDate(r.createdAt) || '—')}</td>
+      <td data-label="Suivi"><div class="admin-payment-actions-v116">${actions}</div>
+        <details class="admin-payment-details-v116"><summary>Informations complémentaires</summary>
+          <dl>
+            <div><dt>Réservation</dt><dd>${esc(r.reservationCode || r.reservationId || '—')}</dd></div>
+            <div><dt>Libellé</dt><dd>${esc(r.label || '—')}</dd></div>
+            <div><dt>Communication</dt><dd><code>${esc(r.communication || reference)}</code></dd></div>
+            <div><dt>Compte bénéficiaire</dt><dd><code>${esc(r.iban || '—')}</code></dd></div>
+          </dl>
+        </details>
+      </td>
+    </tr>`;
+  }).join('');
+  return `<div class="admin-table-wrap"><table class="admin-table admin-payments-table-v116"><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+function renderAdminTable(tableRows){
+  const isReservations = currentCollection === 'reservations';
+  const headers = isReservations
+    ? ['ID réservation','Nom','E-mail','Téléphone','Activité','Session','Montant','Référence paiement','Statut','Paiement','Création','Gestion']
+    : ['ID client','Nom','E-mail','Téléphone','Session','Statut','Création','Gestion'];
+  const body = tableRows.map(r => {
+    const idLabel = r.reservationCode || r.messageCode || r.memberCode || r.trackingCode || r.id;
+    const name = reservationParticipantName(r) || '—';
+    const parentName = reservationParentName(r) || '—';
+    const email = r.email || '—';
+    const phone = r.tel || r.phone || r.telephone || '—';
+    const session = r.session || r.sessionName || '—';
+    const status = isReservations && isWaitlistReservation(r)
+      ? 'liste attente'
+      : (r.status || (isReservations ? 'en attente' : 'inscrit'));
+    const paymentStatus = r.paymentStatus || '—';
+    const paymentAmount = r.paymentAmount || r.amount || r.priceAmount || '';
+    const paymentCurrency = r.paymentCurrency || r.currency || r.priceCurrency || 'EUR';
+    const paymentReference = r.paymentReference || r.communication || r.reservationCode || r.trackingCode || '—';
+    const paymentAmountLabel = paymentAmount ? `${paymentAmount} ${paymentCurrency}` : '—';
+    const created = fmtDate(r.createdAt) || '—';
+    return `<tr>
+      <td data-label="${isReservations ? 'ID réservation' : 'ID client'}"><code>${esc(idLabel)}</code></td>
+      <td data-label="Enfant / participant">${esc(name)}${isReservations && parentName !== '—' ? `<small style="display:block;margin-top:4px;color:#665f70">Parent : ${esc(parentName)}</small>` : ''}${isReservations && duplicateReservationIds.has(r.id) ? '<span class="admin-duplicate-v115">Doublon possible</span>' : ''}</td>
+      <td data-label="E-mail">${emailWithCopy(email === '—' ? '' : email)}</td>
+      <td data-label="Téléphone">${esc(phone)}</td>
+      ${isReservations ? `<td data-label="Activité">${esc(reservationActivity(r) || '—')}<details class="admin-transfer-details-v113"><summary>Changer de groupe</summary>${renderTransferControl(r)}</details></td>` : ''}
+      <td data-label="Session">${esc(session)}</td>
+      ${isReservations ? `<td data-label="Montant">${esc(paymentAmountLabel)}</td><td data-label="Référence paiement"><code>${esc(paymentReference)}</code></td>` : ''}
+      <td data-label="Statut"><span class="status-pill">${esc(labelForValue(status))}</span></td>
+      ${isReservations ? `<td data-label="Paiement"><span class="status-pill">${esc(labelForValue(paymentStatus))}</span></td>` : ''}
+      <td data-label="Création">${esc(created)}</td>
+      <td data-label="Gestion">${renderManagementPanel(r, isReservations)}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+function renderFullRecordDetails(r){
+  const preferredOrder = [
+    'nom','fullName','firstName','lastName','email','tel','phone','telephone',
+    'creneau','activity','service','serviceName','objectif','objectifs','modules',
+    'mutuelle','mutualite','numeroMutuelle','numeroAffiliation','questions','message',
+    'session','preferredDate','preferredTime','status','paymentStatus','paymentAmount',
+    'paymentCurrency','paymentReference','rgpdConsent','createdAt','updatedAt','source'
+  ];
+  const excluded = new Set(['id','payment','epcPayload','userAgent','ownerUid','createdBy','updatedBy']);
+  const rank = key => {
+    const index = preferredOrder.indexOf(key);
+    return index === -1 ? preferredOrder.length : index;
+  };
+  const entries = Object.entries(r)
+    .filter(([key, value]) => !excluded.has(key) && value !== '' && value !== null && value !== undefined)
+    .sort(([a], [b]) => rank(a) - rank(b) || a.localeCompare(b, 'fr'));
+
+  if (!entries.length) return '<p class="secondary-muted">Aucune information complémentaire.</p>';
+
+  return `<details class="full-record-v81">
+    <summary>Voir la fiche complète</summary>
+    <dl>${entries.map(([key, value]) => `<div><dt>${esc(labelForField(key))}</dt><dd>${esc(formatValue(key, value))}</dd></div>`).join('')}</dl>
+  </details>`;
+}
+
+function renderTransferControl(r){
+  if (!programmeChoices.length) return '<div class="admin-transfer-v111"><strong>Changer de groupe</strong><p>Chargement des groupes disponibles…</p></div>';
+  const current = reservationActivity(r);
+  const options = programmeChoices.filter(choice => choice.label !== current);
+  if (!options.length) return '<div class="admin-transfer-v111"><strong>Changer de groupe</strong><p>Aucun autre groupe ouvert actuellement.</p></div>';
+  return `<div class="admin-transfer-v111">
+    <strong>Changer de groupe</strong>
+    <p>Groupe actuel : ${esc(current || 'Non renseigné')}</p>
+    <label>Nouveau groupe
+      <select data-transfer-group aria-label="Nouveau groupe pour ${esc(titleForRow(r))}">
+        <option value="">Choisir un groupe</option>
+        ${options.map(choice => `<option value="${esc(choice.label)}">${esc(choice.label)}</option>`).join('')}
+      </select>
+    </label>
+    <button type="button" data-action="transfer-group" data-id="${esc(r.id)}">Confirmer le transfert</button>
+  </div>`;
+}
+
+function renderManagementPanel(r, isReservation){
+  const steps = ['CAND','ARF','BSS','PDS','APA','CPE','SRS'];
+  const statuses = ['reçu','inscrit','en cours','terminé','abandonné','en attente','confirmée','annulée'];
+  const paymentStatuses = ['en attente de virement','virement reçu','payé','non payé','à relancer'];
+  return `<div class="record-tools-v81">${renderFullRecordDetails(r)}<details class="management-panel"><summary>Gérer le suivi</summary>
+    <div class="quick-status-v80">
+      <select aria-label="Choisir le statut" data-status-choice>${statuses.map(st => `<option value="${esc(st)}" ${String(r.status || '') === st ? 'selected' : ''}>${esc(labelForValue(st))}</option>`).join('')}</select>
+      <button data-action="status-choice" data-id="${esc(r.id)}">Appliquer</button>
+    </div>
+    <div class="management-grid" data-id="${esc(r.id)}">
+      <label>Étape<select data-field="currentStep">${steps.map(s=>`<option ${String(r.currentStep||r.journeyLevel||'CAND')===s?'selected':''}>${s}</option>`).join('')}</select></label>
+      <label>Date prévue<input data-field="plannedDate" type="date" value="${esc(r.plannedDate || '')}"></label>
+      <label>Date réalisée<input data-field="doneDate" type="date" value="${esc(r.doneDate || '')}"></label>
+      ${isReservation ? `<label>Statut paiement<select data-field="paymentStatus">${paymentStatuses.map(st=>`<option ${String(r.paymentStatus||'en attente de virement')===st?'selected':''}>${st}</option>`).join('')}</select></label>` : ''}
+      ${isReservation ? `<div class="full payment-admin-summary-v1"><strong>Virement</strong><br>Montant : ${esc(r.paymentAmount || r.amount || r.priceAmount || '—')} ${esc(r.paymentCurrency || r.currency || r.priceCurrency || 'EUR')}<br>Référence : <code>${esc(r.paymentReference || r.communication || r.reservationCode || r.trackingCode || '—')}</code><br>IBAN : <code>${esc(r.bankIban || r.iban || '—')}</code></div>` : ''}
+      <label class="full">Note interne<textarea data-field="internalNote" rows="2" placeholder="Note visible uniquement par l’équipe">${esc(r.internalNote || '')}</textarea></label>
+      <label class="full">Message au participant<textarea data-field="teamMessage" rows="2" placeholder="Message à préparer pour le participant">${esc(r.teamMessage || '')}</textarea></label>
+      <label>Titre document<input data-field="documentTitle" placeholder="Ex. Attestation" value="${esc(r.documentTitle || '')}"></label>
+      <label>Lien document<input data-field="documentUrl" placeholder="https://…" value="${esc(r.documentUrl || '')}"></label>
+    </div>
+    <div class="mini-actions"><button type="button" data-action="save-followup" data-id="${esc(r.id)}">Enregistrer le suivi</button><button type="button" data-action="notify" data-id="${esc(r.id)}">Créer une notification interne</button><button type="button" class="danger" data-action="delete" data-id="${esc(r.id)}">Supprimer</button></div>
+    <p class="secondary-muted">Cette action crée une notification interne et une entrée dans le journal d’e-mails. Elle ne prétend pas qu’un e-mail a été envoyé sans service SMTP sécurisé.</p>
+  </details></div>`;
+}
+
+async function handleRecordAction(e){
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  if (!id) return;
+  if (action === 'view-proof' || action === 'view-medical-proof') {
+    const row = rows.find(item => item.id === id) || {};
+    const privatePath = action === 'view-medical-proof' ? row.medicalProofPath : row.proofPath;
+    if (!privatePath) return;
+    btn.disabled = true;
+    try{
+      const url = await modules.getDownloadURL(modules.ref(modules.storage, privatePath));
+      window.open(url, '_blank', 'noopener,noreferrer');
+      setAdminStatus('Justificatif ouvert dans un nouvel onglet sécurisé.');
+    }catch(error){
+      console.error('Refund proof:', error);
+      setAdminStatus('Impossible d’ouvrir le justificatif. Vérifiez les règles Firebase Storage.', true);
+    }finally{ btn.disabled = false; }
+    return;
+  }
+  if (action === 'transfer-group') {
+    if (currentCollection !== 'reservations') return;
+    const row = rows.find(item => item.id === id);
+    const selected = btn.closest('.admin-transfer-v111')?.querySelector('[data-transfer-group]')?.value || '';
+    const destination = programmeChoices.find(choice => choice.label === selected);
+    if (!row || !destination) {
+      setAdminStatus('Choisissez un groupe ouvert pour effectuer le transfert.', true);
+      return;
+    }
+    const previous = reservationActivity(row);
+    if (previous === destination.label) return;
+    const participant = titleForRow(row) || row.reservationCode || id;
+    if (!window.confirm(`Transférer ${participant} de « ${previous || 'Non renseigné'} » vers « ${destination.label} » ?`)) return;
+    const patch = {
+      creneau: destination.label,
+      modules: destination.modules,
+      updatedAt: modules.serverTimestamp(),
+      transferHistory: modules.arrayUnion({
+        from: previous,
+        to: destination.label,
+        changedAt: new Date().toISOString(),
+        changedBy: auth.currentUser?.uid || ''
+      })
+    };
+    if (row.activity) patch.activity = destination.label;
+    await modules.updateDoc(modules.doc(db, 'reservations', id), patch);
+    setAdminStatus(`Transfert enregistré pour ${participant}. Vérifiez la place disponible dans le nouveau groupe.`);
+    return;
+  }
+  if (action === 'save-followup') {
+    const panel = btn.closest('.management-panel');
+    const patch = { updatedAt: modules.serverTimestamp() };
+    panel?.querySelectorAll('[data-field]').forEach(field => {
+      patch[field.dataset.field] = field.value || '';
+    });
+    await modules.updateDoc(modules.doc(db, currentCollection, id), patch);
+    setAdminStatus('Suivi enregistré et synchronisé.');
+    return;
+  }
+  if (action === 'notify') {
+    const panel = btn.closest('.management-panel');
+    const row = rows.find(x => x.id === id) || {};
+    const message = panel?.querySelector('[data-field="teamMessage"]')?.value || '';
+    const createdAt = modules.serverTimestamp();
+    const reservationCode = row.reservationCode || row.messageCode || row.trackingCode || '';
+    const batch = modules.writeBatch(db);
+    const notificationRef = modules.doc(modules.collection(db, 'notifications'));
+    const emailLogRef = modules.doc(modules.collection(db, 'emailLogs'));
+    batch.set(notificationRef, {
+      type: 'participant-notification',
+      status: 'à traiter',
+      email: row.email || '',
+      reservationId: id,
+      reservationCode,
+      message,
+      createdAt
+    });
+    batch.set(emailLogRef, {
+      type: 'participant-notification',
+      status: 'to_send',
+      email: row.email || '',
+      reservationId: id,
+      reservationCode,
+      notificationId: notificationRef.id,
+      message,
+      createdAt
+    });
+    await batch.commit();
+    setAdminStatus('Notification interne enregistrée. Aucun e-mail n’est annoncé comme envoyé.');
+    return;
+  }
+  if (action === 'delete') {
+    const row = rows.find(item => item.id === id) || {};
+    const itemName = titleForRow(row) || id;
+    const collectionName = labels[currentCollection] || currentCollection;
+    const memberWarning = currentCollection === 'users'
+      ? '\n\nLa fiche Firestore sera supprimée, mais le compte de connexion Firebase Authentication restera actif.'
+      : '';
+    if (!confirm(`Supprimer définitivement « ${itemName} » de ${collectionName} ?${memberWarning}\n\nCette action est irréversible.`)) return;
+    if (currentCollection === 'refundRequests' && row.proofPath) {
+      try{ await modules.deleteObject(modules.ref(modules.storage, row.proofPath)); }
+      catch(error){
+        if (error?.code !== 'storage/object-not-found') throw error;
+      }
+    }
+    if (currentCollection === 'refundRequests' && row.medicalProofPath) {
+      try{ await modules.deleteObject(modules.ref(modules.storage, row.medicalProofPath)); }
+      catch(error){ if (error?.code !== 'storage/object-not-found') throw error; }
+    }
+    await modules.deleteDoc(modules.doc(db, currentCollection, id));
+    setAdminStatus('Élément supprimé. Le tableau a été synchronisé.');
+    return;
+  }
+  if (action === 'status' || action === 'status-choice') {
+    const value = action === 'status-choice'
+      ? btn.closest('.management-panel')?.querySelector('[data-status-choice]')?.value
+      : btn.dataset.value;
+    if (!value) return;
+    const patch = { updatedAt: modules.serverTimestamp() };
+    if (currentCollection === 'payments') patch.paymentStatus = value;
+    else if (currentCollection === 'services' || currentCollection === 'slots') patch.active = value === 'actif';
+    else patch.status = value;
+    await modules.updateDoc(modules.doc(db, currentCollection, id), patch);
+    setAdminStatus('Statut mis à jour.');
+  }
+}
+
+function csvCell(value){
+  let text = String(value ?? '');
+  if (/^[=+@-]/.test(text)) text = `'${text}`;
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function reservationParticipantName(row){
+  const splitName = [row.firstName, row.lastName]
+    .map(value => String(value || '').trim())
+    .filter(Boolean)
+    .join(' ');
+  return String(row.participantName || row.childName || splitName || row.nom || row.fullName || row.displayName || '').trim();
+}
+
+function attendanceNameKey(row){
+  return normalized(reservationParticipantName(row))
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function attendancePriority(row){
+  const status = normalized(row.status || '');
+  if (/confirme|inscrit|en cours/.test(status)) return 3;
+  if (/recu|nouveau|attente/.test(status)) return 2;
+  return 1;
+}
+
+function deduplicateAttendanceRows(inputRows){
+  const unique = new Map();
+  let duplicates = 0;
+  let excluded = 0;
+
+  for (const row of inputRows){
+    if (/annul|abandon/.test(normalized(row.status || ''))){
+      excluded++;
+      continue;
+    }
+    const nameKey = attendanceNameKey(row);
+    const activityKey = normalized(reservationActivity(row)).replace(/[^a-z0-9]+/g, ' ').trim();
+    const key = nameKey ? `${nameKey}|${activityKey}` : `reservation-unique-${row.id}`;
+    const previous = unique.get(key);
+    if (!previous){
+      unique.set(key, row);
+      continue;
+    }
+    duplicates++;
+    if (attendancePriority(row) > attendancePriority(previous)) unique.set(key, row);
+  }
+
+  return {
+    rows: [...unique.values()].sort((a, b) =>
+      reservationParticipantName(a).localeCompare(reservationParticipantName(b), 'fr', {sensitivity:'base'})
+    ),
+    duplicates,
+    excluded
+  };
+}
+
+function filenamePart(value){
+  return normalized(value || 'toutes-activites')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'toutes-activites';
+}
+
+function loadAttendanceLogo(){
+  return new Promise(resolve => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => resolve(null);
+    image.src = '../wp-content/uploads/2025/09/equilibre-vital-logo-transparent.png';
+  });
+}
+
+function fitCanvasText(ctx, value, maxWidth){
+  const text = String(value ?? '').trim();
+  if (!text || ctx.measureText(text).width <= maxWidth) return text;
+  let fitted = text;
+  while (fitted.length > 1 && ctx.measureText(fitted + '…').width > maxWidth) fitted = fitted.slice(0, -1);
+  return fitted + '…';
+}
+
+function jpegBytes(dataUrl){
+  const binary = atob(dataUrl.split(',')[1]);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
+  return bytes;
+}
+
+function buildImagePdf(pageImages, canvasWidth, canvasHeight){
+  const encoder = new TextEncoder();
+  const chunks = [];
+  const offsets = [];
+  let length = 0;
+  const append = value => {
+    const bytes = typeof value === 'string' ? encoder.encode(value) : value;
+    chunks.push(bytes);
+    length += bytes.length;
+  };
+  const object = (number, parts) => {
+    offsets[number] = length;
+    append(`${number} 0 obj\n`);
+    for (const part of parts) append(part);
+    append('\nendobj\n');
+  };
+
+  const pageWidth = 841.89;
+  const pageHeight = 595.28;
+  const objectCount = 2 + pageImages.length * 3;
+  append('%PDF-1.4\n');
+
+  object(1, ['<< /Type /Catalog /Pages 2 0 R >>']);
+  const pageReferences = pageImages.map((_, index) => `${3 + index * 3} 0 R`).join(' ');
+  object(2, [`<< /Type /Pages /Kids [${pageReferences}] /Count ${pageImages.length} >>`]);
+
+  pageImages.forEach((imageBytes, index) => {
+    const pageObject = 3 + index * 3;
+    const imageObject = pageObject + 1;
+    const contentObject = pageObject + 2;
+    const content = `q ${pageWidth} 0 0 ${pageHeight} 0 0 cm /Im0 Do Q`;
+
+    object(pageObject, [
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] `,
+      `/Resources << /XObject << /Im0 ${imageObject} 0 R >> >> /Contents ${contentObject} 0 R >>`
+    ]);
+    object(imageObject, [
+      `<< /Type /XObject /Subtype /Image /Width ${canvasWidth} /Height ${canvasHeight} `,
+      `/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imageBytes.length} >>\nstream\n`,
+      imageBytes,
+      '\nendstream'
+    ]);
+    object(contentObject, [
+      `<< /Length ${encoder.encode(content).length} >>\nstream\n${content}\nendstream`
+    ]);
+  });
+
+  const xrefOffset = length;
+  append(`xref\n0 ${objectCount + 1}\n`);
+  append('0000000000 65535 f \n');
+  for (let number = 1; number <= objectCount; number++){
+    append(String(offsets[number]).padStart(10, '0') + ' 00000 n \n');
+  }
+  append(`trailer\n<< /Size ${objectCount + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`);
+  return new Blob(chunks, {type:'application/pdf'});
+}
+
+function createAttendancePdfPages(attendanceRows, logo, metadata){
+  const width = 1754;
+  const height = 1240;
+  const margin = 72;
+  const top = 292;
+  const headerHeight = 64;
+  const rowHeight = 52;
+  const footerHeight = 62;
+  const rowsPerPage = Math.floor((height - top - headerHeight - footerHeight) / rowHeight);
+  const columns = [
+    {key:'number', label:'N°', width:48, align:'center'},
+    {key:'name', label:'Enfant / participant', width:220},
+    {key:'parent', label:'Parent / responsable', width:190},
+    {key:'activity', label:'Activité / groupe', width:230},
+    {key:'phone', label:'Téléphone', width:140},
+    {key:'email', label:'E-mail', width:190},
+    {key:'present', label:'Présent(e)', width:90, align:'center'},
+    {key:'absent', label:'Absent(e)', width:90, align:'center'},
+    {key:'exit', label:'Sortie / heure', width:130, align:'center'},
+    {key:'remark', label:'Signature / remarque', width:282}
+  ];
+  const totalPages = Math.ceil(attendanceRows.length / rowsPerPage);
+  const pages = [];
+
+  for (let pageIndex = 0; pageIndex < totalPages; pageIndex++){
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = '#071c49';
+    ctx.fillRect(0, 0, width, 22);
+    ctx.fillStyle = '#00aeb5';
+    ctx.fillRect(0, 22, width, 9);
+
+    if (logo) {
+      const ratio = Math.min(130 / logo.width, 130 / logo.height);
+      const logoWidth = logo.width * ratio;
+      const logoHeight = logo.height * ratio;
+      ctx.drawImage(logo, margin, 55, logoWidth, logoHeight);
+    }
+
+    ctx.fillStyle = '#071c49';
+    ctx.font = '700 42px Arial, sans-serif';
+    ctx.fillText('FICHE DE PRÉSENCE', 270, 92);
+    ctx.fillStyle = '#e7007f';
+    ctx.font = '700 25px Arial, sans-serif';
+    ctx.fillText('ÉQUILIBRE VITAL ASBL', 270, 132);
+    ctx.fillStyle = '#526077';
+    ctx.font = '20px Arial, sans-serif';
+    ctx.fillText('Liste générée depuis le tableau de bord administratif', 270, 168);
+
+    const boxY = 205;
+    const boxGap = 18;
+    const boxWidth = (width - margin * 2 - boxGap * 2) / 3;
+    const boxes = [
+      ['ACTIVITÉ', metadata.activity || 'Toutes les activités'],
+      ['SESSION', metadata.session || 'Non précisée'],
+      ['DATE DE LA SÉANCE', '____ / ____ / ______']
+    ];
+    boxes.forEach((box, index) => {
+      const x = margin + index * (boxWidth + boxGap);
+      ctx.fillStyle = index === 0 ? '#eaf9fa' : '#f4f1fb';
+      ctx.fillRect(x, boxY, boxWidth, 66);
+      ctx.strokeStyle = index === 0 ? '#00aeb5' : '#d8d0ea';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, boxY, boxWidth, 66);
+      ctx.fillStyle = '#526077';
+      ctx.font = '700 14px Arial, sans-serif';
+      ctx.fillText(box[0], x + 16, boxY + 21);
+      ctx.fillStyle = '#1f1730';
+      ctx.font = '700 20px Arial, sans-serif';
+      ctx.fillText(fitCanvasText(ctx, box[1], boxWidth - 32), x + 16, boxY + 49);
+    });
+
+    let x = margin;
+    ctx.fillStyle = '#071c49';
+    ctx.fillRect(margin, top, width - margin * 2, headerHeight);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '700 17px Arial, sans-serif';
+    columns.forEach(column => {
+      const textWidth = ctx.measureText(column.label).width;
+      const textX = column.align === 'center' ? x + (column.width - textWidth) / 2 : x + 12;
+      ctx.fillText(column.label, textX, top + 40);
+      x += column.width;
+    });
+
+    const pageRows = attendanceRows.slice(pageIndex * rowsPerPage, (pageIndex + 1) * rowsPerPage);
+    pageRows.forEach((row, rowIndex) => {
+      const y = top + headerHeight + rowIndex * rowHeight;
+      ctx.fillStyle = rowIndex % 2 ? '#f8f9fc' : '#ffffff';
+      ctx.fillRect(margin, y, width - margin * 2, rowHeight);
+      ctx.strokeStyle = '#d9dee8';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(margin, y, width - margin * 2, rowHeight);
+
+      const values = {
+        number: pageIndex * rowsPerPage + rowIndex + 1,
+        name: reservationParticipantName(row) || 'Nom non renseigné',
+        parent: reservationParentName(row),
+        activity: reservationActivity(row),
+        phone: row.tel || row.phone || row.telephone || '',
+        email: row.email || ''
+      };
+      x = margin;
+      columns.forEach(column => {
+        ctx.strokeStyle = '#d9dee8';
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x, y + rowHeight);
+        ctx.stroke();
+        if (column.key === 'present' || column.key === 'absent'){
+          const size = 23;
+          ctx.strokeStyle = '#526077';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x + (column.width - size) / 2, y + (rowHeight - size) / 2, size, size);
+        } else if (column.key === 'exit') {
+          ctx.fillStyle = '#526077';
+          ctx.font = '16px Arial, sans-serif';
+          const exitPlaceholder = '____ : ____';
+          ctx.fillText(exitPlaceholder, x + (column.width - ctx.measureText(exitPlaceholder).width) / 2, y + 33);
+        } else if (column.key !== 'remark') {
+          ctx.fillStyle = '#1f2937';
+          ctx.font = column.key === 'name' ? '700 17px Arial, sans-serif' : '16px Arial, sans-serif';
+          const value = fitCanvasText(ctx, values[column.key], column.width - 24);
+          const measured = ctx.measureText(value).width;
+          const textX = column.align === 'center' ? x + (column.width - measured) / 2 : x + 12;
+          ctx.fillText(value, textX, y + 33);
+        }
+        x += column.width;
+      });
+    });
+
+    const footerY = height - 34;
+    ctx.fillStyle = '#526077';
+    ctx.font = '15px Arial, sans-serif';
+    ctx.fillText('www.equilibrevital.be', margin, footerY);
+    const summary = `${attendanceRows.length} participant${attendanceRows.length > 1 ? 's' : ''} unique${attendanceRows.length > 1 ? 's' : ''}`;
+    const summaryWidth = ctx.measureText(summary).width;
+    ctx.fillText(summary, (width - summaryWidth) / 2, footerY);
+    const pageLabel = `Page ${pageIndex + 1} / ${totalPages}`;
+    ctx.fillText(pageLabel, width - margin - ctx.measureText(pageLabel).width, footerY);
+
+    pages.push(jpegBytes(canvas.toDataURL('image/jpeg', 0.94)));
+  }
+  return {pages, width, height};
+}
+
+async function exportAttendanceSheet(){
+  if (currentCollection !== 'reservations'){
+    setAdminStatus('Ouvrez les réservations pour créer une fiche de présence.', true);
+    return;
+  }
+
+  const filteredRows = applyAdminFilters(rows);
+  const attendance = deduplicateAttendanceRows(filteredRows);
+  if (!attendance.rows.length){
+    setAdminStatus('Aucune inscription active à placer sur la fiche avec les filtres actuels.', true);
+    return;
+  }
+
+  const selectedActivity = adminActivity?.value || 'Toutes les activités';
+  const selectedSession = adminSession?.value || '';
+  const previousText = attendanceExportBtn?.textContent || 'Télécharger la fiche de présence';
+  if (attendanceExportBtn){
+    attendanceExportBtn.disabled = true;
+    attendanceExportBtn.textContent = 'Préparation du PDF…';
+  }
+  setAdminStatus('Création de la fiche de présence…');
+
+  try{
+    const logo = await loadAttendanceLogo();
+    const pdfPages = createAttendancePdfPages(attendance.rows, logo, {
+      activity: selectedActivity,
+      session: selectedSession
+    });
+    const pdf = buildImagePdf(pdfPages.pages, pdfPages.width, pdfPages.height);
+    const link = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 10);
+    link.href = URL.createObjectURL(pdf);
+    link.download = `fiche-presence-${filenamePart(selectedActivity)}-${stamp}.pdf`;
+    link.click();
+    setAdminStatus(
+      attendance.rows.length + ' participant' + (attendance.rows.length > 1 ? 's uniques exportés' : ' unique exporté') +
+      (attendance.duplicates ? ` · ${attendance.duplicates} doublon${attendance.duplicates > 1 ? 's' : ''} retiré${attendance.duplicates > 1 ? 's' : ''}` : '') +
+      (attendance.excluded ? ` · ${attendance.excluded} inscription${attendance.excluded > 1 ? 's' : ''} annulée${attendance.excluded > 1 ? 's' : ''} exclue${attendance.excluded > 1 ? 's' : ''}` : '') +
+      '.'
+    );
+    setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+  }catch(error){
+    console.error('Création de la fiche de présence:', error);
+    setAdminStatus('La fiche PDF n’a pas pu être créée. Réessayez après avoir actualisé la page.', true);
+  }finally{
+    if (attendanceExportBtn){
+      attendanceExportBtn.disabled = false;
+      attendanceExportBtn.textContent = previousText;
+    }
+  }
+}
+
+exportBtn.addEventListener('click', () => {
+  const exportRows = applyAdminFilters(rows);
+  if (!exportRows.length){
+    setAdminStatus('Aucune ligne à exporter avec les filtres actuels.', true);
+    return;
+  }
+  const keys = [...new Set(exportRows.flatMap(r => Object.keys(r)))];
+  const csv = [
+    keys.map(k => csvCell(currentCollection === 'messages' && k === 'nom' ? 'Nom de la structure' : labelForField(k))).join(';'),
+    ...exportRows.map(r => keys.map(k => csvCell(formatValue(k, r[k]))).join(';'))
+  ].join('\r\n');
+  const blob = new Blob(['\uFEFF', csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0, 10);
+  a.href = URL.createObjectURL(blob);
+  a.download = `${currentCollection}-equilibre-vital-${stamp}.csv`;
+  a.click();
+  setAdminStatus(exportRows.length + ' ligne' + (exportRows.length > 1 ? 's exportées.' : ' exportée.'));
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+});
+
+async function seedPages(){
+  seedBtn.disabled = true;
+  seedBtn.textContent = 'Import en cours…';
+  try{
+    const response = await fetch('../data/pages-extracted.json');
+    const pages = await response.json();
+    let count = 0;
+    for (const page of pages){
+      const id = page.slug || `page-${page.id}`;
+      await modules.setDoc(modules.doc(db, 'pages', id), {
+        ...page,
+        importedFrom: 'wordpress-export',
+        updatedAt: modules.serverTimestamp()
+      }, { merge: true });
+      count++;
+    }
+    switchTab('pages');
+    alert(`${count} pages importées ou mises à jour dans Firestore.`);
+  }catch(err){
+    console.error(err);
+    alert('Import impossible. Vérifiez que vous êtes admin et que les règles Firestore sont installées.');
+  }finally{
+    seedBtn.disabled = false;
+    seedBtn.textContent = 'Importer le contenu WordPress';
+  }
+}
+
+async function seedSlots(){
+  seedSlotsBtn.disabled = true;
+  seedSlotsBtn.textContent = 'Import créneaux…';
+  try{
+    const response = await fetch('../data/slots-seed.json');
+    const slots = await response.json();
+    let count = 0;
+    for (const slot of slots){
+      await modules.setDoc(modules.doc(db, 'slots', slot.id), {
+        ...slot,
+        importedFrom: 'phase2a-seed',
+        updatedAt: modules.serverTimestamp()
+      }, { merge: true });
+      count++;
+    }
+    switchTab('slots');
+    alert(`${count} créneaux importés ou mis à jour dans Firestore.`);
+  }catch(err){
+    console.error(err);
+    alert('Import impossible. Vérifiez que vous êtes admin et que les règles Firestore Phase 2A sont publiées.');
+  }finally{
+    seedSlotsBtn.disabled = false;
+    seedSlotsBtn.textContent = 'Importer les créneaux officiels';
+  }
+}
+
+async function seedServices(){
+  seedServicesBtn.disabled = true;
+  seedServicesBtn.textContent = 'Import services…';
+  try{
+    const response = await fetch('../data/services-seed.json');
+    const services = await response.json();
+    let count = 0;
+    for (const service of services){
+      await modules.setDoc(modules.doc(db, 'services', service.id), {
+        ...service,
+        updatedAt: modules.serverTimestamp()
+      }, { merge: true });
+      count++;
+    }
+    switchTab('services');
+    alert(`${count} services importés ou mis à jour dans Firestore.`);
+  }catch(err){
+    console.error(err);
+    alert('Import impossible. Vérifiez les règles Firestore V3.');
+  }finally{
+    seedServicesBtn.disabled = false;
+    seedServicesBtn.textContent = 'Importer services & tarifs';
+  }
+}
+
+function switchTab(tab){
+  if (!labels[tab]) return;
+  currentCollection = tab;
+  if (adminActivityLabel) adminActivityLabel.hidden = tab !== 'reservations';
+  if (adminRequestTypeLabel) adminRequestTypeLabel.hidden = tab !== 'messages';
+  if (attendanceExportBtn) attendanceExportBtn.hidden = tab !== 'reservations';
+  if (publishAvailabilityBtn) publishAvailabilityBtn.hidden = tab !== 'reservations';
+  saveAdminView();
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  loadCollection();
+}
+
+async function countCollection(name){
+  try{
+    const ref = modules.collection(db, name);
+    if (typeof modules.getCountFromServer === 'function'){
+      const aggregate = await modules.getCountFromServer(ref);
+      return aggregate.data().count;
+    }
+    const snap = await modules.getDocs(ref);
+    return snap.size;
+  }catch { return '—'; }
+}
+
+async function renderStats(){
+  const names = ['messages','reservations','refundRequests','users','attendances','consents','payments'];
+  const values = await Promise.all(names.map(countCollection));
+  const counts = Object.fromEntries(names.map((name, index) => [name, values[index]]));
+  summaryEl.innerHTML = '';
+  recordsEl.innerHTML = `<div class="admin-summary">
+    <div class="metric"><strong>${counts.messages}</strong><span>Messages</span></div>
+    <div class="metric"><strong>${counts.reservations}</strong><span>Réservations</span></div>
+    <div class="metric"><strong>${counts.refundRequests}</strong><span>Remboursements</span></div>
+    <div class="metric"><strong>${counts.users}</strong><span>Clients / membres</span></div>
+    <div class="metric"><strong>${counts.attendances}</strong><span>Présences</span></div>
+    <div class="metric"><strong>${counts.consents}</strong><span>Demandes RGPD</span></div>
+    <div class="metric"><strong>${counts.payments}</strong><span>Paiements suivis</span></div>
+  </div><p class="payment-note"><strong>Fonctionnement :</strong> les inscriptions restent gratuites techniquement. Les virements sont vérifiés manuellement, puis les données utiles peuvent être exportées vers Excel.</p>`;
+  rows = [];
+}
+
+init().catch(err => {
+  console.error(err);
+  warning.hidden = false;
+  warning.insertAdjacentHTML('beforeend', `<p class="msg">${esc(err.message)}</p>`);
+});

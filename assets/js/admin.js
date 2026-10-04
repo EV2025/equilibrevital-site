@@ -654,7 +654,7 @@ function renderSummary(){
   const nouveau = rows.filter(r => /nou|reçu|recu/i.test(String(r.status || '').toLowerCase())).length;
   const traite = rows.filter(r => /trait|confirm|pay/i.test(String(r.status || r.paymentStatus || ''))).length;
   const waiting = currentCollection === 'reservations' ? rows.filter(isWaitlistReservation).length : 0;
-  summaryEl.innerHTML = `<div class="admin-summary"><div class="metric"><strong>${total}</strong><span>Total</span></div><div class="metric"><strong>${nouveau}</strong><span>Nouveaux / reçus</span></div><div class="metric"><strong>${traite}</strong><span>Traités / confirmés</span></div>${currentCollection === 'reservations' ? `<div class="metric"><strong>${waiting}</strong><span>Liste d’attente</span></div><div class="metric"><strong>${duplicateReservationIds.size}</strong><span>Doublons à vérifier</span></div>` : ''}</div>`;
+  summaryEl.innerHTML = `<div class="admin-summary"><div class="metric"><strong>${total}</strong><span>Total</span></div><div class="metric"><strong>${nouveau}</strong><span>Nouveaux / reçus</span></div><div class="metric"><strong>${traite}</strong><span>Traités / confirmés</span></div>${currentCollection === 'reservations' ? `<div class="metric"><strong>${waiting}</strong><span>Liste d’attente</span></div>` : ''}</div>`;
 }
 
 function actionsFor(r){
@@ -958,7 +958,7 @@ function renderAdminTable(tableRows){
     const created = fmtDate(r.createdAt) || '—';
     return `<tr>
       <td data-label="${isReservations ? 'ID réservation' : 'ID client'}"><code>${esc(idLabel)}</code></td>
-      <td data-label="Enfant / participant">${esc(name)}${isReservations && parentName !== '—' ? `<small style="display:block;margin-top:4px;color:#665f70">Parent : ${esc(parentName)}</small>` : ''}${isReservations && duplicateReservationIds.has(r.id) ? '<span class="admin-duplicate-v115">Doublon possible</span>' : ''}</td>
+      <td data-label="Enfant / participant">${esc(name)}${isReservations && parentName !== '—' ? `<small style="display:block;margin-top:4px;color:#665f70">Parent : ${esc(parentName)}</small>` : ''}</td>
       <td data-label="E-mail">${emailWithCopy(email === '—' ? '' : email)}</td>
       <td data-label="Téléphone">${esc(phone)}</td>
       ${isReservations ? `<td data-label="Activité">${esc(reservationActivity(r) || '—')}<details class="admin-transfer-details-v113"><summary>Changer de groupe</summary>${renderTransferControl(r)}</details></td>` : ''}
